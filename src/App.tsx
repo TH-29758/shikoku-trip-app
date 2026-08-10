@@ -81,6 +81,9 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             <Link to="/links" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
               <span className="text-xl">🔗</span>各種リンク
             </Link>
+            <Link to="/etc" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
+              <span className="text-xl">📝</span>その他 (バス・雑記)
+            </Link>
           </nav>
         </div>
         <div className="text-center text-xs text-slate-500 border-t border-slate-700/50 pt-4">
@@ -119,8 +122,7 @@ function HeaderBar({ title }: { title: string }) {
 // ==========================================
 function Home() {
   const allEvents = [
-    { datetime: new Date('2026-09-24T07:50:00'), timeStr: '9/24 07:50', title: '神戸ノードにてクラスタ構築', desc: '集合完了' },
-    { datetime: new Date('2026-09-24T08:00:00'), timeStr: '9/24 08:00', title: '神戸プロセス起動', desc: 'レンタカー出発' },
+    { datetime: new Date('2026-09-24T08:00:00'), timeStr: '9/24 08:00', title: 'レンタカー出発', desc: 'オリックスレンタカー三宮駅前店集合 ＆ 出発' },
     { datetime: new Date('2026-09-24T09:30:00'), timeStr: '9/24 09:30', title: '淡路島到着', desc: '周辺環境の予備調査（サクッと観光）' },
     { datetime: new Date('2026-09-24T10:30:00'), timeStr: '9/24 10:30', title: '淡路島出発', desc: '鳴門へ移動' },
     { datetime: new Date('2026-09-24T11:00:00'), timeStr: '9/24 11:00', title: '鳴門到着', desc: 'エネルギー補給（昼食）' },
@@ -203,8 +205,7 @@ function Schedule() {
       date: "9月24日 (木)",
       title: "第1章：四国上陸・うどんプロトコル",
       items: [
-        { time: "07:50", title: "神戸ノードにてクラスタ構築", desc: "集合完了[cite: 1]" },
-        { time: "08:00", title: "神戸プロセス起動", desc: "レンタカー出発[cite: 1]" },
+        { time: "08:00", title: "レンタカー出発", desc: "オリックスレンタカー三宮駅前店集合 ＆ 出発" },
         { time: "09:30", title: "淡路島到着", desc: "周辺環境の予備調査（サクッと観光）[cite: 1]" },
         { time: "10:30", title: "淡路島出発", desc: "鳴門へ移動" },
         { time: "11:00", title: "鳴門到着", desc: "エネルギー補給（昼食）[cite: 1]" },
@@ -451,6 +452,42 @@ function LinksView() {
 }
 
 // ==========================================
+// ⑥ その他 (バス・雑記メモ) 画面 ★新設
+// ==========================================
+function EtcView() {
+  const [memo, setMemo] = useState(() => {
+    return localStorage.getItem("shikokuEtcMemo") || "ここにバスの時刻表や、臨時メモ、買い出しの担当などを自由に書き込んでください。";
+  });
+
+  const handleSave = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setMemo(val);
+    localStorage.setItem("shikokuEtcMemo", val);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+      <HeaderBar title="その他 (バス・雑記)" />
+      <div className="p-4 max-w-md mx-auto space-y-4">
+        <div className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700">
+          <h3 className="text-sm font-bold text-yellow-400 mb-1">🚌 バス情報・フリーメモ欄</h3>
+          <p className="text-xs text-slate-400 mb-3">
+            入力した内容は自動でスマホに保存されます（消すまで残ります）。
+          </p>
+          <textarea
+            value={memo}
+            onChange={handleSave}
+            rows={10}
+            className="w-full p-3 bg-slate-900 text-white rounded-xl border border-slate-700 text-xs focus:outline-none focus:border-blue-500 shadow-inner leading-relaxed resize-none"
+            placeholder="バスの時刻や持ち物など、雑にメモ..."
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
 // アプリ全体の枠組み
 // ==========================================
 export default function App() {
@@ -476,6 +513,7 @@ export default function App() {
           <Route path="/party" element={<Party />} />
           <Route path="/map" element={<MapView />} />
           <Route path="/links" element={<LinksView />} />
+          <Route path="/etc" element={<EtcView />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
