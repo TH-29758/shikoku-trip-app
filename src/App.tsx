@@ -85,8 +85,8 @@ function Home() {
     nextEvent = {
       datetime: new Date(), // ★この1行を追加（TypeScriptのエラー回避用ダミー）
       timeStr: '完了',
-      title: '全プロセスが終了しました',
-      desc: 'お疲れ様でした！解散！[cite: 1]'
+      title: '終了',
+      desc: '解散！[cite: 1]'
     };
   }
 
@@ -97,20 +97,12 @@ function Home() {
       {/* ヘッダーエリア */}
       <div className="bg-gradient-to-br from-indigo-600 to-blue-500 p-8 pt-16 pb-12 rounded-b-3xl shadow-lg relative">
         <p className="text-indigo-100 text-[10px] font-extrabold tracking-widest mb-1 uppercase">
-          Project : Shikoku Excursion 2026[cite: 1]
+          Project : Shikoku Excursion 2026.09.24-09.29
         </p>
-        <h1 className="text-3xl font-extrabold mb-2 tracking-tight">四国周遊クエスト</h1>
+        <h1 className="text-3xl font-extrabold mb-2 tracking-tight">四国旅</h1>
         <p className="text-indigo-200 text-xs mb-4">
-          実験日程：2026.09.24 (木) 〜 09.29 (火)[cite: 1]
+          日程：2026.09.24 (木) 〜 09.29 (火)
         </p>
-        <div className="flex items-center gap-2 mt-2">
-          <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-            3泊4日 (＋α)
-          </span>
-          <span className="bg-indigo-900/40 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-indigo-100">
-            総勢 10名体制[cite: 1]
-          </span>
-        </div>
       </div>
 
       {/* コンテンツエリア */}
@@ -120,17 +112,13 @@ function Home() {
         <div className="bg-white text-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
           <div className="flex justify-between items-center mb-1">
-            <p className="text-[10px] font-extrabold text-blue-600 tracking-wider uppercase">Next Action (Auto)</p>
+            <p className="text-[10px] font-extrabold text-blue-600 tracking-wider uppercase">Next Action</p>
             <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
               {nextEvent.timeStr}
             </span>
           </div>
           <h2 className="text-lg font-bold mb-1 text-slate-900">{nextEvent.title}</h2>
           <p className="text-xs text-slate-500 mb-3">{nextEvent.desc}</p>
-          <div className="flex items-center gap-2 text-xs text-slate-600 font-medium bg-slate-100 p-2.5 rounded-xl">
-            <span>🚗</span>
-            <span>ミニバン2台による並列移動方式[cite: 1]</span>
-          </div>
         </div>
 
         {/* ステータスウィジェット */}
