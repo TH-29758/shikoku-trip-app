@@ -106,17 +106,6 @@ function Home() {
           </div>
         </div>
 
-        {/* 土佐の洗礼（警告枠） */}
-        <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
-          <div className="flex items-center gap-1.5 text-yellow-400 font-bold text-sm">
-            <span>⚠️</span>
-            <span>高知（土佐）からのシステム警告</span>
-          </div>
-          <p className="text-slate-400 leading-relaxed">
-            『ひろめ市場』での過剰なアルコール摂取は、翌日の全プロセスをフリーズ（二日酔い）させる原因となる[cite: 1]。酒は飲んでも飲まれるな、おま「いごっそう」ぶってグラスを空けるのは計画的にお願いします。
-          </p>
-        </div>
-
         {/* 詳細リンクボタン */}
         <Link to="/schedule" className="block pt-2">
           <button className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600/50 rounded-2xl p-4 flex items-center justify-between transition-all shadow-md active:scale-95">
