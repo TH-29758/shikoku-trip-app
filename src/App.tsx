@@ -455,32 +455,15 @@ function LinksView() {
 // ⑥ その他 (バス・雑記メモ) 画面 ★新設
 // ==========================================
 function EtcView() {
-  const [memo, setMemo] = useState(() => {
-    return localStorage.getItem("shikokuEtcMemo") || "ここにバスの時刻表や、臨時メモ、買い出しの担当などを自由に書き込んでください。";
-  });
-
-  const handleSave = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-    setMemo(val);
-    localStorage.setItem("shikokuEtcMemo", val);
-  };
-
   return (
     <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
-      <HeaderBar title="その他 (バス・雑記)" />
+      <HeaderBar title="その他" />
       <div className="p-4 max-w-md mx-auto space-y-4">
         <div className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700">
-          <h3 className="text-sm font-bold text-yellow-400 mb-1">🚌 バス情報・フリーメモ欄</h3>
+          <h1 className="text-sm font-bold text-yellow-400 mb-1">🚌 バス情報・フリーメモ欄</h1>
           <p className="text-xs text-slate-400 mb-3">
             入力した内容は自動でスマホに保存されます（消すまで残ります）。
           </p>
-          <textarea
-            value={memo}
-            onChange={handleSave}
-            rows={10}
-            className="w-full p-3 bg-slate-900 text-white rounded-xl border border-slate-700 text-xs focus:outline-none focus:border-blue-500 shadow-inner leading-relaxed resize-none"
-            placeholder="バスの時刻や持ち物など、雑にメモ..."
-          />
         </div>
       </div>
     </div>
