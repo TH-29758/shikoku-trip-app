@@ -45,20 +45,63 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
 }
 
 // ==========================================
-// ① ホーム画面
+// ① ホーム画面（ネクストアクション自動切替機能付き）
 // ==========================================
 function Home() {
+  // 全スケジュールデータ（自動判定用）
+  const allEvents = [
+    { datetime: new Date('2026-09-24T07:50:00'), timeStr: '9/24 07:50', title: '神戸ノードにてクラスタ構築', desc: '集合完了[cite: 1]' },
+    { datetime: new Date('2026-09-24T08:00:00'), timeStr: '9/24 08:00', title: '神戸プロセス起動', desc: 'レンタカー出発[cite: 1]' },
+    { datetime: new Date('2026-09-24T09:30:00'), timeStr: '9/24 09:30', title: '淡路島到着', desc: '周辺環境の予備調査（サクッと観光）[cite: 1]' },
+    { datetime: new Date('2026-09-24T10:30:00'), timeStr: '9/24 10:30', title: '淡路島出発', desc: '鳴門へ移動' },
+    { datetime: new Date('2026-09-24T11:00:00'), timeStr: '9/24 11:00', title: '鳴門到着', desc: 'エネルギー補給（昼食）[cite: 1]' },
+    { datetime: new Date('2026-09-24T12:00:00'), timeStr: '9/24 12:00', title: '鳴門フィールドワーク', desc: '観光実施[cite: 1]' },
+    { datetime: new Date('2026-09-24T15:30:00'), timeStr: '9/24 15:30', title: '鳴門出発', desc: '香川方面へルーティング[cite: 1]' },
+    { datetime: new Date('2026-09-24T17:00:00'), timeStr: '9/24 17:00', title: '香川ベースキャンプ初期化', desc: '宿チェックイン[cite: 1]' },
+    { datetime: new Date('2026-09-24T17:30:00'), timeStr: '9/24 17:30', title: '香川到着', desc: '『骨付鳥一鶴』にて夕食プロトコル実行[cite: 1]' },
+    { datetime: new Date('2026-09-25T09:00:00'), timeStr: '9/25 終日', title: 'うどん並列消費テスト', desc: 'うどんパーティ ＆ 観光の実行[cite: 1]' },
+    { datetime: new Date('2026-09-25T17:00:00'), timeStr: '9/25 17:00', title: '香川出発', desc: '愛媛方面へルーティング[cite: 1]' },
+    { datetime: new Date('2026-09-25T19:00:00'), timeStr: '9/25 19:00', title: '愛媛ベースキャンプ初期化', desc: '宿チェックイン[cite: 1]' },
+    { datetime: new Date('2026-09-25T20:00:00'), timeStr: '9/25 20:00', title: '愛媛到着', desc: '『道後温泉』にてリカバリー処理（入浴）[cite: 1]' },
+    { datetime: new Date('2026-09-26T06:00:00'), timeStr: '9/26 06:00', title: '道後温泉 朝風呂タスク', desc: 'HP全回復を狙う[cite: 1]' },
+    { datetime: new Date('2026-09-26T07:30:00'), timeStr: '9/26 07:30', title: '愛媛出発', desc: '高知方面へルーティング[cite: 1]' },
+    { datetime: new Date('2026-09-26T09:30:00'), timeStr: '9/26 09:30', title: '四国カルスト', desc: 'ドライブテスト実施[cite: 1]' },
+    { datetime: new Date('2026-09-26T11:30:00'), timeStr: '9/26 11:30', title: '伊野駅到着', desc: 'りょうた、だいちと同期処理（合流）[cite: 1]' },
+    { datetime: new Date('2026-09-26T12:00:00'), timeStr: '9/26 12:00', title: 'ひろめ市場', desc: '昼食プロトコル（酒宴注意）[cite: 1]' },
+    { datetime: new Date('2026-09-26T13:30:00'), timeStr: '9/26 13:30', title: '追手前高校', desc: '施設見学[cite: 1]' },
+    { datetime: new Date('2026-09-26T15:30:00'), timeStr: '9/26 15:30', title: '高知出発', desc: '黒潮の家へルーティング[cite: 1]' },
+    { datetime: new Date('2026-09-26T17:00:00'), timeStr: '9/26 17:00', title: '黒潮の家 ベースキャンプ初期化', desc: 'チェックイン完了[cite: 1]' },
+    { datetime: new Date('2026-09-27T09:00:00'), timeStr: '9/27 09:00', title: '仁淀川フィールドワーク', desc: '奇跡の清水で自然を満喫[cite: 1]' },
+    { datetime: new Date('2026-09-28T09:00:00'), timeStr: '9/28 09:00', title: '自由探索フェーズ', desc: '各エージェントの裁量に委ねる[cite: 1]' },
+    { datetime: new Date('2026-09-29T08:00:00'), timeStr: '9/29 08:00', title: '神戸にてモビリティ返却', desc: '全プロセス終了・解散[cite: 1]' },
+  ];
+
+  // 現在時刻と比べて「次のアクション」を自動検出
+  const now = new Date();
+  let nextEvent = allEvents.find(event => event.datetime > now);
+
+  // 全スケジュールが終了している場合
+  if (!nextEvent) {
+    nextEvent = {
+      datetime: new Date(), // ★この1行を追加（TypeScriptのエラー回避用ダミー）
+      timeStr: '完了',
+      title: '全プロセスが終了しました',
+      desc: 'お疲れ様でした！解散！[cite: 1]'
+    };
+  }
+
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-900 text-white font-sans pb-10">
       
       {/* ヘッダーエリア */}
       <div className="bg-gradient-to-br from-indigo-600 to-blue-500 p-8 pt-16 pb-12 rounded-b-3xl shadow-lg relative">
         <p className="text-indigo-100 text-[10px] font-extrabold tracking-widest mb-1 uppercase">
-          Project : Shikoku Excursion 2026
+          Project : Shikoku Excursion 2026[cite: 1]
         </p>
         <h1 className="text-3xl font-extrabold mb-2 tracking-tight">四国周遊クエスト</h1>
         <p className="text-indigo-200 text-xs mb-4">
-          実験日程：2026.09.24 (木) 〜 09.29 (火)
+          実験日程：2026.09.24 (木) 〜 09.29 (火)[cite: 1]
         </p>
         <div className="flex items-center gap-2 mt-2">
           <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm">
@@ -73,15 +116,20 @@ function Home() {
       {/* コンテンツエリア */}
       <div className="p-5 -mt-6 z-10 flex-1 space-y-4 max-w-md mx-auto w-full">
         
-        {/* ネクストアクションカード */}
+        {/* ネクストアクションカード（自動切り替え） */}
         <div className="bg-white text-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-          <p className="text-[10px] font-extrabold text-blue-600 mb-1 tracking-wider uppercase">Current Status / Next</p>
-          <h2 className="text-lg font-bold mb-1 text-slate-900">9/24 07:50 神戸プロセス起動</h2>
-          <p className="text-xs text-slate-500 mb-3">ノード『神戸』にてクラスタ構築（集合・レンタカー出発）[cite: 1]</p>
+          <div className="flex justify-between items-center mb-1">
+            <p className="text-[10px] font-extrabold text-blue-600 tracking-wider uppercase">Next Action (Auto)</p>
+            <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
+              {nextEvent.timeStr}
+            </span>
+          </div>
+          <h2 className="text-lg font-bold mb-1 text-slate-900">{nextEvent.title}</h2>
+          <p className="text-xs text-slate-500 mb-3">{nextEvent.desc}</p>
           <div className="flex items-center gap-2 text-xs text-slate-600 font-medium bg-slate-100 p-2.5 rounded-xl">
             <span>🚗</span>
-            <span>ミニバン2台による並列移動方式で出陣[cite: 1]</span>
+            <span>ミニバン2台による並列移動方式[cite: 1]</span>
           </div>
         </div>
 
@@ -106,6 +154,17 @@ function Home() {
           </div>
         </div>
 
+        {/* 土佐の洗礼（警告枠） */}
+        <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+          <div className="flex items-center gap-1.5 text-yellow-400 font-bold text-sm">
+            <span>⚠️</span>
+            <span>高知（土佐）からのシステム警告</span>
+          </div>
+          <p className="text-slate-400 leading-relaxed">
+            『ひろめ市場』での過剰なアルコール摂取は、翌日の全プロセスをフリーズ（二日酔い）させる原因となる[cite: 1]。酒は飲んでも飲まれるな、おま「いごっそう」ぶってグラスを空けるのは計画的にお願いします。
+          </p>
+        </div>
+
         {/* 詳細リンクボタン */}
         <Link to="/schedule" className="block pt-2">
           <button className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600/50 rounded-2xl p-4 flex items-center justify-between transition-all shadow-md active:scale-95">
@@ -123,7 +182,7 @@ function Home() {
 }
 
 // ==========================================
-// ② スケジュール画面（PDFのTable1に完全準拠）
+// ② スケジュール画面
 // ==========================================
 function Schedule() {
   const [activeDay, setActiveDay] = useState("day1");
@@ -133,60 +192,60 @@ function Schedule() {
       date: "9月24日 (木)",
       title: "第1章：四国上陸・うどんプロトコル",
       items: [
-        { time: "07:50", title: "神戸ノードにてクラスタ構築", desc: "集合完了" },
-        { time: "08:00", title: "神戸プロセス起動", desc: "レンタカー出発" },
-        { time: "09:30", title: "淡路島到着", desc: "周辺環境の予備調査（サクッと観光）" },
+        { time: "07:50", title: "神戸ノードにてクラスタ構築", desc: "集合完了[cite: 1]" },
+        { time: "08:00", title: "神戸プロセス起動", desc: "レンタカー出発[cite: 1]" },
+        { time: "09:30", title: "淡路島到着", desc: "周辺環境の予備調査（サクッと観光）[cite: 1]" },
         { time: "10:30", title: "淡路島出発", desc: "鳴門へ移動" },
-        { time: "11:00", title: "鳴門到着", desc: "エネルギー補給（昼食）" },
-        { time: "12:00", title: "鳴門フィールドワーク", desc: "観光実施" },
-        { time: "15:30", title: "鳴門出発", desc: "香川方面へルーティング" },
-        { time: "17:00", title: "香川ベースキャンプ初期化", desc: "宿チェックイン" },
-        { time: "17:30", title: "香川到着", desc: "『骨付鳥一鶴』にて夕食プロトコル実行" },
+        { time: "11:00", title: "鳴門到着", desc: "エネルギー補給（昼食）[cite: 1]" },
+        { time: "12:00", title: "鳴門フィールドワーク", desc: "観光実施[cite: 1]" },
+        { time: "15:30", title: "鳴門出発", desc: "香川方面へルーティング[cite: 1]" },
+        { time: "17:00", title: "香川ベースキャンプ初期化", desc: "宿チェックイン[cite: 1]" },
+        { time: "17:30", title: "香川到着", desc: "『骨付鳥一鶴』にて夕食プロトコル実行[cite: 1]" },
       ]
     },
     day2: {
       date: "9月25日 (金)",
       title: "第2章：うどん大量消費テスト",
       items: [
-        { time: "終日", title: "うどん並列消費テスト", desc: "うどんパーティ ＆ 観光の実行" },
-        { time: "17:00", title: "香川出発", desc: "愛媛方面へルーティング" },
-        { time: "19:00", title: "愛媛ベースキャンプ初期化", desc: "宿チェックイン" },
-        { time: "20:00", title: "愛媛到着", desc: "『道後温泉』にてリカバリー処理（入浴）" },
+        { time: "終日", title: "うどん並列消費テスト", desc: "うどんパーティ ＆ 観光の実行[cite: 1]" },
+        { time: "17:00", title: "香川出発", desc: "愛媛方面へルーティング[cite: 1]" },
+        { time: "19:00", title: "愛媛ベースキャンプ初期化", desc: "宿チェックイン[cite: 1]" },
+        { time: "20:00", title: "愛媛到着", desc: "『道後温泉』にてリカバリー処理（入浴）[cite: 1]" },
       ]
     },
     day3: {
       date: "9月26日 (土)",
       title: "第3章：別働隊同期（合流）＆ 高知へ",
       items: [
-        { time: "06:00", title: "道後温泉 朝風呂タスク", desc: "HP全回復を狙う" },
-        { time: "07:30", title: "愛媛出発", desc: "高知方面へルーティング" },
-        { time: "09:30", title: "四国カルスト", desc: "ドライブテスト実施" },
-        { time: "11:30", title: "伊野駅到着", desc: "りょうた、だいちと同期処理（合流）" },
-        { time: "12:00", title: "ひろめ市場", desc: "昼食プロトコル（酒宴注意）" },
-        { time: "13:30", title: "追手前高校", desc: "施設見学" },
-        { time: "15:30", title: "高知出発", desc: "黒潮の家へルーティング" },
-        { time: "17:00", title: "黒潮の家 ベースキャンプ初期化", desc: "チェックイン完了" },
+        { time: "06:00", title: "道後温泉 朝風呂タスク", desc: "HP全回復を狙う[cite: 1]" },
+        { time: "07:30", title: "愛媛出発", desc: "高知方面へルーティング[cite: 1]" },
+        { time: "09:30", title: "四国カルスト", desc: "ドライブテスト実施[cite: 1]" },
+        { time: "11:30", title: "伊野駅到着", desc: "りょうた、だいちと同期処理（合流）[cite: 1]" },
+        { time: "12:00", title: "ひろめ市場", desc: "昼食プロトコル（酒宴注意）[cite: 1]" },
+        { time: "13:30", title: "追手前高校", desc: "施設見学[cite: 1]" },
+        { time: "15:30", title: "高知出発", desc: "黒潮の家へルーティング[cite: 1]" },
+        { time: "17:00", title: "黒潮の家 ベースキャンプ初期化", desc: "チェックイン完了[cite: 1]" },
       ]
     },
     day4: {
       date: "9月27日 (日)",
       title: "第4章：仁淀川フィールドワーク",
       items: [
-        { time: "09:00", title: "仁淀川フィールドワーク", desc: "奇跡の清水で自然を満喫" },
+        { time: "09:00", title: "仁淀川フィールドワーク", desc: "奇跡の清水で自然を満喫[cite: 1]" },
       ]
     },
     day5: {
       date: "9月28日 (月)",
       title: "第5章：自由探索フェーズ",
       items: [
-        { time: "09:00", title: "自由探索フェーズ", desc: "各エージェントの裁量に委ねる" },
+        { time: "09:00", title: "自由探索フェーズ", desc: "各エージェントの裁量に委ねる[cite: 1]" },
       ]
     },
     day6: {
       date: "9月29日 (火)",
       title: "第6章：プロセス終了（解散）",
       items: [
-        { time: "08:00", title: "神戸にてモビリティ返却", desc: "全プロセス終了・解散" },
+        { time: "08:00", title: "神戸にてモビリティ返却", desc: "全プロセス終了・解散[cite: 1]" },
       ]
     },
   };
@@ -197,7 +256,6 @@ function Schedule() {
         📜 タイムテーブル
       </h2>
 
-      {/* 日付切り替えタブ */}
       <div className="flex gap-1.5 overflow-x-auto pb-3 mb-4 no-scrollbar">
         {Object.keys(schedules).map((key, index) => (
           <button
@@ -214,13 +272,11 @@ function Schedule() {
         ))}
       </div>
 
-      {/* 選択された日のカード */}
       <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 mb-4">
         <p className="text-yellow-400 text-xs font-bold">{schedules[activeDay].date}</p>
         <h3 className="text-base font-bold text-white mt-0.5">{schedules[activeDay].title}</h3>
       </div>
 
-      {/* タイムライン */}
       <div className="relative border-l-2 border-slate-700 ml-3 space-y-6">
         {schedules[activeDay].items.map((item, index) => (
           <div key={index} className="pl-6 relative">
@@ -240,15 +296,15 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ パーティ画面（メンバー構成・予算）
+// ③ パーティ画面
 // ==========================================
 function Party() {
   const members = [
-    { name: "蓮沼", role: "Dx2所属 / 全体統括", type: "初期実装7人組", status: "コスト按分対象" },
-    { name: "りょうた", role: "高知合流組 (9/26伊野駅合流)", type: "動的追加3名", status: "同期処理完了予定" },
-    { name: "だいち", role: "高知合流組 (9/26伊野駅合流)", type: "動的追加3名", status: "同期処理完了予定" },
+    { name: "蓮沼", role: "Dx2所属 / 全体統括", type: "初期実装7人組", status: "コスト按分対象[cite: 1]" },
+    { name: "りょうた", role: "高知合流組 (9/26伊野駅合流)", type: "動的追加3名", status: "同期処理完了予定[cite: 1]" },
+    { name: "だいち", role: "高知合流組 (9/26伊野駅合流)", type: "動的追加3名", status: "同期処理完了予定[cite: 1]" },
     { name: "いっせい", role: "高知合流組", type: "動的追加3名", status: "リソース調整中" },
-    { name: "他 メンバー6名", role: "初期パーティエージェント", type: "初期実装7人組", status: "ミニバン並列分散乗車" },
+    { name: "他 メンバー6名", role: "初期パーティエージェント", type: "初期実装7人組", status: "ミニバン並列分散乗車[cite: 1]" },
   ];
 
   return (
@@ -299,7 +355,7 @@ function Party() {
 }
 
 // ==========================================
-// アプリ全体の枠組み（起動ごとの合言葉入力）
+// アプリ全体の枠組み
 // ==========================================
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
