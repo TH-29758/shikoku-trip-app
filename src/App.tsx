@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom"; // ← useNavigate を削除
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 
 // ==========================================
 // 合言葉認証（結界）画面
@@ -83,9 +83,8 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             </Link>
           </nav>
         </div>
-
         <div className="text-center text-xs text-slate-500 border-t border-slate-700/50 pt-4">
-          Shikoku Excursion 2026[cite: 1]
+          Shikoku Excursion 2026
         </div>
       </div>
     </div>
@@ -116,16 +115,16 @@ function HeaderBar({ title }: { title: string }) {
 }
 
 // ==========================================
-// ① ホーム画面（ネクストアクションに特化）
+// ① ホーム画面（ネクストアクションを画面全体に大きく表示）
 // ==========================================
 function Home() {
   const allEvents = [
-    { datetime: new Date('2026-09-24T07:50:00'), timeStr: '9/24 07:50', title: '神戸ノードにてクラスタ構築', desc: '集合完了[cite: 1]' },
-    { datetime: new Date('2026-09-24T08:00:00'), timeStr: '9/24 08:00', title: '神戸プロセス起動', desc: 'レンタカー出発[cite: 1]' },
-    { datetime: new Date('2026-09-24T09:30:00'), timeStr: '9/24 09:30', title: '淡路島到着', desc: '周辺環境の予備調査（サクッと観光）[cite: 1]' },
+    { datetime: new Date('2026-09-24T07:50:00'), timeStr: '9/24 07:50', title: '神戸ノードにてクラスタ構築', desc: '集合完了' },
+    { datetime: new Date('2026-09-24T08:00:00'), timeStr: '9/24 08:00', title: '神戸プロセス起動', desc: 'レンタカー出発' },
+    { datetime: new Date('2026-09-24T09:30:00'), timeStr: '9/24 09:30', title: '淡路島到着', desc: '周辺環境の予備調査（サクッと観光）' },
     { datetime: new Date('2026-09-24T10:30:00'), timeStr: '9/24 10:30', title: '淡路島出発', desc: '鳴門へ移動' },
-    { datetime: new Date('2026-09-24T11:00:00'), timeStr: '9/24 11:00', title: '鳴門到着', desc: 'エネルギー補給（昼食）[cite: 1]' },
-    { datetime: new Date('2026-09-24T12:00:00'), timeStr: '9/24 12:00', title: '鳴門フィールドワーク', desc: '観光実施[cite: 1]' },
+    { datetime: new Date('2026-09-24T11:00:00'), timeStr: '9/24 11:00', title: '鳴門到着', desc: 'エネルギー補給（昼食）' },
+    { datetime: new Date('2026-09-24T12:00:00'), timeStr: '9/24 12:00', title: '鳴門フィールドワーク', desc: '観光実施' },
     { datetime: new Date('2026-09-24T15:30:00'), timeStr: '9/24 15:30', title: '鳴門出発', desc: '香川方面へルーティング[cite: 1]' },
     { datetime: new Date('2026-09-24T17:00:00'), timeStr: '9/24 17:00', title: '香川ベースキャンプ初期化', desc: '宿チェックイン[cite: 1]' },
     { datetime: new Date('2026-09-24T17:30:00'), timeStr: '9/24 17:30', title: '香川到着', desc: '『骨付鳥一鶴』にて夕食プロトコル実行[cite: 1]' },
@@ -159,46 +158,34 @@ function Home() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-900 text-white font-sans pb-12">
-      <HeaderBar title="四国周遊クエスト" />
+    <div className="flex flex-col min-h-screen bg-slate-900 text-white font-sans">
+      <HeaderBar title="四国旅" />
 
-      <div className="p-5 flex-1 max-w-md mx-auto w-full space-y-5">
-        
-        {/* メインのネクストアクションカード（一番目立たせる） */}
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden border border-blue-400/30">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-[10px] bg-white/20 backdrop-blur-md px-3 py-1 rounded-full font-extrabold tracking-wider uppercase text-blue-100">
-              ⚡ NEXT ACTION
-            </span>
-            <span className="text-xs font-mono font-bold bg-black/30 px-2.5 py-1 rounded-lg text-yellow-300">
-              {nextEvent.timeStr}
-            </span>
+      {/* 画面全体に広がるネクストアクション表示エリア */}
+      <div className="flex-1 p-5 flex flex-col justify-center max-w-md mx-auto w-full">
+        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-8 shadow-2xl relative overflow-hidden border border-blue-400/30 flex flex-col justify-between min-h-[380px]">
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-xs bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full font-extrabold tracking-wider uppercase text-blue-100 shadow-sm">
+                ⚡ NEXT ACTION
+              </span>
+              <span className="text-sm font-mono font-bold bg-black/30 px-3 py-1.5 rounded-xl text-yellow-300 shadow-inner">
+                {nextEvent.timeStr}
+              </span>
+            </div>
+
+            <h2 className="text-3xl font-extrabold mb-4 tracking-tight leading-snug">{nextEvent.title}</h2>
+            <p className="text-base text-blue-100 leading-relaxed">{nextEvent.desc}</p>
           </div>
 
-          <h2 className="text-2xl font-extrabold mb-2 tracking-tight">{nextEvent.title}</h2>
-          <p className="text-sm text-blue-100 mb-5 leading-relaxed">{nextEvent.desc}</p>
-
-          <Link to="/schedule">
-            <button className="w-full bg-white text-slate-900 hover:bg-blue-50 py-3 px-4 rounded-xl font-bold text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
-              <span>タイムテーブル全件を確認する</span>
-              <span>→</span>
-            </button>
-          </Link>
-        </div>
-
-        {/* クイックリンク（Mapとリンクへの誘導） */}
-        <div className="grid grid-cols-2 gap-4">
-          <Link to="/map" className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center text-center transition-all">
-            <span className="text-2xl mb-2">🗺️</span>
-            <span className="text-sm font-bold text-slate-200">Map情報</span>
-            <span className="text-[10px] text-slate-400 mt-0.5">ルート・スポット確認</span>
-          </Link>
-
-          <Link to="/links" className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center text-center transition-all">
-            <span className="text-2xl mb-2">🔗</span>
-            <span className="text-sm font-bold text-slate-200">各種リンク</span>
-            <span className="text-[10px] text-slate-400 mt-0.5">公式ページ・予約情報</span>
-          </Link>
+          <div className="pt-8">
+            <Link to="/schedule">
+              <button className="w-full bg-white text-slate-900 hover:bg-blue-50 py-4 px-6 rounded-2xl font-bold text-sm transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                <span>タイムテーブル全件を確認する</span>
+                <span>→</span>
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
