@@ -22,10 +22,10 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
       <div className="bg-slate-800 p-8 rounded-lg border-2 border-slate-600 shadow-xl w-full max-w-md text-center">
         <h1 className="text-2xl font-bold text-yellow-400 mb-6 tracking-widest">
-          🔒 秘密の結界
+          🔒
         </h1>
         <p className="text-gray-300 mb-6 text-sm">
-          クエストに参加するには<br />合言葉を入力せよ。
+          passwordを入力せよ。
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -33,11 +33,11 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 bg-slate-900 text-white rounded border-2 border-slate-600 mb-4 focus:outline-none focus:border-yellow-400 text-center text-lg"
-            placeholder="合言葉を入力..."
+            placeholder="passwordを入力..."
           />
           {error && <p className="text-red-400 text-sm mb-4 font-bold">パスワードが間違っているようだ...</p>}
           <button type="submit" className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded font-bold transition-colors shadow-lg active:scale-95">
-            結界を解除する
+            ロックを解除する
           </button>
         </form>
       </div>
