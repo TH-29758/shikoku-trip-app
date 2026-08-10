@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 
 // ==========================================
 // 合言葉認証（結界）画面
@@ -36,7 +36,7 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
           />
           {error && <p className="text-red-400 text-xs mb-4 font-bold">パスワードが違うきに！やり直せや！</p>}
           <button type="submit" className="w-full px-6 py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all shadow-lg active:scale-95 text-sm">
-            ロックを解除する
+            ロックを解除
           </button>
         </form>
       </div>
@@ -45,10 +45,80 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
 }
 
 // ==========================================
-// ① ホーム画面（ネクストアクション自動切替機能付き）
+// サイドバー（ハンバーガーメニュー）コンポーネント
+// ==========================================
+function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex">
+      {/* 背景の暗幕（タップで閉じる） */}
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
+
+      {/* サイドバー本体 */}
+      <div className="relative w-72 bg-slate-800 h-full shadow-2xl p-6 flex flex-col justify-between border-r border-slate-700 z-10 animate-in slide-in-from-left duration-200">
+        <div>
+          <div className="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+            <h2 className="text-lg font-extrabold text-yellow-400">🧭 メニュー</h2>
+            <button onClick={onClose} className="text-slate-400 hover:text-white text-xl font-bold p-1">
+              ✕
+            </button>
+          </div>
+
+          <nav className="space-y-3">
+            <Link to="/" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
+              <span className="text-xl">🏠</span>ホーム
+            </Link>
+            <Link to="/schedule" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
+              <span className="text-xl">📜</span>タイムスケジュール
+            </Link>
+            <Link to="/party" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
+              <span className="text-xl">👥</span>参加者
+            </Link>
+            <Link to="/map" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
+              <span className="text-xl">🗺️</span>Map情報
+            </Link>
+            <Link to="/links" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
+              <span className="text-xl">🔗</span>各種リンク
+            </Link>
+          </nav>
+        </div>
+
+        <div className="text-center text-xs text-slate-500 border-t border-slate-700/50 pt-4">
+          Shikoku Excursion 2026[cite: 1]
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// 共通のトップバー（タイトル ＆ サイドバーボタン）
+// ==========================================
+function HeaderBar({ title }: { title: string }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <>
+      <header className="bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3.5 border-b border-slate-800 flex justify-between items-center">
+        <h1 className="text-base font-extrabold text-white tracking-tight">{title}</h1>
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2 rounded-xl text-white shadow-md active:scale-95 transition-all flex items-center gap-2 text-xs font-bold"
+        >
+          <span>メニュー</span>
+          <span className="text-base">☰</span>
+        </button>
+      </header>
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    </>
+  );
+}
+
+// ==========================================
+// ① ホーム画面（ネクストアクションに特化）
 // ==========================================
 function Home() {
-  // 全スケジュールデータ（自動判定用）
   const allEvents = [
     { datetime: new Date('2026-09-24T07:50:00'), timeStr: '9/24 07:50', title: '神戸ノードにてクラスタ構築', desc: '集合完了[cite: 1]' },
     { datetime: new Date('2026-09-24T08:00:00'), timeStr: '9/24 08:00', title: '神戸プロセス起動', desc: 'レンタカー出発[cite: 1]' },
@@ -76,101 +146,67 @@ function Home() {
     { datetime: new Date('2026-09-29T08:00:00'), timeStr: '9/29 08:00', title: '神戸にてモビリティ返却', desc: '全プロセス終了・解散[cite: 1]' },
   ];
 
-  // 現在時刻と比べて「次のアクション」を自動検出
   const now = new Date();
   let nextEvent = allEvents.find(event => event.datetime > now);
 
-  // 全スケジュールが終了している場合
   if (!nextEvent) {
     nextEvent = {
-      datetime: new Date(), // ★この1行を追加（TypeScriptのエラー回避用ダミー）
+      datetime: new Date(),
       timeStr: '完了',
-      title: '終了',
-      desc: '解散！[cite: 1]'
+      title: '全プロセスが終了',
+      desc: '解散！'
     };
   }
 
-
   return (
-    <div className="flex flex-col min-h-screen bg-slate-900 text-white font-sans pb-10">
-      
-      {/* ヘッダーエリア */}
-      <div className="bg-gradient-to-br from-indigo-600 to-blue-500 p-8 pt-16 pb-12 rounded-b-3xl shadow-lg relative">
-        <p className="text-indigo-100 text-[10px] font-extrabold tracking-widest mb-1 uppercase">
-          Project : Shikoku Excursion 2026.09.24-09.29
-        </p>
-        <h1 className="text-3xl font-extrabold mb-2 tracking-tight">四国旅</h1>
-        <p className="text-indigo-200 text-xs mb-4">
-          日程：2026.09.24 (木) 〜 09.29 (火)
-        </p>
-      </div>
+    <div className="flex flex-col min-h-screen bg-slate-900 text-white font-sans pb-12">
+      <HeaderBar title="四国周遊クエスト" />
 
-      {/* コンテンツエリア */}
-      <div className="p-5 -mt-6 z-10 flex-1 space-y-4 max-w-md mx-auto w-full">
+      <div className="p-5 flex-1 max-w-md mx-auto w-full space-y-5">
         
-        {/* ネクストアクションカード（自動切り替え） */}
-        <div className="bg-white text-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-          <div className="flex justify-between items-center mb-1">
-            <p className="text-[10px] font-extrabold text-blue-600 tracking-wider uppercase">Next Action</p>
-            <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
+        {/* メインのネクストアクションカード（一番目立たせる） */}
+        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden border border-blue-400/30">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-[10px] bg-white/20 backdrop-blur-md px-3 py-1 rounded-full font-extrabold tracking-wider uppercase text-blue-100">
+              ⚡ NEXT ACTION
+            </span>
+            <span className="text-xs font-mono font-bold bg-black/30 px-2.5 py-1 rounded-lg text-yellow-300">
               {nextEvent.timeStr}
             </span>
           </div>
-          <h2 className="text-lg font-bold mb-1 text-slate-900">{nextEvent.title}</h2>
-          <p className="text-xs text-slate-500 mb-3">{nextEvent.desc}</p>
+
+          <h2 className="text-2xl font-extrabold mb-2 tracking-tight">{nextEvent.title}</h2>
+          <p className="text-sm text-blue-100 mb-5 leading-relaxed">{nextEvent.desc}</p>
+
+          <Link to="/schedule">
+            <button className="w-full bg-white text-slate-900 hover:bg-blue-50 py-3 px-4 rounded-xl font-bold text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+              <span>タイムテーブル全件を確認する</span>
+              <span>→</span>
+            </button>
+          </Link>
         </div>
 
-        {/* ステータスウィジェット */}
+        {/* クイックリンク（Mapとリンクへの誘導） */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700/50 shadow-md">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xl">👥</span>
-              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/50 px-2 py-0.5 rounded-full">動的ジョイン有[cite: 1]</span>
-            </div>
-            <p className="text-[10px] text-slate-400 font-bold tracking-wider">エージェント</p>
-            <p className="font-bold text-sm mt-0.5 text-slate-200">初期7名 ＋ 後半3名[cite: 1]</p>
-          </div>
+          <Link to="/map" className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center text-center transition-all">
+            <span className="text-2xl mb-2">🗺️</span>
+            <span className="text-sm font-bold text-slate-200">Map情報</span>
+            <span className="text-[10px] text-slate-400 mt-0.5">ルート・スポット確認</span>
+          </Link>
 
-          <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700/50 shadow-md">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xl">🏠</span>
-              <span className="text-[10px] text-amber-400 font-bold bg-amber-950/50 px-2 py-0.5 rounded-full">拠点確保済[cite: 1]</span>
-            </div>
-            <p className="text-[10px] text-slate-400 font-bold tracking-wider">メインベース</p>
-            <p className="font-bold text-sm mt-0.5 text-slate-200">黒潮の家 1号館[cite: 1]</p>
-          </div>
+          <Link to="/links" className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center text-center transition-all">
+            <span className="text-2xl mb-2">🔗</span>
+            <span className="text-sm font-bold text-slate-200">各種リンク</span>
+            <span className="text-[10px] text-slate-400 mt-0.5">公式ページ・予約情報</span>
+          </Link>
         </div>
-
-        {/* 土佐の洗礼（警告枠） */}
-        <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
-          <div className="flex items-center gap-1.5 text-yellow-400 font-bold text-sm">
-            <span>⚠️</span>
-            <span>高知（土佐）からのシステム警告</span>
-          </div>
-          <p className="text-slate-400 leading-relaxed">
-            『ひろめ市場』での過剰なアルコール摂取は、翌日の全プロセスをフリーズ（二日酔い）させる原因となる[cite: 1]。酒は飲んでも飲まれるな、おま「いごっそう」ぶってグラスを空けるのは計画的にお願いします。
-          </p>
-        </div>
-
-        {/* 詳細リンクボタン */}
-        <Link to="/schedule" className="block pt-2">
-          <button className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600/50 rounded-2xl p-4 flex items-center justify-between transition-all shadow-md active:scale-95">
-            <div className="flex items-center gap-3">
-              <span className="text-xl">📜</span>
-              <span className="font-bold text-slate-200 text-sm">四国周遊の全タイムテーブルを見る</span>
-            </div>
-            <span className="text-slate-400 font-bold">→</span>
-          </button>
-        </Link>
-        
       </div>
     </div>
   );
 }
 
 // ==========================================
-// ② スケジュール画面
+// ② タイムスケジュール画面
 // ==========================================
 function Schedule() {
   const [activeDay, setActiveDay] = useState("day1");
@@ -239,52 +275,51 @@ function Schedule() {
   };
 
   return (
-    <div className="p-4 mt-2 max-w-md mx-auto mb-20 font-sans">
-      <h2 className="text-2xl font-extrabold text-yellow-400 mb-4 border-b border-slate-700 pb-2">
-        📜 タイムテーブル
-      </h2>
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+      <HeaderBar title="タイムスケジュール" />
+      <div className="p-4 max-w-md mx-auto">
+        <div className="flex gap-1.5 overflow-x-auto pb-3 mb-4 no-scrollbar">
+          {Object.keys(schedules).map((key, index) => (
+            <button
+              key={key}
+              onClick={() => setActiveDay(key)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-sm ${
+                activeDay === key
+                  ? "bg-yellow-400 text-slate-900 shadow-yellow-400/20"
+                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+              }`}
+            >
+              Day {index + 1}
+            </button>
+          ))}
+        </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-3 mb-4 no-scrollbar">
-        {Object.keys(schedules).map((key, index) => (
-          <button
-            key={key}
-            onClick={() => setActiveDay(key)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-sm ${
-              activeDay === key
-                ? "bg-yellow-400 text-slate-900 shadow-yellow-400/20"
-                : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-            }`}
-          >
-            Day {index + 1}
-          </button>
-        ))}
-      </div>
+        <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 mb-4">
+          <p className="text-yellow-400 text-xs font-bold">{schedules[activeDay].date}</p>
+          <h3 className="text-base font-bold text-white mt-0.5">{schedules[activeDay].title}</h3>
+        </div>
 
-      <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 mb-4">
-        <p className="text-yellow-400 text-xs font-bold">{schedules[activeDay].date}</p>
-        <h3 className="text-base font-bold text-white mt-0.5">{schedules[activeDay].title}</h3>
-      </div>
-
-      <div className="relative border-l-2 border-slate-700 ml-3 space-y-6">
-        {schedules[activeDay].items.map((item, index) => (
-          <div key={index} className="pl-6 relative">
-            <div className="absolute w-3.5 h-3.5 bg-yellow-400 rounded-full -left-[7px] top-1.5 shadow-[0_0_8px_rgba(250,204,21,0.8)] border-2 border-slate-900"></div>
-            <div className="flex items-baseline mb-1">
-              <span className="text-yellow-400 font-mono font-bold text-sm mr-3">{item.time}</span>
-              <h4 className="text-base font-bold text-white">{item.title}</h4>
+        <div className="relative border-l-2 border-slate-700 ml-3 space-y-6">
+          {schedules[activeDay].items.map((item, index) => (
+            <div key={index} className="pl-6 relative">
+              <div className="absolute w-3.5 h-3.5 bg-yellow-400 rounded-full -left-[7px] top-1.5 shadow-[0_0_8px_rgba(250,204,21,0.8)] border-2 border-slate-900"></div>
+              <div className="flex items-baseline mb-1">
+                <span className="text-yellow-400 font-mono font-bold text-sm mr-3">{item.time}</span>
+                <h4 className="text-base font-bold text-white">{item.title}</h4>
+              </div>
+              <p className="text-gray-400 text-xs bg-slate-800 p-3 rounded-xl border border-slate-700/80">
+                {item.desc}
+              </p>
             </div>
-            <p className="text-gray-400 text-xs bg-slate-800 p-3 rounded-xl border border-slate-700/80">
-              {item.desc}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
 // ==========================================
-// ③ パーティ画面
+// ③ 参加者（パーティ）画面
 // ==========================================
 function Party() {
   const members = [
@@ -296,47 +331,133 @@ function Party() {
   ];
 
   return (
-    <div className="p-4 mt-2 max-w-md mx-auto mb-20 font-sans">
-      <h2 className="text-2xl font-extrabold text-yellow-400 mb-4 border-b border-slate-700 pb-2">
-        👥 パーティ・コスト編成
-      </h2>
-      
-      <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700 mb-6 text-xs text-slate-300 space-y-2">
-        <p className="font-bold text-white text-sm">💰 概算コスト設計（概要）</p>
-        <div className="flex justify-between py-1 border-b border-slate-700/50">
-          <span className="text-slate-400">レンタカー(2台分合計)[cite: 1]</span>
-          <span className="font-mono font-bold">約 116,941 円[cite: 1]</span>
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+      <HeaderBar title="参加者 (パーティ編成)" />
+      <div className="p-4 max-w-md mx-auto">
+        <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700 mb-6 text-xs text-slate-300 space-y-2">
+          <p className="font-bold text-white text-sm">💰 概算コスト設計（概要）</p>
+          <div className="flex justify-between py-1 border-b border-slate-700/50">
+            <span className="text-slate-400">レンタカー(2台分合計)[cite: 1]</span>
+            <span className="font-mono font-bold">約 116,941 円[cite: 1]</span>
+          </div>
+          <div className="flex justify-between py-1 border-b border-slate-700/50">
+            <span className="text-slate-400">宿代(前半＋後半黒潮の家)[cite: 1]</span>
+            <span className="font-mono font-bold">約 142,909 円[cite: 1]</span>
+          </div>
+          <div className="flex justify-between py-1">
+            <span className="text-slate-400">交通費実費(高速・ガソリン)[cite: 1]</span>
+            <span className="font-mono font-bold">約 50,000 円[cite: 1]</span>
+          </div>
         </div>
-        <div className="flex justify-between py-1 border-b border-slate-700/50">
-          <span className="text-slate-400">宿代(前半＋後半黒潮の家)[cite: 1]</span>
-          <span className="font-mono font-bold">約 142,909 円[cite: 1]</span>
-        </div>
-        <div className="flex justify-between py-1">
-          <span className="text-slate-400">交通費実費(高速・ガソリン)[cite: 1]</span>
-          <span className="font-mono font-bold">約 50,000 円[cite: 1]</span>
-        </div>
-      </div>
 
-      <h3 className="text-sm font-bold text-slate-400 mb-3 tracking-wider uppercase">参加エージェント一覧 (計10名)[cite: 1]</h3>
-      <div className="grid grid-cols-1 gap-3">
-        {members.map((member, index) => (
-          <div key={index} className="bg-slate-800 p-4 rounded-2xl border border-slate-700/80 shadow-md flex justify-between items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-base font-bold text-white">{member.name}</h4>
-                <span className="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-medium">
-                  {member.type}
+        <h3 className="text-sm font-bold text-slate-400 mb-3 tracking-wider uppercase">参加エージェント一覧 (計10名)[cite: 1]</h3>
+        <div className="grid grid-cols-1 gap-3">
+          {members.map((member, index) => (
+            <div key={index} className="bg-slate-800 p-4 rounded-2xl border border-slate-700/80 shadow-md flex justify-between items-center">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-base font-bold text-white">{member.name}</h4>
+                  <span className="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-medium">
+                    {member.type}
+                  </span>
+                </div>
+                <p className="text-xs text-yellow-300/90 mt-1">{member.role}</p>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/50 px-2 py-1 rounded-lg border border-emerald-800/40">
+                  {member.status}
                 </span>
               </div>
-              <p className="text-xs text-yellow-300/90 mt-1">{member.role}</p>
             </div>
-            <div className="text-right">
-              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/50 px-2 py-1 rounded-lg border border-emerald-800/40">
-                {member.status}
-              </span>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// ④ Map情報画面
+// ==========================================
+function MapView() {
+  const spots = [
+    { name: "神戸ノード（集合・出発）", query: "神戸駅" },
+    { name: "淡路島", query: "淡路島" },
+    { name: "鳴門公園・渦潮", query: "鳴門公園" },
+    { name: "骨付鳥 一鶴（香川）", query: "一鶴 骨付鳥" },
+    { name: "道後温泉（愛媛）", query: "道後温泉本館" },
+    { name: "四国カルスト", query: "四国カルスト" },
+    { name: "ひろめ市場（高知）", query: "ひろめ市場" },
+    { name: "黒潮の家（メインベース）", query: "黒潮" },
+    { name: "仁淀川", query: "仁淀川" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+      <HeaderBar title="Map情報" />
+      <div className="p-4 max-w-md mx-auto space-y-4">
+        <p className="text-xs text-slate-400">
+          主要な経由地・拠点のGoogleマップ検索リンクです。タップすると位置情報を確認できます。
+        </p>
+
+        <div className="space-y-2.5">
+          {spots.map((spot, index) => (
+            <a
+              key={index}
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.query)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex justify-between items-center transition-all block"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">📍</span>
+                <span className="text-sm font-bold text-white">{spot.name}</span>
+              </div>
+              <span className="text-xs text-blue-400 font-bold">Google Map →</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// ⑤ 各種リンク画面
+// ==========================================
+function LinksView() {
+  const links = [
+    { name: "骨付鳥 一鶴（公式サイト）", url: "https://www.ikkaku.co.jp/" },
+    { name: "道後温泉（公式サイト）", url: "https://dogo.jp/" },
+    { name: "ひろめ市場（公式サイト）", url: "https://hirome.co.jp/" },
+    { name: "オリックスレンタカー", url: "https://www.orix-rentacar.com/" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+      <HeaderBar title="各種リンク" />
+      <div className="p-4 max-w-md mx-auto space-y-4">
+        <p className="text-xs text-slate-400">
+          旅行で使用する施設や店舗の公式情報リンクです。
+        </p>
+
+        <div className="space-y-2.5">
+          {links.map((link, index) => (
+            <a
+              key={index}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex justify-between items-center transition-all block"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🔗</span>
+                <span className="text-sm font-bold text-white">{link.name}</span>
+              </div>
+              <span className="text-xs text-blue-400 font-bold">サイトを開く →</span>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -361,25 +482,15 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-900 text-white pb-20 font-sans">
+      <div className="min-h-screen bg-slate-900 text-white font-sans">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/party" element={<Party />} />
+          <Route path="/map" element={<MapView />} />
+          <Route path="/links" element={<LinksView />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-
-        <nav className="fixed bottom-0 w-full bg-slate-800/90 backdrop-blur-md border-t border-slate-700 flex justify-around p-3 z-50 shadow-2xl">
-          <Link to="/" className="text-xs font-bold text-gray-400 hover:text-yellow-400 flex flex-col items-center transition-colors">
-            <span className="text-lg mb-0.5">🏠</span>ホーム
-          </Link>
-          <Link to="/schedule" className="text-xs font-bold text-gray-400 hover:text-yellow-400 flex flex-col items-center transition-colors">
-            <span className="text-lg mb-0.5">📜</span>日程表
-          </Link>
-          <Link to="/party" className="text-xs font-bold text-gray-400 hover:text-yellow-400 flex flex-col items-center transition-colors">
-            <span className="text-lg mb-0.5">👥</span>パーティ
-          </Link>
-        </nav>
       </div>
     </BrowserRouter>
   );
