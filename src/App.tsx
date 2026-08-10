@@ -10,7 +10,7 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "うどん") {
+    if (password === "gay") {
       onLogin();
     } else {
       setError(true);
