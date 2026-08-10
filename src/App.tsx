@@ -21,10 +21,10 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans">
       <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl w-full max-w-md text-center">
         <h1 className="text-2xl font-bold text-yellow-400 mb-2 tracking-widest">
-          🔒 秘密の結界
+          🔒
         </h1>
         <p className="text-gray-400 mb-6 text-xs">
-          四国周遊クエスト（実証実験）に参加するには<br />合言葉を入力せよ。
+          四国旅に参加するには<br />パスワードを入力。
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -32,11 +32,11 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 bg-slate-900 text-white rounded-xl border border-slate-700 mb-4 focus:outline-none focus:border-blue-500 text-center text-lg shadow-inner"
-            placeholder="合言葉を入力..."
+            placeholder="パスワードを入力..."
           />
           {error && <p className="text-red-400 text-xs mb-4 font-bold">パスワードが違うきに！やり直せや！</p>}
           <button type="submit" className="w-full px-6 py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all shadow-lg active:scale-95 text-sm">
-            結界を解除する
+            ロックを解除する
           </button>
         </form>
       </div>
