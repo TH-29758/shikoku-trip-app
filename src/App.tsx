@@ -387,6 +387,7 @@ function MapView() {
   }, [location]);
 
   const spots = [
+    { id: "ikebukuro", name: "池袋サンシャインバスターミナル", query: "池袋サンシャインバスターミナル" },
     { id: "kobe", name: "神戸ノード（集合・出発）", query: "神戸駅" },
     { id: "awaji", name: "淡路島", query: "淡路島" },
     { id: "naruto", name: "鳴門公園・渦潮", query: "鳴門公園" },
@@ -394,7 +395,7 @@ function MapView() {
     { id: "dogo", name: "道後温泉（愛媛）", query: "道後温泉本館" },
     { id: "karst", name: "四国カルスト", query: "四国カルスト" },
     { id: "hirome", name: "ひろめ市場（高知）", query: "ひろめ市場" },
-    { id: "kuroshio", name: "黒潮の家（メインベース）", query: "黒潮" },
+    { id: "kuroshio", name: "黒潮の家（メインベース）", query: "黒潮の家 Ⅰ号館(一棟貸し)" },
     { id: "niyodo", name: "仁淀川", query: "仁淀川" },
   ];
 
@@ -506,20 +507,8 @@ function EtcView() {
           <div className="text-xs space-y-1.5 text-slate-300">
             <p><span className="text-slate-400">便詳細：</span> LimonBus 106便 4列・トイレ・USB電源・WiFi</p>
             <p><span className="text-slate-400">予約番号：</span> 5667101</p>
-            <p><span className="text-slate-400">出発：</span> 9月23日(水) 集合時間　22:35、出発時間　22:50 発<br />出発地点:池袋サンシャインバスターミナル(サンシャインシティ文化会館1階)</p>
-            <p><span className="text-slate-400">座席：</span> 3列独立シート（12番A席）</p>
-            <p><span className="text-slate-400">予約番号：</span> #123456789</p>
-          </div>
-
-          {/* 画像を載せたい場合の枠（QRコードやチケット画面のスクショなど） */}
-          <div className="pt-2">
-            <p className="text-[10px] text-slate-400 mb-1">▼ チケット・QRコード画像など</p>
-            {/* 画像を入れるときは下の img タグの src に画像のURLやパスを指定します */}
-            <div className="bg-slate-900 rounded-xl border border-slate-700 h-36 flex items-center justify-center text-slate-500 text-xs overflow-hidden">
-              <span>[ここに画像が表示されます]</span>
-              {/* 実際の画像を入れる例： */}
-              {/* <img src="/path/to/image.png" alt="バスチケット" className="w-full h-full object-cover" /> */}
-            </div>
+            <p><span className="text-slate-400">出発：</span> 9月23日(水) 集合時間　22:35、出発時間　22:50 発<br />出発地点:池袋サンシャインバスターミナル(サンシャインシティ文化会館1階)<Link to="/map#ikebukuro" className="text-blue-400 hover:underline">map</Link></p>
+            <p><span className="text-slate-400">ヤコバサイトの地図URL：</span> <a href="https://www.busbookmark.jp/sites/map/22148/2717/11112/20260923" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">ヤコバサイトの地図</a></p>
           </div>
         </div>
       </div>
