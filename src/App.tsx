@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
+import { useState, useEffect} from "react";
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
 
 // ==========================================
 // 合言葉認証（結界）画面
@@ -365,19 +365,37 @@ function Party() {
 }
 
 // ==========================================
-// ④ Map情報画面
+// ④ Map情報画面（IDによるジャンプ対応版）
 // ==========================================
 function MapView() {
+  const location = useLocation();
+
+  // ページを開いた時やURLのハッシュ（#）が変わった時に、該当の場所にスクロールする
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        // 該当のカードを一時的に光らせる演出
+        element.classList.add("ring-2", "ring-yellow-400", "bg-slate-750");
+        setTimeout(() => {
+          element.classList.remove("ring-2", "ring-yellow-400", "bg-slate-750");
+        }, 1500);
+      }
+    }
+  }, [location]);
+
   const spots = [
-    { name: "神戸ノード（集合・出発）", query: "神戸駅" },
-    { name: "淡路島", query: "淡路島" },
-    { name: "鳴門公園・渦潮", query: "鳴門公園" },
-    { name: "骨付鳥 一鶴（香川）", query: "一鶴 骨付鳥" },
-    { name: "道後温泉（愛媛）", query: "道後温泉本館" },
-    { name: "四国カルスト", query: "四国カルスト" },
-    { name: "ひろめ市場（高知）", query: "ひろめ市場" },
-    { name: "黒潮の家（メインベース）", query: "黒潮" },
-    { name: "仁淀川", query: "仁淀川" },
+    { id: "kobe", name: "神戸ノード（集合・出発）", query: "神戸駅" },
+    { id: "awaji", name: "淡路島", query: "淡路島" },
+    { id: "naruto", name: "鳴門公園・渦潮", query: "鳴門公園" },
+    { id: "ikkaku", name: "骨付鳥 一鶴（香川）", query: "一鶴 骨付鳥" },
+    { id: "dogo", name: "道後温泉（愛媛）", query: "道後温泉本館" },
+    { id: "karst", name: "四国カルスト", query: "四国カルスト" },
+    { id: "hirome", name: "ひろめ市場（高知）", query: "ひろめ市場" },
+    { id: "kuroshio", name: "黒潮の家（メインベース）", query: "黒潮" },
+    { id: "niyodo", name: "仁淀川", query: "仁淀川" },
   ];
 
   return (
@@ -389,20 +407,25 @@ function MapView() {
         </p>
 
         <div className="space-y-2.5">
-          {spots.map((spot, index) => (
-            <a
-              key={index}
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.query)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex justify-between items-center transition-all block"
+          {spots.map((spot) => (
+            <div
+              key={spot.id}
+              id={spot.id} // ★ ここに目印のIDを付与
+              className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex justify-between items-center transition-all"
             >
               <div className="flex items-center gap-3">
                 <span className="text-xl">📍</span>
                 <span className="text-sm font-bold text-white">{spot.name}</span>
               </div>
-              <span className="text-xs text-blue-400 font-bold">Google Map →</span>
-            </a>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.query)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-400 font-bold bg-blue-950/40 px-3 py-1.5 rounded-xl border border-blue-800/40 hover:bg-blue-900/50"
+              >
+                Google Map →
+              </a>
+            </div>
           ))}
         </div>
       </div>
@@ -411,14 +434,14 @@ function MapView() {
 }
 
 // ==========================================
-// ⑤ 各種リンク画面
+// ⑤ 各種リンク画面（Mapへのジャンプ対応版）
 // ==========================================
 function LinksView() {
   const links = [
-    { name: "骨付鳥 一鶴（公式サイト）", url: "https://www.ikkaku.co.jp/" },
-    { name: "道後温泉（公式サイト）", url: "https://dogo.jp/" },
-    { name: "ひろめ市場（公式サイト）", url: "https://hirome.co.jp/" },
-    { name: "オリックスレンタカー", url: "https://www.orix-rentacar.com/" },
+    { name: "骨付鳥 一鶴（公式サイト）", url: "https://www.ikkaku.co.jp/", mapTarget: "/map#ikkaku" },
+    { name: "道後温泉（公式サイト）", url: "https://dogo.jp/", mapTarget: "/map#dogo" },
+    { name: "ひろめ市場（公式サイト）", url: "https://hirome.co.jp/", mapTarget: "/map#hirome" },
+    { name: "オリックスレンタカー", url: "https://www.orix-rentacar.com/", mapTarget: "/map#kobe" },
   ];
 
   return (
@@ -426,24 +449,36 @@ function LinksView() {
       <HeaderBar title="各種リンク" />
       <div className="p-4 max-w-md mx-auto space-y-4">
         <p className="text-xs text-slate-400">
-          旅行で使用する施設や店舗の公式情報リンクです。
+          旅行で使用する施設や店舗の公式情報リンクです。Map情報とも連動しています。
         </p>
 
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {links.map((link, index) => (
-            <a
-              key={index}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-slate-800 hover:bg-slate-750 p-4 rounded-2xl border border-slate-700 shadow-md flex justify-between items-center transition-all block"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-xl">🔗</span>
-                <span className="text-sm font-bold text-white">{link.name}</span>
+            <div key={index} className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-lg">🔗</span>
+                  <span className="text-sm font-bold text-white">{link.name}</span>
+                </div>
+                {/* ★ Map情報の該当位置に飛ぶボタン */}
+                <Link
+                  to={link.mapTarget}
+                  className="text-[11px] bg-slate-700 hover:bg-slate-600 text-yellow-300 px-2.5 py-1 rounded-lg font-bold transition-colors"
+                >
+                  Mapで見る 📍
+                </Link>
               </div>
-              <span className="text-xs text-blue-400 font-bold">サイトを開く →</span>
-            </a>
+
+              {/* 公式サイトへ飛ぶボタン */}
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-400 font-medium bg-slate-900/60 p-2 rounded-xl text-center border border-slate-700/50 hover:text-blue-300"
+              >
+                公式サイトを開く →
+              </a>
+            </div>
           ))}
         </div>
       </div>
@@ -452,18 +487,40 @@ function LinksView() {
 }
 
 // ==========================================
-// ⑥ その他 (バス・雑記メモ) 画面 ★新設
+// ⑥ その他 (バス・雑記メモ) 画面 
 // ==========================================
 function EtcView() {
   return (
     <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
       <HeaderBar title="その他" />
-      <div className="p-4 max-w-md mx-auto space-y-4">
-        <div className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700">
-          <h1 className="text-sm font-bold text-yellow-400 mb-1">🚌 バス情報・フリーメモ欄</h1>
-          <p className="text-xs text-slate-400 mb-3">
-            入力した内容は自動でスマホに保存されます（消すまで残ります）。
-          </p>
+      <div className="p-4 max-w-md mx-auto space-y-4">   
+        <p className="text-xs text-slate-400 px-1">
+          その他情報
+        </p>
+        <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3">
+          <div className="flex items-center gap-2 border-b border-slate-700/60 pb-2">
+            <span className="text-xl">🚌</span>
+            <h2 className="text-sm font-bold text-yellow-400">夜行バス予約情報</h2>
+          </div>          
+          {/* テキスト情報欄 */}
+          <div className="text-xs space-y-1.5 text-slate-300">
+            <p><span className="text-slate-400">便詳細：</span> LimonBus 106便 4列・トイレ・USB電源・WiFi</p>
+            <p><span className="text-slate-400">予約番号：</span> 5667101</p>
+            <p><span className="text-slate-400">出発：</span> 9月23日(水) 集合時間　22:35、出発時間　22:50 発<br />出発地点:池袋サンシャインバスターミナル(サンシャインシティ文化会館1階)</p>
+            <p><span className="text-slate-400">座席：</span> 3列独立シート（12番A席）</p>
+            <p><span className="text-slate-400">予約番号：</span> #123456789</p>
+          </div>
+
+          {/* 画像を載せたい場合の枠（QRコードやチケット画面のスクショなど） */}
+          <div className="pt-2">
+            <p className="text-[10px] text-slate-400 mb-1">▼ チケット・QRコード画像など</p>
+            {/* 画像を入れるときは下の img タグの src に画像のURLやパスを指定します */}
+            <div className="bg-slate-900 rounded-xl border border-slate-700 h-36 flex items-center justify-center text-slate-500 text-xs overflow-hidden">
+              <span>[ここに画像が表示されます]</span>
+              {/* 実際の画像を入れる例： */}
+              {/* <img src="/path/to/image.png" alt="バスチケット" className="w-full h-full object-cover" /> */}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -497,6 +554,7 @@ export default function App() {
           <Route path="/map" element={<MapView />} />
           <Route path="/links" element={<LinksView />} />
           <Route path="/etc" element={<EtcView />} />
+          <Route path="/map/:id" element={<MapView />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
