@@ -130,14 +130,14 @@ function Party() {
 // アプリ全体の枠組み（認証ロジック追加）
 // ==========================================
 export default function App() {
-  // ブラウザの記憶領域（localStorage）からログイン状態を読み込む
+  // ブラウザの記憶領域（sessionStorage）からログイン状態を読み込む
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem("shikokuQuestAuth") === "true";
+    return sessionStorage.getItem("shikokuQuestAuth") === "true";
   });
 
   // 合言葉が正解した時の処理
   const handleLogin = () => {
-    localStorage.setItem("shikokuQuestAuth", "true");
+    sessionStorage.setItem("shikokuQuestAuth", "true");
     setIsAuthenticated(true);
   };
 
