@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom"; // ← useNavigate を削除
 
 // ==========================================
 // 合言葉認証（結界）画面
