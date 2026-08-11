@@ -320,31 +320,46 @@ function Schedule() {
           desc: (
             <>オリックスレンタカー三宮駅前店集合 ＆ 出発 <Link to="/map#car" className="text-blue-400 hover:underline">map</Link></>
           ),
-          transit: { duration: "約1時間30分", cost: "高速 約3,000円", method: "🚗" }
+          transit: { duration: "約40分", cost: "高速 約1,700円", method: "🚗" }
         },
         { 
-          time: "09:30", 
+          time: "09:00", 
           title: "淡路島到着", 
           icon: "🌉",
-          desc: "周辺環境の予備調査（サクッと観光）",
+          desc: "朝ごはん ＆ 周辺サクッと観光",
+          transit: { duration: "約1時間", cost: "高速 約1,200円", method: "🚗" }
+        },
+        {
+          time: "10:30",
+          title: "淡路島出発",
+          icon: "📸",
+          desc: "鳴門へ移動",
           transit: { duration: "約1時間", cost: "高速 約1,200円", method: "🚗" }
         },
         { 
           time: "11:00", 
-          title: "鳴門到着 ＆ 昼食", 
-          icon: "🍽️",
-          desc: "エネルギー補給（昼食）" 
+          title: "大鳴門橋遊歩道 渦の道", 
+          icon: "🌀",
+          desc: "渦潮を見ちゃう", 
+          transit: { duration: "約20分", cost: "高速 約300円", method: "🚗" }
         },
         { 
           time: "12:00", 
-          title: "鳴門フィールドワーク", 
-          icon: "🌀",
-          desc: "渦潮などの観光実施",
+          title: "＊くるくる　なると", 
+          icon: "🥞",
+          desc: "いもにおぼれる",
           transit: { duration: "約1時間15分", cost: "高速 約2,000円", method: "🚗" }
         },
+        {
+          time: "12:30",
+          title: "徳島ラーメンorしょくす",
+          icon: "🍜",
+          desc: "徳島料理をイク",
+          transit: { duration: "約1時間15分", cost: "高速 約1,600円", method: "🚗" }
+        },
         { 
-          time: "17:00", 
-          title: "香川ベースキャンプ初期化", 
+          time: "14:00", 
+          title: "Kagawa", 
           icon: "🏨",
           desc: "宿チェックイン完了" 
         },
