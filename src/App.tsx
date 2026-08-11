@@ -8,8 +8,9 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [bioError, setBioError] = useState("");
+  const [isAttemptingAuto, setIsAttemptingAuto] = useState(true);
 
-  // 従来のパスワード認証
+  // パスワード認証
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === "gay") {
@@ -19,22 +20,19 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
     }
   };
 
-  // 生体認証（WebAuthn API）の呼び出し処理
-  const handleBiometricAuth = async () => {
-    setBioError("");
+  // 生体認証処理
+  const handleBiometricAuth = async (isAuto = false) => {
+    if (!isAuto) setBioError("");
     setError(false);
 
-    // ブラウザが生体認証APIをサポートしているかチェック
     if (!window.PublicKeyCredential) {
-      setBioError("この端末・ブラウザは生体認証に未対応ぜよ！");
+      if (!isAuto) setBioError("この端末・ブラウザは生体認証に未対応ぜよ！");
       return;
     }
 
     try {
-      // フロントエンドのみでネイティブプロンプトを強制的に呼び出すためのダミーオプション
-      // ※本格的な実装ではバックエンドからの連携が必須です
       const publicKey = {
-        challenge: new Uint8Array(32), // ダミーのチャレンジ
+        challenge: new Uint8Array(32),
         rp: { 
           name: "Shikoku Trip", 
           id: window.location.hostname === "localhost" ? "localhost" : window.location.hostname 
@@ -46,43 +44,65 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
         },
         pubKeyCredParams: [{ type: "public-key" as const, alg: -7 }],
         authenticatorSelection: {
-          authenticatorAttachment: "platform" as const, // Touch ID / Face ID などの端末内蔵を指定
+          authenticatorAttachment: "platform" as const,
           userVerification: "required" as const
         },
         timeout: 60000,
         attestation: "none" as const
       };
 
-      // 生体認証のネイティブUIを呼び出す
       const credential = await navigator.credentials.create({ publicKey });
       
       if (credential) {
-        onLogin(); // 認証成功！
+        onLogin();
       }
     } catch (err: any) {
-      console.error("Biometric auth error:", err);
-      // ユーザーがキャンセルした場合や失敗した場合のエラーハンドリング
-      setBioError("生体認証がキャンセルされたか、失敗したきに！");
+      console.warn("Biometric auth error:", err);
+      // 自動起動がブラウザに弾かれた（NotAllowedError等）場合はエラーメッセージを出さず、
+      // ユーザーのタップを待つ状態にする
+      if (!isAuto) {
+        setBioError("生体認証がキャンセルされたか、失敗したきに！");
+      }
+    } finally {
+      setIsAttemptingAuto(false);
     }
   };
 
+  // 初回レンダリング時にダメ元で自動起動を試みる
+  useEffect(() => {
+    handleBiometricAuth(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans">
-      <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl w-full max-w-md text-center">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-4 tracking-widest">
+    // 背景のどこをタップしても生体認証が起動するように onClick を配置
+    <div 
+      onClick={() => handleBiometricAuth(false)}
+      className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans cursor-pointer"
+    >
+      {/* 
+        中央のカード部分。
+        stopPropagation で、フォーム入力中に背景タップ扱いになって生体認証が誤爆するのを防ぐ 
+      */}
+      <div 
+        onClick={(e) => e.stopPropagation()} 
+        className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl w-full max-w-md text-center cursor-default z-10"
+      >
+        <h1 className="text-4xl font-bold text-yellow-400 mb-4 tracking-widest animate-pulse">
           🔒
         </h1>
-        <p className="text-gray-400 mb-6 text-xs leading-relaxed">
-          四国旅に参加するには<br />パスワードまたは生体認証が必要ぜよ。
+        <p className="text-gray-400 mb-6 text-sm leading-relaxed font-bold">
+          {isAttemptingAuto ? "ロック解除を確認中..." : "画面をタップして生体認証でロック解除"}
         </p>
 
-        {/* 生体認証ボタン */}
         <button 
-          onClick={handleBiometricAuth}
-          className="w-full mb-6 px-6 py-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3 text-sm"
+          onClick={() => handleBiometricAuth(false)}
+          className="w-full mb-6 px-6 py-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3 text-sm relative overflow-hidden group"
         >
-          <span className="text-2xl">👆</span> 
-          生体認証でロック解除
+          {/* ボタンに波紋のようなエフェクトをつけてタップを促す */}
+          <div className="absolute inset-0 bg-blue-400/10 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-full"></div>
+          <span className="text-2xl relative z-10">👆</span> 
+          <span className="relative z-10">生体認証を起動</span>
         </button>
 
         {bioError && <p className="text-red-400 text-xs mb-4 font-bold">{bioError}</p>}
@@ -108,6 +128,13 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
           </button>
         </form>
       </div>
+
+      {/* 画面全体がタップ可能であることを視覚的に伝えるレイヤー */}
+      {!isAttemptingAuto && (
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-12 items-center opacity-50 animate-bounce">
+          <p className="text-xs text-slate-400 font-bold tracking-widest">TAP ANYWHERE TO UNLOCK</p>
+        </div>
+      )}
     </div>
   );
 }
