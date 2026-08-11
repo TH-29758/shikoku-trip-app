@@ -564,13 +564,13 @@ function MapView() {
               ▼▼▼ ここにGoogleマップの埋め込み用HTMLを貼り付けます ▼▼▼
               現在は四国全体を適当に映す仮のURLを入れています。
             */}
-            <iframe 
-              src="https://maps.app.goo.gl/xbTpHuB4UTiuexb3A" 
-              className="absolute inset-0 w-full h-full border-0" 
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1dmUrSo8UhNw21UiTzReLuyYHc8cgK2A&ehbc=2E312F" 
+            className="absolute inset-0 w-full h-full border-0" 
               allowFullScreen={true} 
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+            >
+            </iframe>
           </div>
           <p className="text-[10px] text-slate-400 mt-3 leading-relaxed">
             ※ 上記はアプリ内で直接操作できるマップです。<br/>
