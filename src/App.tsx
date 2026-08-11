@@ -383,21 +383,37 @@ function Schedule() {
     // ※Day2以降も同様に transit や icon を追加できます（ここではDay2を少し例示します）
     day2: {
       date: "9月25日 (金)",
-      title: "2日目：うどん大量消費テスト",
+      title: "2日目：香川・愛媛",
       items: [
-        { time: "終日", title: "うどん並列消費テスト", icon: "🍜", desc: "うどんパーティ ＆ 観光の実行" },
+        { time: "09:00",
+          title: "香川県内のうどん全部行く",
+          icon: "🍜",
+          desc: "うどんを食べまくる",
+        },
         { 
           time: "17:00", 
           title: "香川出発", 
           icon: "🚗", 
-          desc: "愛媛方面へルーティング",
-          transit: { duration: "約2時間30分", cost: "高速 約4,000円", method: "🚗" } 
+          desc: "愛媛方面へGO",
+          transit: { duration: "約3時間", cost: "高速 約2,000円", method: "🚗" } 
         },
-        { time: "19:00", title: "愛媛ベースキャンプ初期化", icon: "🏨", desc: "宿チェックイン" },
+        { time: "19:00", title: "愛媛着", icon: "🏨", desc: "宿チェックイン" },
         { time: "20:00", title: "道後温泉", icon: "♨️", desc: "リカバリー処理（入浴）" },
       ]
     },
-    // ...day3以降は元のままでもエラーにはなりません（型定義で optional にしているため）
+    day3: {
+      date: "9月26日 (土)",
+      title: "3日目：愛媛・高知",
+      items: [
+        {
+          time: "06:00",
+          title: "高知出発",
+          icon: "🚗",
+          desc: "高知方面へGO",
+          transit: { duration: "約2時間", cost: "高速 約1,500円", method: "🚗" }
+        },
+      ]
+    }
   };
 
   // ※ Day3〜6のデータは省略していますが、お手元のコードのものをそのまま入れてOKです
