@@ -355,7 +355,7 @@ function Schedule() {
           title: "＊くるくる　なると", 
           icon: "🥞",
           desc: "いもにおぼれる",
-          transit: { duration: "約20分", cost: "", method: "🚗" }
+          transit: { duration: "約20分", cost: "0円", method: "🚗" }
         },
         {
           time: "12:30",
@@ -416,27 +416,57 @@ function Schedule() {
           title: "愛媛出発",
           icon: "🚗",
           desc: "高知方面へGO",
-          transit: { duration: "約2時間", cost: "高速 約1,500円", method: "🚗" }
+          transit: { duration: "約2時間", cost: "0円", method: "🚗" }
         },
         {
           time: "09:30",
           title: "四国カルスト",
           icon: "🏞️",
           desc: "自然の美景を満喫",
-          transit: { duration: "約1時間", cost: "高速 約1,000円", method: "🚗" }
+          transit: { duration: "約1時間30分", cost: "0円", method: "🚗" }
         },
         {
           time: "11:30",
+          title: "四国カルスト出発",
+          icon: "🚗",
+          desc: "伊野駅へGO",
+          transit: { duration: "約1時間30分", cost: "0円", method: "🚗" }
+        },
+        {
+          time: "13:00",
           title: "伊野駅到着",
           icon: "🚉",
-          desc: "りょうた、だいちと同期処理（合流）",
-          transit: { duration: "約30分", cost: "高速 約500円", method: "🚗" }
+          desc: "りょうた、だいち合流",
+          transit: { duration: "約30分", cost: "0円", method: "🚗" }
         },
         {
           time: "17:00",
           title: "黒潮の家 ベースキャンプ初期化",
           icon: "🏨",
           desc: "ベースキャンプの初期化"
+        }
+      ]
+    },
+    day4: {
+      date: "9月27日 (日)",
+      title: "4日目：ガチ高知",
+      items: [
+        { time: "09:00",
+          title: "仁淀川フィールドワーク",
+          icon: "🏞️",
+          desc: "奇跡の清水で自然を満喫"
+        },
+      ]
+    },
+    day5: {
+      date: "9月28日 (月)",
+      title: "5日目：レンタカー返却そして解散へ",
+      items: [
+        {
+          time: "09:00",
+          title: "自由探索フェーズ",
+          icon: "🚗",
+          desc: "レンタカー返却",
         }
       ]
     }
