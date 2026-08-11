@@ -564,13 +564,26 @@ function MapView() {
               ▼▼▼ ここにGoogleマップの埋め込み用HTMLを貼り付けます ▼▼▼
               現在は四国全体を適当に映す仮のURLを入れています。
             */}
-            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1dmUrSo8UhNw21UiTzReLuyYHc8cgK2A&ehbc=2E312F" 
-            className="absolute inset-0 w-full h-full border-0" 
-              allowFullScreen={true} 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-            >
-            </iframe>
+            {/* --- Googleマップ リストを開くエリア --- */}
+            <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl relative overflow-hidden mb-6">
+              <h2 className="text-base font-bold text-yellow-400 mb-2 flex items-center gap-2">
+                <span className="text-xl">🗺️</span> 四国旅の全体マップ
+              </h2>
+              <p className="text-xs text-slate-300 mb-4 leading-relaxed">
+                保存済みのスポット一覧（ピン）をGoogleマップで確認できます。
+              </p>
+          
+              <a 
+                href="https://maps.app.goo.gl/xbTpHuB4UTiuexb3A" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 text-sm"
+              >
+                <span>Googleマップでリストを開く</span>
+                <span className="text-lg">↗</span>
+              </a>
+            </div>
+            {/* --------------------------------- */}
           </div>
           <p className="text-[10px] text-slate-400 mt-3 leading-relaxed">
             ※ 上記はアプリ内で直接操作できるマップです。<br/>
