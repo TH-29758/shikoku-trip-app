@@ -407,11 +407,37 @@ function Schedule() {
       items: [
         {
           time: "06:00",
-          title: "高知出発",
+          title: "道後温泉 朝風呂タスク",
+          icon: "♨️",
+          desc: "さすがの朝風呂",
+        },
+        {
+          time: "07:30",
+          title: "愛媛出発",
           icon: "🚗",
           desc: "高知方面へGO",
           transit: { duration: "約2時間", cost: "高速 約1,500円", method: "🚗" }
         },
+        {
+          time: "09:30",
+          title: "四国カルスト",
+          icon: "🏞️",
+          desc: "自然の美景を満喫",
+          transit: { duration: "約1時間", cost: "高速 約1,000円", method: "🚗" }
+        },
+        {
+          time: "11:30",
+          title: "伊野駅到着",
+          icon: "🚉",
+          desc: "りょうた、だいちと同期処理（合流）",
+          transit: { duration: "約30分", cost: "高速 約500円", method: "🚗" }
+        },
+        {
+          time: "17:00",
+          title: "黒潮の家 ベースキャンプ初期化",
+          icon: "🏨",
+          desc: "ベースキャンプの初期化"
+        }
       ]
     }
   };
