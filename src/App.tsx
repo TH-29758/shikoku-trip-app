@@ -2,12 +2,14 @@ import { useState, useEffect} from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
 
 // ==========================================
-// 合言葉認証（結界）画面
+// 合言葉認証 ＆ 生体認証（結界）画面
 // ==========================================
 function Gatekeeper({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
+  const [bioError, setBioError] = useState("");
 
+  // 従来のパスワード認証
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === "gay") {
@@ -17,15 +19,81 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
     }
   };
 
+  // 生体認証（WebAuthn API）の呼び出し処理
+  const handleBiometricAuth = async () => {
+    setBioError("");
+    setError(false);
+
+    // ブラウザが生体認証APIをサポートしているかチェック
+    if (!window.PublicKeyCredential) {
+      setBioError("この端末・ブラウザは生体認証に未対応ぜよ！");
+      return;
+    }
+
+    try {
+      // フロントエンドのみでネイティブプロンプトを強制的に呼び出すためのダミーオプション
+      // ※本格的な実装ではバックエンドからの連携が必須です
+      const publicKey = {
+        challenge: new Uint8Array(32), // ダミーのチャレンジ
+        rp: { 
+          name: "Shikoku Trip", 
+          id: window.location.hostname === "localhost" ? "localhost" : window.location.hostname 
+        },
+        user: {
+          id: new Uint8Array(16),
+          name: "agent@shikoku",
+          displayName: "Shikoku Agent"
+        },
+        pubKeyCredParams: [{ type: "public-key" as const, alg: -7 }],
+        authenticatorSelection: {
+          authenticatorAttachment: "platform" as const, // Touch ID / Face ID などの端末内蔵を指定
+          userVerification: "required" as const
+        },
+        timeout: 60000,
+        attestation: "none" as const
+      };
+
+      // 生体認証のネイティブUIを呼び出す
+      const credential = await navigator.credentials.create({ publicKey });
+      
+      if (credential) {
+        onLogin(); // 認証成功！
+      }
+    } catch (err: any) {
+      console.error("Biometric auth error:", err);
+      // ユーザーがキャンセルした場合や失敗した場合のエラーハンドリング
+      setBioError("生体認証がキャンセルされたか、失敗したきに！");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans">
       <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl w-full max-w-md text-center">
-        <h1 className="text-2xl font-bold text-yellow-400 mb-2 tracking-widest">
+        <h1 className="text-4xl font-bold text-yellow-400 mb-4 tracking-widest">
           🔒
         </h1>
-        <p className="text-gray-400 mb-6 text-xs">
-          四国旅に参加するには<br />パスワードを入力。
+        <p className="text-gray-400 mb-6 text-xs leading-relaxed">
+          四国旅に参加するには<br />パスワードまたは生体認証が必要ぜよ。
         </p>
+
+        {/* 生体認証ボタン */}
+        <button 
+          onClick={handleBiometricAuth}
+          className="w-full mb-6 px-6 py-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3 text-sm"
+        >
+          <span className="text-2xl">👆</span> 
+          生体認証でロック解除
+        </button>
+
+        {bioError && <p className="text-red-400 text-xs mb-4 font-bold">{bioError}</p>}
+
+        <div className="flex items-center gap-4 mb-6">
+          <div className="h-px bg-slate-700 flex-1"></div>
+          <span className="text-xs text-slate-500 font-bold">または</span>
+          <div className="h-px bg-slate-700 flex-1"></div>
+        </div>
+
+        {/* 従来のパスワードフォーム */}
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -36,7 +104,7 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
           />
           {error && <p className="text-red-400 text-xs mb-4 font-bold">パスワードが違うきに！やり直せや！</p>}
           <button type="submit" className="w-full px-6 py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all shadow-lg active:scale-95 text-sm">
-            ロックを解除
+            パスワードで解除
           </button>
         </form>
       </div>
@@ -203,9 +271,9 @@ function Schedule() {
   const schedules: { [key: string]: { date: string; title: string; items: { time: string; title: string; desc: string }[] } } = {
     day1: {
       date: "9月24日 (木)",
-      title: "第1章：四国上陸・うどんプロトコル",
+      title: "1日目：淡路島・鳴門・香川",
       items: [
-        { time: "08:00", title: "レンタカー出発", desc: "オリックスレンタカー三宮駅前店集合 ＆ 出発" },
+        { time: "08:00", title: "レンタカー出発", desc: "オリックスレンタカー三宮駅前店集合 ＆ 出発<mapTarget: /map#car>" },
         { time: "09:30", title: "淡路島到着", desc: "周辺環境の予備調査（サクッと観光）[cite: 1]" },
         { time: "10:30", title: "淡路島出発", desc: "鳴門へ移動" },
         { time: "11:00", title: "鳴門到着", desc: "エネルギー補給（昼食）[cite: 1]" },
@@ -217,7 +285,7 @@ function Schedule() {
     },
     day2: {
       date: "9月25日 (金)",
-      title: "第2章：うどん大量消費テスト",
+      title: "2日目：うどん大量消費テスト",
       items: [
         { time: "終日", title: "うどん並列消費テスト", desc: "うどんパーティ ＆ 観光の実行[cite: 1]" },
         { time: "17:00", title: "香川出発", desc: "愛媛方面へルーティング[cite: 1]" },
@@ -227,7 +295,7 @@ function Schedule() {
     },
     day3: {
       date: "9月26日 (土)",
-      title: "第3章：別働隊同期（合流）＆ 高知へ",
+      title: "3日目：別働隊同期（合流）＆ 高知へ",
       items: [
         { time: "06:00", title: "道後温泉 朝風呂タスク", desc: "HP全回復を狙う[cite: 1]" },
         { time: "07:30", title: "愛媛出発", desc: "高知方面へルーティング[cite: 1]" },
@@ -241,21 +309,21 @@ function Schedule() {
     },
     day4: {
       date: "9月27日 (日)",
-      title: "第4章：仁淀川フィールドワーク",
+      title: "4日目：仁淀川フィールドワーク",
       items: [
         { time: "09:00", title: "仁淀川フィールドワーク", desc: "奇跡の清水で自然を満喫[cite: 1]" },
       ]
     },
     day5: {
       date: "9月28日 (月)",
-      title: "第5章：自由探索フェーズ",
+      title: "5日目：自由探索フェーズ",
       items: [
         { time: "09:00", title: "自由探索フェーズ", desc: "各エージェントの裁量に委ねる[cite: 1]" },
       ]
     },
     day6: {
       date: "9月29日 (火)",
-      title: "第6章：プロセス終了（解散）",
+      title: "6日目：プロセス終了（解散）",
       items: [
         { time: "08:00", title: "神戸にてモビリティ返却", desc: "全プロセス終了・解散[cite: 1]" },
       ]
@@ -388,7 +456,7 @@ function MapView() {
 
   const spots = [
     { id: "ikebukuro", name: "池袋サンシャインバスターミナル", query: "池袋サンシャインバスターミナル" },
-    { id: "kobe", name: "神戸ノード（集合・出発）", query: "神戸駅" },
+    { id: "car", name: "オリックスレンタカー三宮駅前店", query: "オリックスレンタカー三宮駅前店" },
     { id: "awaji", name: "淡路島", query: "淡路島" },
     { id: "naruto", name: "鳴門公園・渦潮", query: "鳴門公園" },
     { id: "ikkaku", name: "骨付鳥 一鶴（香川）", query: "一鶴 骨付鳥" },
@@ -442,7 +510,7 @@ function LinksView() {
     { name: "骨付鳥 一鶴（公式サイト）", url: "https://www.ikkaku.co.jp/", mapTarget: "/map#ikkaku" },
     { name: "道後温泉（公式サイト）", url: "https://dogo.jp/", mapTarget: "/map#dogo" },
     { name: "ひろめ市場（公式サイト）", url: "https://hirome.co.jp/", mapTarget: "/map#hirome" },
-    { name: "オリックスレンタカー", url: "https://www.orix-rentacar.com/", mapTarget: "/map#kobe" },
+    { name: "オリックスレンタカー", url: "https://www.orix-rentacar.com/", mapTarget: "/map#car" },
   ];
 
   return (
