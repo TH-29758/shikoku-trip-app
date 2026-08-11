@@ -336,8 +336,15 @@ function Schedule() {
           desc: "鳴門へ移動",
           transit: { duration: "約1時間", cost: "高速 約1,200円", method: "🚗" }
         },
+        {
+          time: "11:30",
+          title: "うずしお汽船 出航",
+          icon: "⛴️",
+          desc: "渦潮を近くで見ちゃう",
+          transit: { duration: "約30分", cost: "大人 2,000円 / 小人 1,000円", method: "⛴️" }
+        },
         { 
-          time: "11:00", 
+          time: "12:00", 
           title: "大鳴門橋遊歩道 渦の道", 
           icon: "🌀",
           desc: "渦潮を見ちゃう", 
@@ -348,7 +355,7 @@ function Schedule() {
           title: "＊くるくる　なると", 
           icon: "🥞",
           desc: "いもにおぼれる",
-          transit: { duration: "約1時間15分", cost: "高速 約2,000円", method: "🚗" }
+          transit: { duration: "約20分", cost: "", method: "🚗" }
         },
         {
           time: "12:30",
@@ -358,17 +365,17 @@ function Schedule() {
           transit: { duration: "約1時間15分", cost: "高速 約1,600円", method: "🚗" }
         },
         { 
-          time: "14:00", 
+          time: "16:30までに到着", 
           title: "Kagawa", 
           icon: "🏨",
           desc: "宿チェックイン完了" 
         },
         { 
-          time: "17:30", 
+          time: "17:00", 
           title: "骨付鳥 一鶴", 
           icon: "🍗",
           desc: (
-            <>『骨付鳥一鶴』にて夕食プロトコル実行 <Link to="/map#ikkaku" className="text-blue-400 hover:underline">map</Link></>
+            <>🍖＆🍺　😁 <Link to="/map#ikkaku" className="text-blue-400 hover:underline">map</Link></>
           )
         },
       ]
