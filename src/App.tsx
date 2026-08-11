@@ -554,16 +554,6 @@ function MapView() {
       <HeaderBar title="Map情報" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         
-        {/* --- Googleマップ 埋め込みエリア --- */}
-        <div className="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-xl relative overflow-hidden">
-          <h2 className="text-sm font-bold text-yellow-400 mb-3 flex items-center gap-2">
-            <span className="text-lg">🗺️</span> 全体マップ (保存済みリスト)
-          </h2>
-          <div className="w-full h-64 rounded-xl overflow-hidden bg-slate-700 relative border border-slate-600/50">
-            {/* 
-              ▼▼▼ ここにGoogleマップの埋め込み用HTMLを貼り付けます ▼▼▼
-              現在は四国全体を適当に映す仮のURLを入れています。
-            */}
             {/* --- Googleマップ リストを開くエリア --- */}
             <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl relative overflow-hidden mb-6">
               <h2 className="text-base font-bold text-yellow-400 mb-2 flex items-center gap-2">
@@ -584,13 +574,6 @@ function MapView() {
               </a>
             </div>
             {/* --------------------------------- */}
-          </div>
-          <p className="text-[10px] text-slate-400 mt-3 leading-relaxed">
-            ※ 上記はアプリ内で直接操作できるマップです。<br/>
-            自分たちで作った「保存済みリスト」を表示させるには、PC版Googleマップから「地図を埋め込む」コードを取得して差し替えてください。
-          </p>
-        </div>
-        {/* --------------------------------- */}
 
         <div className="space-y-4">
           <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-2">
