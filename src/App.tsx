@@ -295,64 +295,156 @@ function Home() {
 function Schedule() {
   const [activeDay, setActiveDay] = useState("day1");
 
-  const schedules: { [key: string]: { date: string; title: string; items: { time: string; title: string; desc: string }[] } } = {
+  const schedules: { [key: string]: { date: string; title: string; items: { time: string; title: string; desc: () => React.ReactNode }[] } } = {
     day1: {
       date: "9月24日 (木)",
       title: "1日目：淡路島・鳴門・香川",
       items: [
-        { time: "08:00", title: "レンタカー出発", desc: "オリックスレンタカー三宮駅前店集合 ＆ 出発<mapTarget: /map#car>" },
-        { time: "09:30", title: "淡路島到着", desc: "周辺環境の予備調査（サクッと観光）[cite: 1]" },
-        { time: "10:30", title: "淡路島出発", desc: "鳴門へ移動" },
-        { time: "11:00", title: "鳴門到着", desc: "エネルギー補給（昼食）[cite: 1]" },
-        { time: "12:00", title: "鳴門フィールドワーク", desc: "観光実施[cite: 1]" },
-        { time: "15:30", title: "鳴門出発", desc: "香川方面へルーティング[cite: 1]" },
-        { time: "17:00", title: "香川ベースキャンプ初期化", desc: "宿チェックイン[cite: 1]" },
-        { time: "17:30", title: "香川到着", desc: "『骨付鳥一鶴』にて夕食プロトコル実行[cite: 1]" },
+        { time: "08:00", title: "レンタカー出発", desc: () => (
+          <>
+            オリックスレンタカー三宮駅前店集合 ＆ 出発, <Link to="/map#car" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "09:30", title: "淡路島到着", desc: () => (
+          <>
+            周辺環境の予備調査（サクッと観光）[cite: 1], <Link to="/map#awaji" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "10:30", title: "淡路島出発", desc: () => (
+          <>
+            鳴門へ移動, <Link to="/map#naruto" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "11:00", title: "鳴門到着", desc: () => (
+          <>
+            エネルギー補給（昼食）[cite: 1], <Link to="/map#naruto" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "12:00", title: "鳴門フィールドワーク", desc: () => (
+          <>
+            観光実施[cite: 1], <Link to="/map#naruto" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "15:30", title: "鳴門出発", desc: () => (
+          <>
+            香川方面へルーティング[cite: 1], <Link to="/map#ikkaku" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "17:00", title: "香川ベースキャンプ初期化", desc: () => (
+          <>
+            宿チェックイン[cite: 1], <Link to="/map#ikkaku" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "17:30", title: "香川到着", desc: () => (
+          <>
+            『骨付鳥一鶴』にて夕食プロトコル実行[cite: 1], <Link to="/map#ikkaku" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
       ]
     },
     day2: {
       date: "9月25日 (金)",
       title: "2日目：うどん大量消費テスト",
       items: [
-        { time: "終日", title: "うどん並列消費テスト", desc: "うどんパーティ ＆ 観光の実行[cite: 1]" },
-        { time: "17:00", title: "香川出発", desc: "愛媛方面へルーティング[cite: 1]" },
-        { time: "19:00", title: "愛媛ベースキャンプ初期化", desc: "宿チェックイン[cite: 1]" },
-        { time: "20:00", title: "愛媛到着", desc: "『道後温泉』にてリカバリー処理（入浴）[cite: 1]" },
+        { time: "終日", title: "うどん並列消費テスト", desc: () => (
+          <>
+            うどんパーティ ＆ 観光の実行[cite: 1], <Link to="/map#ikkaku" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "17:00", title: "香川出発", desc: () => (
+          <>
+            愛媛方面へルーティング[cite: 1], <Link to="/map#ikeda" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "19:00", title: "愛媛ベースキャンプ初期化", desc: () => (
+          <>
+            宿チェックイン[cite: 1], <Link to="/map#ikeda" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "20:00", title: "愛媛到着", desc: () => (
+          <>
+            『道後温泉』にてリカバリー処理（入浴）[cite: 1], <Link to="/map#ikeda" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
       ]
     },
     day3: {
       date: "9月26日 (土)",
       title: "3日目：別働隊同期（合流）＆ 高知へ",
       items: [
-        { time: "06:00", title: "道後温泉 朝風呂タスク", desc: "HP全回復を狙う[cite: 1]" },
-        { time: "07:30", title: "愛媛出発", desc: "高知方面へルーティング[cite: 1]" },
-        { time: "09:30", title: "四国カルスト", desc: "ドライブテスト実施[cite: 1]" },
-        { time: "11:30", title: "伊野駅到着", desc: "りょうた、だいちと同期処理（合流）[cite: 1]" },
-        { time: "12:00", title: "ひろめ市場", desc: "昼食プロトコル（酒宴注意）[cite: 1]" },
-        { time: "13:30", title: "追手前高校", desc: "施設見学[cite: 1]" },
-        { time: "15:30", title: "高知出発", desc: "黒潮の家へルーティング[cite: 1]" },
-        { time: "17:00", title: "黒潮の家 ベースキャンプ初期化", desc: "チェックイン完了[cite: 1]" },
+        { time: "06:00", title: "道後温泉 朝風呂タスク", desc: () => (
+          <>
+            HP全回復を狙う[cite: 1], <Link to="/map#ikeda" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "07:30", title: "愛媛出発", desc: () => (
+          <>
+            高知方面へルーティング[cite: 1], <Link to="/map#kuroshio" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "09:30", title: "四国カルスト", desc: () => (
+          <>
+            ドライブテスト実施[cite: 1], <Link to="/map#karst" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "11:30", title: "伊野駅到着", desc: () => (
+          <>
+            りょうた、だいちと同期処理（合流）[cite: 1], <Link to="/map#hirome" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "12:00", title: "ひろめ市場", desc: () => (
+          <>
+            昼食プロトコル（酒宴注意）[cite: 1], <Link to="/map#hirome" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "13:30", title: "追手前高校", desc: () => (
+          <>
+            施設見学[cite: 1], <Link to="/map#karst" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "15:30", title: "高知出発", desc: () => (
+          <>
+            黒潮の家へルーティング[cite: 1], <Link to="/map#kuroshio" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
+        { time: "17:00", title: "黒潮の家 ベースキャンプ初期化", desc: () => (
+          <>
+            チェックイン完了[cite: 1], <Link to="/map#kuroshio" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
       ]
     },
     day4: {
       date: "9月27日 (日)",
       title: "4日目：仁淀川フィールドワーク",
       items: [
-        { time: "09:00", title: "仁淀川フィールドワーク", desc: "奇跡の清水で自然を満喫[cite: 1]" },
+        { time: "09:00", title: "仁淀川フィールドワーク", desc: () => (
+          <>
+            奇跡の清水で自然を満喫[cite: 1], <Link to="/map#niyodo" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
       ]
     },
     day5: {
       date: "9月28日 (月)",
       title: "5日目：自由探索フェーズ",
       items: [
-        { time: "09:00", title: "自由探索フェーズ", desc: "各エージェントの裁量に委ねる[cite: 1]" },
+        { time: "09:00", title: "自由探索フェーズ", desc: () => (
+          <>
+            各エージェントの裁量に委ねる[cite: 1], <Link to="/map#free" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
       ]
     },
     day6: {
       date: "9月29日 (火)",
       title: "6日目：プロセス終了（解散）",
       items: [
-        { time: "08:00", title: "神戸にてモビリティ返却", desc: "全プロセス終了・解散[cite: 1]" },
+        { time: "08:00", title: "神戸にてモビリティ返却", desc: () => (
+          <>
+            全プロセス終了・解散[cite: 1], <Link to="/map#ikebukuro" className="text-blue-400 hover:underline">map</Link>
+          </>
+        ) },
       ]
     },
   };
@@ -391,7 +483,7 @@ function Schedule() {
                 <h4 className="text-base font-bold text-white">{item.title}</h4>
               </div>
               <p className="text-gray-400 text-xs bg-slate-800 p-3 rounded-xl border border-slate-700/80">
-                {item.desc}
+                {item.desc()}
               </p>
             </div>
           ))}
