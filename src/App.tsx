@@ -692,13 +692,6 @@ function Party() {
           
           <ul className="text-xs text-slate-300 space-y-3">
             <li className="flex items-start gap-2">
-              <span className="text-slate-500 mt-0.5">🚗</span>
-              <div>
-                <span className="font-bold text-white">レンタカーの追加保険料</span>
-                <p className="text-[10px] text-slate-400 mt-0.5">免責補償やNOCサポート（フルカバー）を窓口で追加した場合、2台で約1〜1.5万円程度かかる可能性があります。</p>
-              </div>
-            </li>
-            <li className="flex items-start gap-2">
               <span className="text-slate-500 mt-0.5">🅿️</span>
               <div>
                 <span className="font-bold text-white">ホテルの駐車場代・コインパーキング</span>
@@ -708,8 +701,8 @@ function Party() {
             <li className="flex items-start gap-2">
               <span className="text-slate-500 mt-0.5">♨️</span>
               <div>
-                <span className="font-bold text-white">入湯税</span>
-                <p className="text-[10px] text-slate-400 mt-0.5">道後温泉など温泉付きの宿では、宿泊費とは別に現地で1人150円程度の「入湯税」が徴収されます。</p>
+                <span className="font-bold text-white">サウナ・銭湯代</span>
+                <p className="text-[10px] text-slate-400 mt-0.5">高知（グリンピア）や愛媛・神戸でのサウナ、道後温泉をはじめ宿泊地周辺での銭湯代などは別途必要です。</p>
               </div>
             </li>
             <li className="flex items-start gap-2">
