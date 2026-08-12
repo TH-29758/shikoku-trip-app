@@ -284,7 +284,7 @@ function AccommodationsView() {
       desc: "ワンフロア貸し切り カプセルホテル",
       address: "愛媛県松山市湊町4-2-4",
       inOut: "IN: 16:00 (最終24:00) / OUT: 10:00",
-      parking: "無し（お近くのコインパーキングをご利用ください）",
+      parking: "無し（近くのコインパーキングを利用）",
       notes: "松山市駅より徒歩約6分。パジャマの備え付けなし。",
       url: "https://travel.rakuten.co.jp/HOTEL/180391/180391.html",
       mapTarget: "/map#88hotels"
@@ -302,12 +302,12 @@ function AccommodationsView() {
     },
     {
       day: "Day 4 (9/27) - 高知",
-      name: "高知エリア Airbnb (Day 4)",
+      name: "一棟貸し宿五台さんちのとなり宿",
       desc: "最終日の宿泊拠点",
-      address: "高知エリア (詳細はAirbnbのリンクを確認)",
-      inOut: "リンク先にて確認",
-      parking: "リンク先にて確認",
-      notes: "翌日は夜通しドライブとなるため、しっかり仮眠をとること。",
+      address: "高知県高知市若松町6-25",
+      inOut: "IN: 15:00 / OUT: 10:00",
+      parking: "無料駐車場は一台だけ、追加の車は近くのコインパーキングへ",
+      notes: "洗濯機あり乾燥機なし<br>チェックイン方法:玄関にプッシュ式ロックがあり、暗証番号はCA8072<br>freeポケットWi-Fiがあり、機器からQRコードをカメラで読み取ればパスワードなしで繋がる。<br>ID: Rakuten-5277<br>パスワードの場合は、5ZBA64G8KZ<br>パスワード: 5ZBA64G8KZ",
       url: "https://www.airbnb.jp/rooms/1716893195048633552",
       mapTarget: ""
     }
@@ -318,7 +318,7 @@ function AccommodationsView() {
       <HeaderBar title="宿泊情報 (Hotels)" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         <p className="text-xs text-slate-400 leading-relaxed">
-          各日程の宿泊施設に関する詳細情報、チェックイン時間、駐車場ルールなどをまとめています。
+          各日程の宿泊施設に関する詳細情報、チェックイン時間、駐車場ルールなど
         </p>
         
         {accommodations.map((hotel, idx) => (
@@ -438,29 +438,28 @@ function Schedule() {
         { time: "12:00", title: "道の駅 くるくる なると", icon: "🥞", desc: <><Link to="/map#kurukuru" className="text-blue-400 hover:underline">くるくるなると</Link>でいもにおぼれる</>, transit: { duration: "約20分", cost: "0円", method: "🚗" } },
         { time: "12:30", title: "徳島ラーメン", icon: "🍜", desc: <><Link to="/map#yamakyo" className="text-blue-400 hover:underline">やまきょう</Link>で徳島料理をイク</>, transit: { duration: "約1時間15分", cost: "高速 約1,600円", method: "🚗" } },
         { time: "16:30", title: "高松 ホテル着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">ゲストハウス コトネ</Link>にチェックイン。駐車(浜ノ町モータープール 33番)に注意</> },
-        { time: "17:00", title: "骨付鳥 一鶴", icon: "🍗", desc: <>🍖＆🍺 😁 <Link to="/map#ikkaku_takamatsu" className="text-blue-400 hover:underline">一鶴 高松店 or 中府店</Link>へ</> },
+        { time: "17:00", title: "骨付鳥 一鶴", icon: "🍗", desc: <>🍖＆🍺 😁 <Link to="/map#ikkaku_takamatsu" className="text-blue-400 hover:underline">一鶴 高松店</Link>へ</> },
         { time: "22:00", title: "Day1 終了", desc: "明日のうどんに備えて就寝" }
       ]
     },
     day2: {
       date: "9月25日 (金)", title: "2日目：香川・愛媛",
       items: [
-        { time: "09:00", title: "香川 絶景＆うどん巡り", icon: "🍜", desc: <><Link to="/map#zenigata" className="text-blue-400 hover:underline">銭形砂絵</Link>や<Link to="/map#chichibugahama" className="text-blue-400 hover:underline">父母ヶ浜</Link>を巡りつつ、うどんを並列消費。<Link to="/map#kotohiki" className="text-blue-400 hover:underline">琴弾廻廊(温泉)</Link>の選択肢もアリ。</> },
-        { time: "17:00", title: "香川出発", icon: "🚗", desc: "愛媛方面へルーティング", transit: { duration: "約2.5時間", cost: "高速 約2,500円", method: "🚗" } },
+        { time: "09:00", title: "香川 絶景＆うどん巡り", icon: "🍜", desc: <><Link to="/map#zenigata" className="text-blue-400 hover:underline">銭形砂絵</Link>や<Link to="/map#chichibugahama" className="text-blue-400 hover:underline">父母ヶ浜</Link>を巡りつつ、うどんを大量食べ。<Link to="/map#kotohiki" className="text-blue-400 hover:underline">琴弾廻廊(温泉)</Link>の選択肢もアリ。</> },
+        { time: "17:00", title: "香川出発", icon: "🚗", desc: "愛媛方面へgo", transit: { duration: "約2.5時間", cost: "高速 約2,500円", method: "🚗" } },
         { time: "19:30", title: "愛媛 ホテル着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">88HOTELS</Link>にチェックイン。近隣コインパーキング利用</> },
         { time: "20:00", title: "道後温泉 / サウナ", icon: "♨️", desc: <><Link to="/map#dogo" className="text-blue-400 hover:underline">道後温泉</Link>や<Link to="/map#kisuke" className="text-blue-400 hover:underline">喜助の湯</Link>にてリカバリー処理</> },
-        { time: "23:00", title: "Day2 終了", desc: "翌朝早起きミッションあり" }
+        { time: "23:00", title: "Day2 終了" }
       ]
     },
     day3: {
       date: "9月26日 (土)", title: "3日目：愛媛・高知合流",
       items: [
-        { time: "06:00", title: "道後温泉 朝風呂", icon: "♨️", desc: "さすがの朝風呂。HP全回復" },
-        { time: "07:30", title: "愛媛出発", icon: "🚗", desc: <><Link to="/map#shimonada" className="text-blue-400 hover:underline">下灘駅</Link>を横目に高知方面へGO</>, transit: { duration: "約2時間", cost: "0円", method: "🚗" } },
-        { time: "09:30", title: "四国カルスト", icon: "🏞️", desc: <><Link to="/map#godan" className="text-blue-400 hover:underline">五段高原</Link>や<Link to="/map#mezudaira" className="text-blue-400 hover:underline">姫鶴平</Link>で天空のドライブ。<Link to="/map#mikawa" className="text-blue-400 hover:underline">道の駅 みかわ</Link>で休憩も</>, transit: { duration: "約2時間", cost: "570円", method: "🚗" } },
-        { time: "13:00", title: "伊野駅到着", icon: "🚉", desc: <><Link to="/map#ino" className="text-blue-400 hover:underline">伊野駅</Link>でいっせい、りょうた、だいちと合流！10人パーティ完成</> },
-        { time: "13:30", title: "ひろめ市場", icon: "🍴", desc: <><Link to="/map#hirome" className="text-blue-400 hover:underline">ひろめ市場</Link>でokamiさんと合流＆昼食。酒宴注意</>, transit: { duration: "約1時間", cost: "810円", method: "🚗" } },
-        { time: "15:30", title: "追手前高校 見学", icon: "🏫", desc: <><Link to="/map#otemae" className="text-blue-400 hover:underline">追手前高校</Link>など市内観光</> },
+        { time: "06:00", title: "道後温泉 朝風呂", icon: "♨️", desc: "さすがの朝風呂" },
+        { time: "07:30", title: "愛媛出発", icon: "🚗", desc: <>高知方面へGO</>, transit: { duration: "約2時間", cost: "0円", method: "🚗" } },
+        { time: "09:30", title: "四国カルスト", icon: "🏞️", desc: <><Link to="/map#godan" className="text-blue-400 hover:underline">五段高原</Link>や<Link to="/map#mezudaira" className="text-blue-400 hover:underline">姫鶴平</Link>でドライブ。<Link to="/map#mikawa" className="text-blue-400 hover:underline">道の駅 みかわ</Link>で休憩も</>, transit: { duration: "約2時間", cost: "570円", method: "🚗" } },
+        { time: "13:00", title: "いっせいの家", icon: "🚉", desc: <><Link to="/map#ino" className="text-blue-400 hover:underline">伊野駅</Link>でいっせい、りょうた、だいち合流</> },
+        { time: "15:30", title: "追手前高校 見学", icon: "🏫", desc: <><Link to="/map#otemae" className="text-blue-400 hover:underline">追手前高校</Link></> },
         { time: "17:00", title: "黒潮の家 Ⅰ号館", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">メインベース(黒潮の家)</Link>にチェックイン。今夜は買い出ししてBBQ＆宴！</> },
         { time: "23:59", title: "Day3 終了", desc: "宴" }
       ]
@@ -468,21 +467,29 @@ function Schedule() {
     day4: {
       date: "9月27日 (日)", title: "4日目：ガチ高知",
       items: [
+        { time: "08:00", title: "okami朝食", icon: "♨️", desc: "ワンちゃんokamiの手作り朝食" },
         { time: "09:00", title: "仁淀川フィールドワーク", icon: "🏞️", desc: <><Link to="/map#niyodo" className="text-blue-400 hover:underline">仁淀川</Link>の奇跡の清水「仁淀ブルー」で自然を満喫</> },
-        { time: "14:00", title: "高知 自由探索", icon: "🚶", desc: <>各エージェントの裁量に委ねる。<Link to="/map#greenpia" className="text-blue-400 hover:underline">SAUNA グリンピア</Link>もアリ</> },
-        { time: "17:00", title: "ベースキャンプ到着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">Day4のAirbnb</Link>にチェックイン。夕食 ＆ 仮眠準備</> },
-        { time: "18:00", title: "だいち・いっせい離脱", icon: "👋", desc: "2名ここで離脱。お疲れ様でした！" },
-        { time: "23:00", title: "Day4 終了 (仮眠)", desc: "日付が変わる前に少しでも寝る" }
+        { time: "14:00", title: "高知 自由探索", icon: "🚶", desc: <>自由。<Link to="/map#greenpia" className="text-blue-400 hover:underline">SAUNA グリンピア</Link>もアリ</> },
+        { time: "14:00~", title: "ひろめ市場でひたすら飲んだっていい", icon: "🍺", desc: <><Link to="/map#hirome" className="text-blue-400 hover:underline">ひろめ市場</Link>を堪能</> },
+        { time: "17:00", title: "宿到着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">一棟貸し宿五台さんちのとなり宿</Link>にチェックイン</> },
+        { time: "18:00", title: "だいち離脱", icon: "👋", desc: "byeG" },
+        { time: "23:00", title: "Day4 終了 (仮眠)", desc: "寝る❤️(何も起こらなければいいけど…)" }
       ]
     },
     day5: {
-      date: "9月28日〜29日 (月・火)", title: "5日目：弾丸アサルト＆帰還",
+      date: "9月28日 (月)", title: "5日目：なんも決まってない",
+      items: [
+        { time: "なし", title: "自由行動", icon: "🛌", desc: "高知で自由行動。夜通し神戸へ弾丸アサルトする予定" }
+      ]
+    },
+    day6: {
+      date: "9月29日 (火)", title: "6日目：弾丸アサルト＆帰還",
       items: [
         { time: "03:00", title: "高知出発 (深夜ドライブ)", icon: "🚗", desc: "ETC深夜割引(30%OFF)を狙うため、0時〜4時台に高速に乗る！", transit: { duration: "約4時間", cost: "深夜割引適用 約5,000円", method: "🚗" } },
         { time: "05:00", title: "徳島・淡路島通過", icon: "🌉", desc: "夜明けのドライブ。ドライバー交代必須" },
         { time: "07:30", title: "神戸市内着", icon: "🏙️", desc: <><Link to="/map#kobe_sauna" className="text-blue-400 hover:underline">神戸サウナ＆スパ</Link>で朝ウナするのもアリ。通勤渋滞に注意</> },
-        { time: "08:00", title: "レンタカー返却", icon: "🏁", desc: <><Link to="/map#sannomiya_car" className="text-blue-400 hover:underline">三宮駅前</Link>でモビリティ返却。全プロセス終了</> },
-        { time: "08:15", title: "解散", desc: "お疲れ様でした！" }
+        { time: "08:00", title: "レンタカー返却", icon: "🏁", desc: <><Link to="/map#sannomiya_car" className="text-blue-400 hover:underline">三宮駅前</Link>でモビリティ返却。全終了</> },
+        { time: "08:15", title: "解散", desc: "！" }
       ]
     }
   };
@@ -786,10 +793,6 @@ function LinksView() {
             <span className="text-3xl">🌤️</span>
             <span className="text-xs font-bold text-white">四国の天気予報</span>
           </a>
-          <a href="https://open.spotify.com/playlist/37i9dQZF1DX4J4XN4zFhXw" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-colors">
-            <span className="text-3xl">🎵</span>
-            <span className="text-xs font-bold text-white">ドライブBGM (Spotify)</span>
-          </a>
         </div>
 
         {/* 公式サイトリンク集 */}
@@ -839,10 +842,7 @@ function EtcView() {
             <h2 className="text-sm font-bold text-yellow-400">四国旅 基本ルール</h2>
           </div>          
           <ul className="text-xs space-y-2 text-slate-300 list-disc pl-4 marker:text-yellow-500">
-            <li><span className="font-bold text-white">運転手へのリスペクト:</span> 助手席の人間は寝てはいけない（ナビ・DJ・話し相手の義務）。</li>
-            <li><span className="font-bold text-white">酒は飲んでも飲まれるな:</span> 翌日の運転に支障をきたすレベルの二日酔いは厳罰。</li>
-            <li><span className="font-bold text-white">時間厳守:</span> 人数が多いので1人の遅刻が全体の首を絞めます。</li>
-            <li><span className="font-bold text-white">最終日のアサルト:</span> 28日夜〜29日朝の神戸帰還は戦いです。前日の睡眠はしっかり。</li>
+            <li><span className="font-bold text-white">運転手へのリスペクト(非免許持ちへの軽蔑・見下し):</span> 助手席の人間は寝てはいけない（ナビ・DJ・話し相手の義務）。</li>
           </ul>
         </div>
 
