@@ -55,8 +55,8 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
   }, []);
 
   return (
-    <div onClick={() => handleBiometricAuth(false)} className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans cursor-pointer">
-      <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl w-full max-w-md text-center cursor-default z-10">
+    <div onClick={() => handleBiometricAuth(false)} className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans cursor-pointer transition-opacity duration-1000">
+      <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl w-full max-w-md text-center cursor-default z-10 animate-in fade-in zoom-in duration-500">
         <h1 className="text-4xl font-bold text-yellow-400 mb-4 tracking-widest animate-pulse">🔒</h1>
         <p className="text-gray-400 mb-6 text-sm leading-relaxed font-bold">
           {isAttemptingAuto ? "ロック解除を確認中..." : "画面をタップして生体認証でロック解除"}
@@ -77,8 +77,8 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 bg-slate-900 text-white rounded-xl border border-slate-700 mb-4 focus:outline-none focus:border-blue-500 text-center text-lg shadow-inner" placeholder="合言葉を入力..." />
-          {error && <p className="text-red-400 text-xs mb-4 font-bold">パスワードが違うきに！やり直せや！</p>}
+          <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 bg-slate-900 text-white rounded-xl border border-slate-700 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-center text-lg shadow-inner transition-all" placeholder="合言葉を入力..." />
+          {error && <p className="text-red-400 text-xs mb-4 font-bold animate-bounce">パスワードが違うきに！やり直せや！</p>}
           <button type="submit" className="w-full px-6 py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all shadow-lg active:scale-95 text-sm">
             パスワードで解除
           </button>
@@ -101,15 +101,15 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative w-72 bg-slate-800 h-full shadow-2xl p-6 flex flex-col justify-between border-r border-slate-700 z-10 animate-in slide-in-from-left duration-200">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+      <div className="relative w-72 bg-slate-800 h-full shadow-2xl p-6 flex flex-col justify-between border-r border-slate-700 z-10 animate-in slide-in-from-left duration-300">
         <div>
           <div className="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
-            <h2 className="text-lg font-extrabold text-yellow-400">🧭 メニュー</h2>
-            <button onClick={onClose} className="text-slate-400 hover:text-white text-xl font-bold p-1">✕</button>
+            <h2 className="text-lg font-extrabold text-yellow-400 tracking-wide">🧭 メニュー</h2>
+            <button onClick={onClose} className="text-slate-400 hover:text-white text-xl font-bold p-1 transition-colors">✕</button>
           </div>
 
-          <nav className="space-y-3">
+          <nav className="space-y-2.5">
             <Link to="/" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
               <span className="text-xl">🏠</span>ホーム
             </Link>
@@ -136,8 +136,8 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             </Link>
           </nav>
         </div>
-        <div className="text-center text-xs text-slate-500 border-t border-slate-700/50 pt-4">
-          Shikoku Excursion 2026
+        <div className="text-center text-xs text-slate-500 border-t border-slate-700/50 pt-4 font-mono">
+          v1.0.0 Beta
         </div>
       </div>
     </div>
@@ -151,10 +151,10 @@ function HeaderBar({ title }: { title: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <>
-      <header className="bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3.5 border-b border-slate-800 flex justify-between items-center">
+      <header className="bg-slate-900/90 backdrop-blur-lg sticky top-0 z-40 px-4 py-3.5 border-b border-slate-800 flex justify-between items-center shadow-sm">
         <h1 className="text-base font-extrabold text-white tracking-tight">{title}</h1>
-        <button onClick={() => setSidebarOpen(true)} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2 rounded-xl text-white shadow-md active:scale-95 transition-all flex items-center gap-2 text-xs font-bold">
-          <span>メニュー</span><span className="text-base">☰</span>
+        <button onClick={() => setSidebarOpen(true)} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl text-white shadow-md active:scale-95 transition-all flex items-center gap-2 text-xs font-bold">
+          <span>MENU</span><span className="text-sm">☰</span>
         </button>
       </header>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -199,7 +199,8 @@ function Home() {
     { datetime: new Date('2026-09-24T17:30:00'), timeStr: '9/24 17:30', title: '香川到着', desc: '『骨付鳥一鶴』にて夕食' },
     { datetime: new Date('2026-09-25T09:00:00'), timeStr: '9/25 終日', title: 'うどん並列消費テスト', desc: 'うどんパーティ' },
     { datetime: new Date('2026-09-26T13:00:00'), timeStr: '9/26 13:00', title: '伊野駅到着', desc: 'りょうた、だいち、いっせい合流' },
-    { datetime: new Date('2026-09-27T09:00:00'), timeStr: '9/27 終日', title: '高知ガチ探索', desc: '仁淀川など。だいち・いっせい離脱' },
+    { datetime: new Date('2026-09-27T09:00:00'), timeStr: '9/27 終日', title: '高知ガチ探索', desc: '仁淀川など。だいち離脱' },
+    { datetime: new Date('2026-09-28T17:00:00'), timeStr: '9/28 夕方', title: 'いっせい離脱', desc: '適当なタイミングで離脱' },
     { datetime: new Date('2026-09-28T22:00:00'), timeStr: '9/28 夜〜', title: '深夜弾丸アサルト', desc: '高知から神戸へ夜通しドライブ' },
     { datetime: new Date('2026-09-29T08:00:00'), timeStr: '9/29 08:00', title: '神戸到着・モビリティ返却', desc: '全プロセス終了・解散' },
   ];
@@ -208,7 +209,7 @@ function Home() {
   let nextEvent = allEvents.find(event => event.datetime > now) || { timeStr: '完了', title: '全プロセスが終了', desc: '解散！お疲れ様でした。' };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-900 text-white font-sans">
+    <div className="flex flex-col min-h-screen bg-slate-900 text-white font-sans animate-in fade-in duration-500">
       <HeaderBar title="四国旅 2026" />
 
       <div className="flex-1 p-4 flex flex-col gap-6 max-w-md mx-auto w-full pb-12">
@@ -247,12 +248,12 @@ function Home() {
           <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider flex items-center gap-2">
             <span>🗺️ OVERVIEW</span>
           </h3>
-          <ul className="text-xs space-y-2.5 text-slate-300 font-medium">
+          <ul className="text-xs space-y-3 text-slate-300 font-medium">
             <li className="flex gap-3"><span className="w-10 text-slate-500 font-mono">9/24</span>神戸発 ➔ 淡路島 ➔ 鳴門 ➔ 香川着</li>
             <li className="flex gap-3"><span className="w-10 text-slate-500 font-mono">9/25</span>香川うどん ➔ 愛媛着(道後温泉)</li>
             <li className="flex gap-3"><span className="w-10 text-slate-500 font-mono">9/26</span>四国カルスト ➔ 高知合流 ➔ 黒潮の家</li>
-            <li className="flex gap-3"><span className="w-10 text-slate-500 font-mono">9/27</span>仁淀川 ➔ 高知観光 (2名離脱)</li>
-            <li className="flex gap-3"><span className="w-10 text-slate-500 font-mono">9/28</span>自由行動 ➔ 夜通し神戸へアサルト</li>
+            <li className="flex gap-3"><span className="w-10 text-slate-500 font-mono">9/27</span>仁淀川 ➔ 高知観光 (だいち離脱)</li>
+            <li className="flex gap-3"><span className="w-10 text-slate-500 font-mono">9/28</span>自由行動 ➔ 夜通し神戸へ (いっせい離脱)</li>
             <li className="flex gap-3 text-yellow-400"><span className="w-10 font-mono">9/29</span>08:00 神戸にてレンタカー返却</li>
           </ul>
         </div>
@@ -263,7 +264,7 @@ function Home() {
 }
 
 // ==========================================
-// 🏨 宿泊情報 画面 (新規追加)
+// 🏨 宿泊情報 画面
 // ==========================================
 function AccommodationsView() {
   const accommodations = [
@@ -306,15 +307,15 @@ function AccommodationsView() {
       desc: "最終日の宿泊拠点",
       address: "高知県高知市若松町6-25",
       inOut: "IN: 15:00 / OUT: 10:00",
-      parking: "無料駐車場は一台だけ、追加の車は近くのコインパーキングへ",
-      notes: "洗濯機あり乾燥機なし<br>チェックイン方法:玄関にプッシュ式ロックがあり、暗証番号はCA8072<br>freeポケットWi-Fiがあり、機器からQRコードをカメラで読み取ればパスワードなしで繋がる。<br>ID: Rakuten-5277<br>パスワードの場合は、5ZBA64G8KZ<br>パスワード: 5ZBA64G8KZ",
+      parking: "無料1台のみ。追加は近くのコインパーキングへ",
+      notes: "洗濯機あり乾燥機なし。玄関プッシュ式ロック(暗証番号: CA8072)。Free Wi-Fi (ID: Rakuten-5277 / Pass: 5ZBA64G8KZ)",
       url: "https://www.airbnb.jp/rooms/1716893195048633552",
       mapTarget: ""
     }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="宿泊情報 (Hotels)" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         <p className="text-xs text-slate-400 leading-relaxed">
@@ -395,7 +396,7 @@ function ChecklistView() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="持ち物・準備" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         <p className="text-xs text-slate-400">旅行前に必ず確認してください。特に<span className="text-red-400 font-bold">免許証</span>を忘れると悲惨</p>
@@ -449,7 +450,7 @@ function Schedule() {
         { time: "17:00", title: "香川出発", icon: "🚗", desc: "愛媛方面へgo", transit: { duration: "約2.5時間", cost: "高速 約2,500円", method: "🚗" } },
         { time: "19:30", title: "愛媛 ホテル着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">88HOTELS</Link>にチェックイン。近隣コインパーキング利用</> },
         { time: "20:00", title: "道後温泉 / サウナ", icon: "♨️", desc: <><Link to="/map#dogo" className="text-blue-400 hover:underline">道後温泉</Link>や<Link to="/map#kisuke" className="text-blue-400 hover:underline">喜助の湯</Link>にてリカバリー処理</> },
-        { time: "23:00", title: "Day2 終了" }
+        { time: "23:00", title: "Day2 終了", desc: "" }
       ]
     },
     day3: {
@@ -458,7 +459,7 @@ function Schedule() {
         { time: "06:00", title: "道後温泉 朝風呂", icon: "♨️", desc: "さすがの朝風呂" },
         { time: "07:30", title: "愛媛出発", icon: "🚗", desc: <>高知方面へGO</>, transit: { duration: "約2時間", cost: "0円", method: "🚗" } },
         { time: "09:30", title: "四国カルスト", icon: "🏞️", desc: <><Link to="/map#godan" className="text-blue-400 hover:underline">五段高原</Link>や<Link to="/map#mezudaira" className="text-blue-400 hover:underline">姫鶴平</Link>でドライブ。<Link to="/map#mikawa" className="text-blue-400 hover:underline">道の駅 みかわ</Link>で休憩も</>, transit: { duration: "約2時間", cost: "570円", method: "🚗" } },
-        { time: "13:00", title: "いっせいの家", icon: "🚉", desc: <><Link to="/map#ino" className="text-blue-400 hover:underline">伊野駅</Link>でいっせい、りょうた、だいち合流</> },
+        { time: "13:00", title: "いっせいの家", icon: "🚉", desc: <>いっせい、りょうた、だいち合流</> },
         { time: "15:30", title: "追手前高校 見学", icon: "🏫", desc: <><Link to="/map#otemae" className="text-blue-400 hover:underline">追手前高校</Link></> },
         { time: "17:00", title: "黒潮の家 Ⅰ号館", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">メインベース(黒潮の家)</Link>にチェックイン。今夜は買い出ししてBBQ＆宴！</> },
         { time: "23:59", title: "Day3 終了", desc: "宴" }
@@ -479,7 +480,8 @@ function Schedule() {
     day5: {
       date: "9月28日 (月)", title: "5日目：なんも決まってない",
       items: [
-        { time: "なし", title: "自由行動", icon: "🛌", desc: "高知で自由行動。夜通し神戸へ弾丸アサルトする予定" }
+        { time: "終日", title: "自由行動", icon: "🚶", desc: "高知で自由行動。夜通し神戸へ弾丸アサルトする予定" },
+        { time: "夕方", title: "いっせい離脱", icon: "👋", desc: "四国内にいる限り同行可能。適当なタイミングで離脱！" }
       ]
     },
     day6: {
@@ -495,7 +497,7 @@ function Schedule() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="タイムスケジュール" />
       <div className="p-4 max-w-md mx-auto">
         <div className="flex gap-1.5 overflow-x-auto pb-3 mb-4 no-scrollbar">
@@ -506,7 +508,7 @@ function Schedule() {
           ))}
         </div>
 
-        <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 mb-6">
+        <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 mb-6 transition-all">
           <p className="text-yellow-400 text-xs font-bold">{schedules[activeDay]?.date}</p>
           <h3 className="text-base font-bold text-white mt-0.5">{schedules[activeDay]?.title}</h3>
         </div>
@@ -554,20 +556,20 @@ function Schedule() {
 // ==========================================
 function Party() {
   const members = [
-    { name: "蓮沼", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥44,500" },
-    { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥44,500" },
-    { name: "s@aa4i🤣", role: "fatgay", type: "フル参加 (5日間)", cost: "¥44,500" },
-    { name: "バ畜", role: "NG(naturalgay)", type: "フル参加 (5日間)", cost: "¥44,500" },
-    { name: "ようすけ", role: "千葉の負け組", type: "フル参加 (5日間)", cost: "¥44,500" },
-    { name: "ゆうと", role: "隠れgay", type: "フル参加 (5日間)", cost: "¥44,500" },
-    { name: "りお", role: "いっせい限定gay", type: "フル参加 (5日間)", cost: "¥44,500" },
-    { name: "りょうた", role: "普通の人間", type: "26日合流 (3日間)", cost: "¥27,000" },
+    { name: "蓮沼", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "s@aa4i🤣", role: "fatgay", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "バ畜", role: "NG(naturalgay)", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "ようすけ", role: "千葉の負け組", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "ゆうと", role: "隠れgay", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "りお", role: "いっせい限定gay", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "りょうた", role: "普通の人間", type: "26日合流 (3日間)", cost: "¥26,000" },
+    { name: "いっせい", role: "田舎の3K", type: "26合流/28離脱 (3日間)", cost: "¥26,000" },
     { name: "だいち", role: "酔った時gay", type: "26合流/27離脱 (2日間)", cost: "¥16,000" },
-    { name: "いっせい", role: "田舎の3K", type: "26合流/27離脱 (2日間)", cost: "¥16,000" },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="参加者 ＆ 費用確認" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         
@@ -595,7 +597,7 @@ function Party() {
           </h3>
           <div className="grid grid-cols-1 gap-2.5">
             {members.map((member, index) => (
-              <div key={index} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md flex justify-between items-center">
+              <div key={index} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md flex justify-between items-center hover:bg-slate-750 transition-colors">
                 <div><div className="flex items-center gap-2"><h4 className="text-base font-bold text-white">{member.name}</h4></div><p className="text-xs text-yellow-300/90 mt-1">{member.role}</p></div>
                 <div className="text-right flex flex-col items-end gap-1.5"><span className="text-[10px] text-slate-400 font-medium">{member.type}</span><span className="text-sm font-mono font-bold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20 shadow-inner">{member.cost}</span></div>
               </div>
@@ -621,7 +623,7 @@ function Party() {
 }
 
 // ==========================================
-// ④ Map情報画面（カテゴライズ対応・全リスト網羅）
+// ④ Map情報画面
 // ==========================================
 function MapView() {
   const location = useLocation();
@@ -638,7 +640,6 @@ function MapView() {
     }
   }, [location]);
 
-  // エリア・用途ごとにスポットを分類して見やすく整理
   const spotCategories = [
     {
       area: "🚌 東京・🚙 神戸 (出発・帰還)",
@@ -703,11 +704,10 @@ function MapView() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="Map ＆ 距離情報" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         
-        {/* 主要区間の移動時間 */}
         <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md">
           <h2 className="text-sm font-bold text-blue-400 mb-3 flex items-center gap-2"><span className="text-lg">⏱️</span> 主要ルートの移動目安</h2>
           <div className="space-y-2 text-xs text-slate-300">
@@ -719,7 +719,6 @@ function MapView() {
           </div>
         </div>
 
-        {/* Google Map 全体リスト */}
         <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl relative overflow-hidden mb-6">
           <h2 className="text-base font-bold text-yellow-400 mb-2 flex items-center gap-2"><span className="text-xl">🗺️</span> 四国旅 全体マップ</h2>
           <p className="text-xs text-slate-300 mb-4 leading-relaxed">幹事が保存済みのスポット一覧（ピン）をGoogleマップで一括確認できます。</p>
@@ -728,7 +727,6 @@ function MapView() {
           </a>
         </div>
 
-        {/* 個別スポットリンク（カテゴリ別） */}
         <div className="space-y-6">
           {spotCategories.map((cat, catIdx) => (
             <div key={catIdx} className="space-y-2.5">
@@ -750,7 +748,7 @@ function MapView() {
 }
 
 // ==========================================
-// ⑤ 各種リンク画面（カテゴリ別に整理＆追加）
+// ⑤ 各種リンク画面
 // ==========================================
 function LinksView() {
   const linkCategories = [
@@ -783,19 +781,21 @@ function LinksView() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="各種リンク" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         
-        {/* お役立ちツール集 */}
         <div className="grid grid-cols-2 gap-3">
           <a href="https://tenki.jp/forecast/8/" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-colors">
             <span className="text-3xl">🌤️</span>
             <span className="text-xs font-bold text-white">四国の天気予報</span>
           </a>
+          <a href="https://open.spotify.com/playlist/37i9dQZF1DX4J4XN4zFhXw" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-colors">
+            <span className="text-3xl">🎵</span>
+            <span className="text-xs font-bold text-white">ドライブBGM (Spotify)</span>
+          </a>
         </div>
 
-        {/* 公式サイトリンク集 */}
         <div className="space-y-6 mt-4">
           {linkCategories.map((cat, catIdx) => (
             <div key={catIdx}>
@@ -831,11 +831,10 @@ function LinksView() {
 // ==========================================
 function EtcView() {
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="その他 (ルール・雑記)" />
       <div className="p-4 max-w-md mx-auto space-y-6">  
         
-        {/* グループルール */}
         <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3 shadow-md">
           <div className="flex items-center gap-2 border-b border-slate-700/60 pb-2">
             <span className="text-xl">📜</span>
@@ -843,10 +842,12 @@ function EtcView() {
           </div>          
           <ul className="text-xs space-y-2 text-slate-300 list-disc pl-4 marker:text-yellow-500">
             <li><span className="font-bold text-white">運転手へのリスペクト(非免許持ちへの軽蔑・見下し):</span> 助手席の人間は寝てはいけない（ナビ・DJ・話し相手の義務）。</li>
+            <li><span className="font-bold text-white">酒は飲んでも飲まれるな:</span> 翌日の運転に支障をきたすレベルの二日酔いは厳罰。</li>
+            <li><span className="font-bold text-white">時間厳守:</span> 人数が多いので1人の遅刻が全体の首を絞めます。</li>
+            <li><span className="font-bold text-white">最終日のアサルト:</span> 28日夜〜29日朝の神戸帰還は戦いです。前日の睡眠はしっかり。</li>
           </ul>
         </div>
 
-        {/* 夜行バス情報 */}
         <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3 shadow-md">
           <div className="flex items-center gap-2 border-b border-slate-700/60 pb-2">
             <span className="text-xl">🚌</span>
