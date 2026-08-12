@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
+
 // ▼▼▼ Firebase用の追加インポート ▼▼▼
 import { initializeApp } from "firebase/app";
 import { getFirestore, enableIndexedDbPersistence, doc, onSnapshot, setDoc } from "firebase/firestore";
@@ -204,9 +205,6 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   );
 }
 
-// ==========================================
-// 共通ヘッダー
-// ==========================================
 function HeaderBar({ title }: { title: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
@@ -223,30 +221,45 @@ function HeaderBar({ title }: { title: string }) {
 }
 
 // ==========================================
-// ① ホーム画面
+// ① ホーム画面（Firebase対応ステータス共有）
 // ==========================================
 function Home() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
   const userName = localStorage.getItem("shikokuUserName") || "名無し";
 
-  const [memberStatuses, setMemberStatuses] = useState([
-    { name: "蓮沼", status: "♨️ サウナ中", updatedAt: "10分前" },
-    { name: "こうせい", status: "🚗 運転中", updatedAt: "1時間前" },
-    { name: "s@aa4i🤣", status: "🍜 うどん消化中", updatedAt: "5分前" },
-    { name: "りょうた", status: "😴 爆睡", updatedAt: "2時間前" },
-    { name: "いっせい", status: "🍺 酒宴準備", updatedAt: "たった今" },
-  ]);
+  const initialStatuses = [
+    { name: "蓮沼", status: "準備中...", updatedAt: "たった今" },
+    { name: "こうせい", status: "準備中...", updatedAt: "たった今" },
+    { name: "s@aa4i🤣", status: "準備中...", updatedAt: "たった今" },
+  ];
 
+  const [memberStatuses, setMemberStatuses] = useState(initialStatuses);
   const [myStatusInput, setMyStatusInput] = useState("");
 
-  const handleUpdateStatus = (e: React.FormEvent) => {
+  // Firebaseからリアルタイムでステータスを取得
+  useEffect(() => {
+    const docRef = doc(db, "tripData", "statuses");
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setMemberStatuses(docSnap.data().statuses);
+      } else {
+        setDoc(docRef, { statuses: initialStatuses });
+      }
+    });
+    return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleUpdateStatus = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!myStatusInput.trim()) return;
 
     const updated = memberStatuses.filter(m => m.name !== userName);
     updated.unshift({ name: userName, status: myStatusInput, updatedAt: "たった今" });
-    setMemberStatuses(updated);
     setMyStatusInput("");
+    
+    // Firebaseへ保存して全員に共有
+    await setDoc(doc(db, "tripData", "statuses"), { statuses: updated });
   };
 
   useEffect(() => {
@@ -450,7 +463,7 @@ function AccommodationsView() {
 }
 
 // ==========================================
-// 🎒 持ち物・準備 画面（名前入力不要・削除機能付き）
+// 🎒 持ち物・準備 画面（Firebase対応）
 // ==========================================
 function ChecklistView() {
   const userName = localStorage.getItem("shikokuUserName") || "名無し";
@@ -497,12 +510,25 @@ function ChecklistView() {
     }
   ];
 
-  // ※デモ用：Firebase導入後はこの部分をonSnapshotなどで置き換えます
   const [categories, setCategories] = useState(initialCategories);
   const [newItemText, setNewItemText] = useState("");
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
 
-  const handleAddItem = (e: React.FormEvent) => {
+  // Firebaseからリアルタイムで取得
+  useEffect(() => {
+    const docRef = doc(db, "tripData", "checklist");
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setCategories(docSnap.data().categories);
+      } else {
+        setDoc(docRef, { categories: initialCategories });
+      }
+    });
+    return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItemText.trim()) return;
 
@@ -510,25 +536,25 @@ function ChecklistView() {
     updatedCategories[selectedCategoryIdx].items.push({ 
       name: newItemText.trim(), 
       checked: false,
-      author: userName // 記憶された名前を自動付与
+      author: userName 
     });
     
-    setCategories(updatedCategories);
     setNewItemText(""); 
+    await setDoc(doc(db, "tripData", "checklist"), { categories: updatedCategories });
   };
 
-  const handleToggleCheck = (catIdx: number, itemIdx: number) => {
+  const handleToggleCheck = async (catIdx: number, itemIdx: number) => {
     const updatedCategories = [...categories];
     const currentItem = updatedCategories[catIdx].items[itemIdx];
     currentItem.checked = !currentItem.checked;
-    setCategories(updatedCategories);
+    await setDoc(doc(db, "tripData", "checklist"), { categories: updatedCategories });
   };
 
-  const handleDeleteItem = (catIdx: number, itemIdx: number) => {
+  const handleDeleteItem = async (catIdx: number, itemIdx: number) => {
     if (!window.confirm("このアイテムを削除しますか？")) return;
     const updatedCategories = [...categories];
     updatedCategories[catIdx].items.splice(itemIdx, 1);
-    setCategories(updatedCategories);
+    await setDoc(doc(db, "tripData", "checklist"), { categories: updatedCategories });
   };
 
   return (
@@ -601,6 +627,7 @@ function ChecklistView() {
   );
 }
 
+// ----------------- 前半終了 -----------------
 // ==========================================
 // ② タイムスケジュール画面
 // ==========================================
@@ -732,24 +759,41 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ 参加者（パーティ ＆ 費用精算）画面（Walica風システム）
+// ③ 参加者 ＆ 費用精算画面（Firebase同期対応・Walica風）
 // ==========================================
 function Party() {
   const allMembers = ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const userName = localStorage.getItem("shikokuUserName") || allMembers[0];
 
-  const [transactions, setTransactions] = useState([
+  // DBの初期データ
+  const initialTransactions = [
     { id: 1, payer: "蓮沼", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
     { id: 2, payer: "こうせい", amount: 54939, title: "🏨 前半宿代(24-25日)", participants: ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお"] },
     { id: 3, payer: "バ畜", amount: 115455, title: "🏨 後半宿代(26-27日)", participants: allMembers },
     { id: 4, payer: "ようすけ", amount: 70000, title: "⛽ 行きのガソリン等概算", participants: allMembers }
-  ]);
+  ];
 
+  const [transactions, setTransactions] = useState(initialTransactions);
   const [activeTab, setActiveTab] = useState<"summary" | "add">("summary");
+
   const [payer, setPayer] = useState(userName);
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(allMembers);
+
+  // Firebaseからリアルタイムで支払い履歴を取得
+  useEffect(() => {
+    const docRef = doc(db, "tripData", "party");
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setTransactions(docSnap.data().transactions);
+      } else {
+        setDoc(docRef, { transactions: initialTransactions });
+      }
+    });
+    return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const calculateBalances = () => {
     const balances: { [key: string]: { paid: number, owe: number, net: number } } = {};
@@ -773,7 +817,7 @@ function Party() {
 
   const balances = calculateBalances();
 
-  const handleAddTransaction = (e: React.FormEvent) => {
+  const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !title || selectedParticipants.length === 0) return;
     
@@ -785,10 +829,14 @@ function Party() {
       participants: selectedParticipants
     };
     
-    setTransactions([...transactions, newTx]);
+    const updatedTransactions = [...transactions, newTx];
+    setTransactions(updatedTransactions);
     setAmount("");
     setTitle("");
     setActiveTab("summary");
+
+    // Firebaseへ保存
+    await setDoc(doc(db, "tripData", "party"), { transactions: updatedTransactions });
   };
 
   return (
@@ -892,7 +940,7 @@ function Party() {
                 </div>
               </div>
               <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg active:scale-95">
-                記録を追加する
+                記録を追加して全員に共有
               </button>
             </form>
           </div>
@@ -1071,6 +1119,10 @@ function LinksView() {
             <span className="text-3xl">🌤️</span>
             <span className="text-xs font-bold text-white">四国の天気予報</span>
           </a>
+          <a href="https://open.spotify.com/playlist/37i9dQZF1DX4J4XN4zFhXw" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-colors">
+            <span className="text-3xl">🎵</span>
+            <span className="text-xs font-bold text-white">ドライブBGM (Spotify)</span>
+          </a>
         </div>
 
         <div className="space-y-6 mt-4">
@@ -1107,7 +1159,7 @@ function LinksView() {
 // ⑥ その他 (男気ルーレット・ルール) 画面 
 // ==========================================
 function EtcView() {
-  const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
+  const allMembers = ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const [selectedMembers, setSelectedMembers] = useState<string[]>(allMembers);
   const [rouletteResult, setRouletteResult] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -1230,9 +1282,30 @@ function EtcView() {
             <h2 className="text-sm font-bold text-yellow-400">四国旅 基本ルール</h2>
           </div>          
           <ul className="text-xs space-y-2 text-slate-300 list-disc pl-4 marker:text-yellow-500">
-            <li><span className="font-bold text-white">運転手へのリスペクト(非免許持ちへの軽蔑・見下し):</span> 助手席の人間は寝てはいけない（ナビ・DJ・話し相手の義務）。</li>
+            <li><span className="font-bold text-white">運転手へのリスペクト:</span> 助手席の人間は寝てはいけない（ナビ・DJ・話し相手の義務）。非免許持ちへの軽蔑・見下し推奨。</li>
+            <li><span className="font-bold text-white">酒は飲んでも飲まれるな:</span> 翌日の運転に支障をきたすレベルの二日酔いは厳罰。</li>
+            <li><span className="font-bold text-white">時間厳守:</span> 人数が多いので1人の遅刻が全体の首を絞めます。</li>
+            <li><span className="font-bold text-white">最終日のアサルト:</span> 28日夜〜29日朝の神戸帰還は戦いです。前日の睡眠はしっかり。</li>
           </ul>
         </div>
+
+        {/* 夜行バス情報 */}
+        <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3 shadow-md">
+          <div className="flex items-center gap-2 border-b border-slate-700/60 pb-2">
+            <span className="text-xl">🚌</span>
+            <h2 className="text-sm font-bold text-yellow-400">夜行バス予約情報 (行き)</h2>
+          </div>          
+          <div className="text-xs space-y-1.5 text-slate-300">
+            <p><span className="text-slate-400">便詳細：</span> LimonBus 106便 4列・トイレ・USB電源・WiFi</p>
+            <p><span className="text-slate-400">予約番号：</span> 5667101</p>
+            <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 mt-2">
+              <p><span className="text-slate-400">出発日：</span> <span className="font-bold text-yellow-300">9月23日(水)</span></p>
+              <p><span className="text-slate-400">集合時間：</span> 22:35 (出発 22:50)</p>
+              <p className="mt-1"><span className="text-slate-400">出発地点：</span><br/>池袋サンシャインバスターミナル<br/>(サンシャインシティ文化会館1階)</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
