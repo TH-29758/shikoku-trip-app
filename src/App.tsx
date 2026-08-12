@@ -228,7 +228,7 @@ function Home() {
   const userName = localStorage.getItem("shikokuUserName") || "名無し";
 
   const initialStatuses = [
-    { name: "蓮沼", status: "準備中...", updatedAt: "たった今" },
+    { name: "たかやす", status: "準備中...", updatedAt: "たった今" },
     { name: "こうせい", status: "準備中...", updatedAt: "たった今" },
     { name: "s@aa4i🤣", status: "準備中...", updatedAt: "たった今" },
   ];
@@ -759,15 +759,15 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ 参加者 ＆ 費用精算画面（Firebase同期対応・Walica風）
+// ③ 参加者 ＆ 費用精算画面（Walica風システム・編集＆削除対応）
 // ==========================================
 function Party() {
-  const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
+  const allMembers = ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const userName = localStorage.getItem("shikokuUserName") || allMembers[0];
 
   // DBの初期データ
   const initialTransactions = [
-    { id: 1, payer: "たかやす", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
+    { id: 1, payer: "蓮沼", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
     { id: 2, payer: "こうせい", amount: 54939, title: "🏨 前半宿代(24-25日)", participants: ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお"] },
     { id: 3, payer: "バ畜", amount: 115455, title: "🏨 後半宿代(26-27日)", participants: allMembers },
     { id: 4, payer: "ようすけ", amount: 70000, title: "⛽ 行きのガソリン等概算", participants: allMembers }
@@ -776,6 +776,8 @@ function Party() {
   const [transactions, setTransactions] = useState(initialTransactions);
   const [activeTab, setActiveTab] = useState<"summary" | "add">("summary");
 
+  // --- フォーム用ステート ---
+  const [editingId, setEditingId] = useState<number | null>(null); // 編集中かどうかの判定用
   const [payer, setPayer] = useState(userName);
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
@@ -783,6 +785,9 @@ function Party() {
 
   // Firebaseからリアルタイムで支払い履歴を取得
   useEffect(() => {
+    // ※Firebase未設定の場合はコメントアウトしてください
+    if (typeof doc === 'undefined' || typeof db === 'undefined') return; 
+
     const docRef = doc(db, "tripData", "party");
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -817,26 +822,73 @@ function Party() {
 
   const balances = calculateBalances();
 
-  const handleAddTransaction = async (e: React.FormEvent) => {
+  // ➕/✏️ 取引の追加・更新処理
+  const handleSubmitTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !title || selectedParticipants.length === 0) return;
     
-    const newTx = {
-      id: Date.now(),
-      payer,
-      amount: Number(amount),
-      title,
-      participants: selectedParticipants
-    };
+    let updatedTransactions;
+
+    if (editingId) {
+      // 編集モード：既存のデータを上書き
+      updatedTransactions = transactions.map(t => 
+        t.id === editingId 
+          ? { ...t, payer, amount: Number(amount), title, participants: selectedParticipants } 
+          : t
+      );
+    } else {
+      // 新規追加モード
+      const newTx = {
+        id: Date.now(),
+        payer,
+        amount: Number(amount),
+        title,
+        participants: selectedParticipants
+      };
+      updatedTransactions = [...transactions, newTx];
+    }
     
-    const updatedTransactions = [...transactions, newTx];
     setTransactions(updatedTransactions);
-    setAmount("");
-    setTitle("");
+    
+    // フォームをリセットして一覧に戻る
+    resetForm();
     setActiveTab("summary");
 
     // Firebaseへ保存
-    await setDoc(doc(db, "tripData", "party"), { transactions: updatedTransactions });
+    if (typeof setDoc !== 'undefined') {
+      await setDoc(doc(db, "tripData", "party"), { transactions: updatedTransactions });
+    }
+  };
+
+  // ✏️ 編集ボタンを押した時の処理
+  const handleEditClick = (t: any) => {
+    setEditingId(t.id);
+    setTitle(t.title);
+    setPayer(t.payer);
+    setAmount(t.amount.toString());
+    setSelectedParticipants(t.participants);
+    setActiveTab("add"); // フォーム画面に移動
+  };
+
+  // 🗑️ 削除ボタンを押した時の処理
+  const handleDeleteTransaction = async (id: number) => {
+    if (!window.confirm("この支払い記録を削除しますか？")) return;
+    
+    const updatedTransactions = transactions.filter(t => t.id !== id);
+    setTransactions(updatedTransactions);
+    
+    if (typeof setDoc !== 'undefined') {
+      await setDoc(doc(db, "tripData", "party"), { transactions: updatedTransactions });
+    }
+  };
+
+  // フォームリセット処理
+  const resetForm = () => {
+    setEditingId(null);
+    setAmount("");
+    setTitle("");
+    setPayer(userName);
+    setSelectedParticipants(allMembers);
   };
 
   return (
@@ -845,12 +897,23 @@ function Party() {
       <div className="p-4 max-w-md mx-auto space-y-6">
 
         <div className="flex bg-slate-800 p-1 rounded-xl">
-          <button onClick={() => setActiveTab("summary")} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "summary" ? "bg-blue-600 text-white" : "text-slate-400"}`}>最終収支</button>
-          <button onClick={() => setActiveTab("add")} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "add" ? "bg-blue-600 text-white" : "text-slate-400"}`}>支払いを追加</button>
+          <button 
+            onClick={() => { resetForm(); setActiveTab("summary"); }} 
+            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "summary" ? "bg-blue-600 text-white" : "text-slate-400"}`}
+          >
+            最終収支
+          </button>
+          <button 
+            onClick={() => { resetForm(); setActiveTab("add"); }} 
+            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "add" ? "bg-blue-600 text-white" : "text-slate-400"}`}
+          >
+            {editingId ? "✏️ 支払いを編集" : "➕ 支払いを追加"}
+          </button>
         </div>
 
         {activeTab === "summary" ? (
           <div className="space-y-6">
+            {/* 最終収支リスト */}
             <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
               <h2 className="font-bold text-yellow-400 text-sm mb-4 flex items-center gap-2"><span className="text-xl">💰</span> 最終的な収支 (誰がいくら払う？)</h2>
               <p className="text-[11px] text-slate-400 mb-4 leading-relaxed">プラス（<span className="text-emerald-400 font-bold">緑色</span>）の人はお金を貰う人。<br/>マイナス（<span className="text-red-400 font-bold">赤色</span>）の人はお金を払う人です。</p>
@@ -879,18 +942,28 @@ function Party() {
               </div>
             </div>
 
+            {/* 支払い履歴 */}
             <div>
               <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase">📝 支払い履歴</h3>
               <div className="space-y-2.5">
+                {/* 逆順に表示（新しいものが上） */}
                 {transactions.slice().reverse().map(t => (
-                  <div key={t.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md">
+                  <div key={t.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md group">
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-sm font-bold text-white">{t.title}</span>
                       <span className="text-sm font-mono font-bold text-yellow-300">¥{t.amount.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-end">
                       <span className="text-xs text-slate-400">払った人: <span className="text-blue-300 font-bold">{t.payer}</span></span>
-                      <span className="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">{t.participants.length}人で割り勘</span>
+                      
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">{t.participants.length}人で割り勘</span>
+                        {/* 編集・削除ボタン */}
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditClick(t)} className="text-slate-400 hover:text-blue-400 transition-colors p-1" title="編集">✏️</button>
+                          <button onClick={() => handleDeleteTransaction(t.id)} className="text-slate-400 hover:text-red-400 transition-colors p-1" title="削除">🗑️</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -898,9 +971,20 @@ function Party() {
             </div>
           </div>
         ) : (
+          /* ▼ 支払い追加・編集フォーム */
           <div className="bg-slate-800 p-5 rounded-2xl border border-blue-500/30 shadow-xl animate-in slide-in-from-right-8 duration-300">
-            <h2 className="font-bold text-blue-400 text-sm mb-4">💳 新しい支払いを記録</h2>
-            <form onSubmit={handleAddTransaction} className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-bold text-blue-400 text-sm">
+                {editingId ? "✏️ 支払いを編集" : "💳 新しい支払いを記録"}
+              </h2>
+              {editingId && (
+                <button onClick={() => { resetForm(); setActiveTab("summary"); }} className="text-xs text-slate-400 hover:text-white underline">
+                  キャンセル
+                </button>
+              )}
+            </div>
+            
+            <form onSubmit={handleSubmitTransaction} className="space-y-4">
               <div>
                 <label className="text-xs text-slate-400 block mb-1">何のために？ (例: 駐車場代, BBQ食材)</label>
                 <input type="text" value={title} onChange={e => setTitle(e.target.value)} required placeholder="用途を入力..." className="w-full bg-slate-900 text-white p-3 rounded-xl border border-slate-700 focus:border-blue-500 focus:outline-none" />
@@ -940,7 +1024,7 @@ function Party() {
                 </div>
               </div>
               <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg active:scale-95">
-                記録を追加して全員に共有
+                {editingId ? "更新して全員に共有" : "記録を追加して全員に共有"}
               </button>
             </form>
           </div>
