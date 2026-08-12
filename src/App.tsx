@@ -407,7 +407,7 @@ function Schedule() {
       items: [
         {
           time: "06:00",
-          title: "道後温泉 朝風呂タスク",
+          title: "道後温泉 朝風呂",
           icon: "♨️",
           desc: "さすがの朝風呂",
         },
@@ -422,15 +422,15 @@ function Schedule() {
           time: "09:30",
           title: "四国カルスト",
           icon: "🏞️",
-          desc: "自然の美景を満喫",
-          transit: { duration: "約1時間30分", cost: "0円", method: "🚗" }
+          desc: "免許持ちだからこそ楽しめるドライブ",
+          transit: { duration: "約1時間", cost: "0円", method: "🚗" }
         },
         {
-          time: "11:30",
+          time: "11:00",
           title: "四国カルスト出発",
           icon: "🚗",
           desc: "伊野駅へGO",
-          transit: { duration: "約1時間30分", cost: "0円", method: "🚗" }
+          transit: { duration: "約2時間", cost: "570円", method: "🚗" }
         },
         {
           time: "13:00",
@@ -440,10 +440,17 @@ function Schedule() {
           transit: { duration: "約30分", cost: "0円", method: "🚗" }
         },
         {
+          time: "13:30",
+          title: "okamiさんと合流を目指す",
+          icon: "🍴",
+          desc: "okamiさんと合流",
+          transit: { duration: "約2時間", cost: "810円", method: "🚗" }
+        },
+        {
           time: "17:00",
-          title: "黒潮の家 ベースキャンプ初期化",
+          title: "黒潮の家 Ⅰ号館HERE WE GO!!",
           icon: "🏨",
-          desc: "ベースキャンプの初期化"
+          desc: "okamiさんにチェックイン",
         }
       ]
     },
@@ -500,55 +507,67 @@ function Schedule() {
           <p className="text-yellow-400 text-xs font-bold">{schedules[activeDay]?.date}</p>
           <h3 className="text-base font-bold text-white mt-0.5">{schedules[activeDay]?.title}</h3>
         </div>
-
         {/* タイムライン */}
         <div className="ml-4 space-y-0">
-          {schedules[activeDay]?.items.map((item, index) => (
-            <div key={index} className="relative flex flex-col">
-              
-              {/* イベント本体 */}
-              <div className="relative pl-8 pb-4">
-                {/* 縦線 */}
-                <div className="absolute left-[11px] top-7 bottom-0 w-0.5 bg-slate-700"></div>
-                {/* アイコン（なければ黄色の点） */}
-                <div className="absolute -left-1 top-1.5 w-7 h-7 bg-slate-800 rounded-full border-2 border-slate-700 flex items-center justify-center text-sm z-10 shadow-md">
-                  {item.icon || <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full shadow-[0_0_8px_rgba(250,204,21,0.8)]" />}
-                </div>
+          {schedules[activeDay]?.items.map((item, index, array) => {
+            // 現在のアイテムがその日の最後のエントリかどうかを判定
+            const isLast = index === array.length - 1;
 
-                <div className="flex items-baseline mb-1.5">
-                  <span className="text-yellow-400 font-mono font-bold text-sm mr-3 drop-shadow-md">{item.time}</span>
-                  <h4 className="text-base font-bold text-white">{item.title}</h4>
-                </div>
-                <p className="text-gray-300 text-xs bg-slate-800/80 p-3 rounded-xl border border-slate-700/80 leading-relaxed shadow-sm">
-                  {item.desc}
-                </p>
-              </div>
-
-              {/* 移動時間（トランジット）の表示 */}
-              {item.transit && (
-                <div className="relative pl-8 pb-4 -mt-2">
-                  {/* 移動中の点線 */}
-                  <div className="absolute left-[11px] top-0 bottom-0 w-0.5 border-l-2 border-dashed border-slate-600"></div>
+            return (
+              <div key={index} className="relative flex flex-col">
+                
+                {/* イベント本体 */}
+                <div className="relative pl-8 pb-4">
                   
-                  {/* 移動カード */}
-                  <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[11px] bg-slate-800/50 w-fit px-3 py-2 rounded-lg border border-slate-700/50 ml-1">
-                    <span className="flex items-center gap-1.5 text-slate-300 font-medium">
-                      <span className="text-sm">{item.transit.method || "🚗"}</span>
-                      {item.transit.duration}
-                    </span>
-                    {item.transit.cost && (
-                      <span className="font-mono text-yellow-400/80 bg-slate-900/50 px-1.5 py-0.5 rounded">
-                        {item.transit.cost}
-                      </span>
+                  {/* 縦線：最後のエントリ「以外」の場合のみ描画する */}
+                  {!isLast && (
+                    <div className="absolute left-[11px] top-7 bottom-0 w-0.5 bg-slate-700"></div>
+                  )}
+                  
+                  {/* アイコン：最後の場合はゴールの漢字、それ以外は通常のアイコン */}
+                  <div className="absolute -left-1 top-1.5 w-7 h-7 bg-slate-800 rounded-full border-2 border-slate-700 flex items-center justify-center text-sm z-10 shadow-md">
+                    {isLast ? (
+                      <span className="text-yellow-400 font-extrabold text-[11px]">着</span>
+                    ) : (
+                      item.icon || <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
                     )}
                   </div>
+
+                  <div className="flex items-baseline mb-1.5">
+                    <span className="text-yellow-400 font-mono font-bold text-sm mr-3 drop-shadow-md">{item.time}</span>
+                    <h4 className="text-base font-bold text-white">{item.title}</h4>
+                  </div>
+                  <p className="text-gray-300 text-xs bg-slate-800/80 p-3 rounded-xl border border-slate-700/80 leading-relaxed shadow-sm">
+                    {item.desc}
+                  </p>
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* 移動時間（トランジット）の表示（※最後のエントリには通常トランジットはない想定） */}
+                {item.transit && !isLast && (
+                  <div className="relative pl-8 pb-4 -mt-2">
+                    {/* 移動中の点線 */}
+                    <div className="absolute left-[11px] top-0 bottom-0 w-0.5 border-l-2 border-dashed border-slate-600"></div>
+                    
+                    {/* 移動カード */}
+                    <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[11px] bg-slate-800/50 w-fit px-3 py-2 rounded-lg border border-slate-700/50 ml-1">
+                      <span className="flex items-center gap-1.5 text-slate-300 font-medium">
+                        <span className="text-sm">{item.transit.method || "🚗"}</span>
+                        {item.transit.duration}
+                      </span>
+                      {item.transit.cost && (
+                        <span className="font-mono text-yellow-400/80 bg-slate-900/50 px-1.5 py-0.5 rounded">
+                          {item.transit.cost}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+    </div>       
   );
 }
 
