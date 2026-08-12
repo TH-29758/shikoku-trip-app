@@ -773,12 +773,13 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ 参加者 ＆ 費用精算画面（全員の現地収支をデフォルト表示）
+// ③ 参加者 ＆ 費用精算画面（Walica風システム・比率入力のUX改善版）
 // ==========================================
 function Party() {
   const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const userName = localStorage.getItem("shikokuUserName") || allMembers[0];
 
+  // DBの初期データ
   const initialTransactions = [
     { 
       id: 1, payer: "たかやす", amount: 129096, title: "🚗 レンタカー代", 
@@ -805,12 +806,15 @@ function Party() {
   const [transactions, setTransactions] = useState(initialTransactions);
   const [activeTab, setActiveTab] = useState<"estimate" | "summary" | "add">("estimate"); 
 
+  // --- フォーム用ステート ---
   const [editingId, setEditingId] = useState<number | null>(null);
   const [payer, setPayer] = useState(userName);
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
-  const [selectedParticipants, setSelectedParticipants] = useState<{name: string, weight: number}[]>(allMembers.map(m => ({name: m, weight: 1})));
+  // weightを string | number にして、空文字("")を許容するように変更
+  const [selectedParticipants, setSelectedParticipants] = useState<{name: string, weight: number | string}[]>(allMembers.map(m => ({name: m, weight: 1})));
 
+  // ▼ 当初の事前概算データ
   const estimatedMembers = [
     { name: "たかやす", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥43,500" },
     { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥43,500" },
@@ -824,6 +828,7 @@ function Party() {
     { name: "だいち", role: "酔った時gay", type: "26合流/27離脱 (2日間)", cost: "¥16,000" },
   ];
 
+  // Firebaseからリアルタイムで支払い履歴を取得
   useEffect(() => {
     if (typeof doc === 'undefined' || typeof db === 'undefined') return; 
 
@@ -847,10 +852,11 @@ function Party() {
       if (balances[t.payer]) balances[t.payer].paid += t.amount;
       
       if (t.participants.length > 0) {
-        const totalWeight = t.participants.reduce((sum, p) => sum + p.weight, 0);
+        // 安全のため Number() で変換し、万が一NaNなら1として計算する
+        const totalWeight = t.participants.reduce((sum, p) => sum + (Number(p.weight) || 1), 0);
         t.participants.forEach(p => {
           if (balances[p.name] && totalWeight > 0) {
-            balances[p.name].owe += (t.amount * p.weight) / totalWeight;
+            balances[p.name].owe += (t.amount * (Number(p.weight) || 1)) / totalWeight;
           }
         });
       }
@@ -864,16 +870,22 @@ function Party() {
 
   const balances = calculateBalances();
 
+  // ➕/✏️ 取引の追加・更新処理
   const handleSubmitTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !title || selectedParticipants.length === 0) return;
     
     let updatedTransactions;
+    // weightが空欄になっている場合は 1 に整形してから保存する
+    const formattedParticipants = selectedParticipants.map(p => ({
+      ...p,
+      weight: Number(p.weight) || 1
+    }));
 
     if (editingId) {
       updatedTransactions = transactions.map(t => 
         t.id === editingId 
-          ? { ...t, payer, amount: Number(amount), title, participants: selectedParticipants } 
+          ? { ...t, payer, amount: Number(amount), title, participants: formattedParticipants } 
           : t
       );
     } else {
@@ -882,7 +894,7 @@ function Party() {
         payer,
         amount: Number(amount),
         title,
-        participants: selectedParticipants
+        participants: formattedParticipants
       };
       updatedTransactions = [...transactions, newTx];
     }
@@ -927,6 +939,7 @@ function Party() {
       <HeaderBar title="割り勘・費用精算" />
       <div className="p-4 max-w-md mx-auto space-y-6">
 
+        {/* 3つのタブ切り替え */}
         <div className="flex bg-slate-800 p-1 rounded-xl">
           <button 
             onClick={() => { resetForm(); setActiveTab("estimate"); }} 
@@ -948,6 +961,7 @@ function Party() {
           </button>
         </div>
 
+        {/* ▼▼▼ 事前概算タブ ▼▼▼ */}
         {activeTab === "estimate" && (
           <div className="space-y-6 animate-in slide-in-from-left-8 duration-300">
             <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
@@ -997,7 +1011,7 @@ function Party() {
           </div>
         )}
 
-        {/* ▼▼▼ 現地収支（Walica）タブ 全員表示 ▼▼▼ */}
+        {/* ▼▼▼ 現地収支（Walica）タブ ▼▼▼ */}
         {activeTab === "summary" && (
           <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
             <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
@@ -1035,7 +1049,7 @@ function Party() {
               <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase">📝 支払い履歴</h3>
               <div className="space-y-2.5">
                 {transactions.slice().reverse().map(t => {
-                  const hasCustomWeight = t.participants.some((p: any) => p.weight !== 1);
+                  const hasCustomWeight = t.participants.some((p: any) => Number(p.weight) !== 1);
                   return (
                     <div key={t.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md group">
                       <div className="flex justify-between items-start mb-2">
@@ -1063,6 +1077,7 @@ function Party() {
           </div>
         )}
 
+        {/* ▼▼▼ 追加・編集タブ ▼▼▼ */}
         {activeTab === "add" && (
           <div className="bg-slate-800 p-5 rounded-2xl border border-blue-500/30 shadow-xl animate-in slide-in-from-right-8 duration-300">
             <div className="flex justify-between items-center mb-4">
@@ -1119,14 +1134,21 @@ function Party() {
                         {isSelected && (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[10px] text-slate-500">比率/日数:</span>
+                            {/* ▼ UX改善：type="number"のまま文字列としてStateを保持することで、0の消去を可能に */}
                             <input 
                               type="number" 
-                              min="0.1" 
+                              min="0" 
                               step="0.1"
                               value={pData.weight}
                               onChange={(e) => {
-                                const newWeight = Number(e.target.value);
-                                setSelectedParticipants(selectedParticipants.map(p => p.name === m ? { ...p, weight: newWeight } : p));
+                                const val = e.target.value;
+                                setSelectedParticipants(selectedParticipants.map(p => p.name === m ? { ...p, weight: val } : p));
+                              }}
+                              onBlur={(e) => {
+                                // 枠からフォーカスが外れた時、空っぽや0だったら安全のため1に戻す
+                                if (e.target.value === "" || Number(e.target.value) <= 0) {
+                                  setSelectedParticipants(selectedParticipants.map(p => p.name === m ? { ...p, weight: 1 } : p));
+                                }
                               }}
                               className="w-14 bg-slate-800 text-white text-xs p-1 rounded border border-slate-600 focus:border-blue-500 focus:outline-none text-right font-mono"
                             />
