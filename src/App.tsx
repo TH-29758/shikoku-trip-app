@@ -762,7 +762,7 @@ function Schedule() {
 // ③ 参加者 ＆ 費用精算画面（Firebase同期対応・Walica風）
 // ==========================================
 function Party() {
-  const allMembers = ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
+  const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const userName = localStorage.getItem("shikokuUserName") || allMembers[0];
 
   // DBの初期データ
