@@ -118,7 +118,7 @@ function Gatekeeper({ onLogin }: { onLogin: () => void }) {
 // 初回：ユーザー名設定画面（アプリを消しても記憶される）
 // ==========================================
 function NameSetup({ onComplete }: { onComplete: (name: string) => void }) {
-  const allMembers = ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
+  const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const [selectedName, setSelectedName] = useState(allMembers[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
