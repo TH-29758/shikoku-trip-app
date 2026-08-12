@@ -310,7 +310,7 @@ function AccommodationsView() {
       parking: "無料1台のみ。追加は近くのコインパーキングへ",
       notes: "洗濯機あり乾燥機なし。玄関プッシュ式ロック(暗証番号: CA8072)。Free Wi-Fi (ID: Rakuten-5277 / Pass: 5ZBA64G8KZ)",
       url: "https://www.airbnb.jp/rooms/1716893195048633552",
-      mapTarget: ""
+      mapTarget: "/map#godai_tonari"
     }
   ];
 
@@ -377,7 +377,7 @@ function ChecklistView() {
       items: ["運転免許証", "財布・現金 (一部現金のみの施設あり)", "スマホ ＆ 充電ケーブル", "水着"]
     },
     {
-      title: "お風呂・サウナセット", icon: "♨️",
+      title: "お風呂・サウナセット", icon: "温泉",
       items: ["着替え (最低4日分＋予備)", "タオル (ホテル外のサウナ/銭湯用)", "シャンプー・洗顔類 (銭湯用にあると便利)", "サウナハット", "ビニール袋 (濡れたタオル入れ)", "髭剃り"]
     },
     {
@@ -472,7 +472,7 @@ function Schedule() {
         { time: "09:00", title: "仁淀川フィールドワーク", icon: "🏞️", desc: <><Link to="/map#niyodo" className="text-blue-400 hover:underline">仁淀川</Link>の奇跡の清水「仁淀ブルー」で自然を満喫</> },
         { time: "14:00", title: "高知 自由探索", icon: "🚶", desc: <>自由。<Link to="/map#greenpia" className="text-blue-400 hover:underline">SAUNA グリンピア</Link>もアリ</> },
         { time: "14:00~", title: "ひろめ市場でひたすら飲んだっていい", icon: "🍺", desc: <><Link to="/map#hirome" className="text-blue-400 hover:underline">ひろめ市場</Link>を堪能</> },
-        { time: "17:00", title: "宿到着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">一棟貸し宿五台さんちのとなり宿</Link>にチェックイン</> },
+        { time: "17:00", title: "宿到着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">一棟貸し宿五台さんちのとなり宿</Link>にチェックイン (<Link to="/map#godai_tonari" className="text-blue-400 hover:underline">map</Link>)</> },
         { time: "18:00", title: "だいち離脱", icon: "👋", desc: "byeG" },
         { time: "23:00", title: "Day4 終了 (仮眠)", desc: "寝る❤️(何も起こらなければいいけど…)" }
       ]
@@ -666,7 +666,7 @@ function MapView() {
     {
       area: "🍜 香川",
       spots: [
-        { id: "kotone", name: "ゲストハウス コトネ (Day 1)", query: "香川県高松市浜ノ町60-1" },
+        { id: "kotone", name: "ゲストハウス コトネ (Day 1宿)", query: "香川県高松市浜ノ町60-1" },
         { id: "ikkaku_takamatsu", name: "骨付鳥 一鶴 高松店", query: "一鶴 高松店" },
         { id: "ikkaku_nakabu", name: "骨付鳥 一鶴 中府店", query: "一鶴 中府店" },
         { id: "kotohira", name: "金刀比羅宮", query: "金刀比羅宮" },
@@ -679,7 +679,7 @@ function MapView() {
     {
       area: "🍊 愛媛",
       spots: [
-        { id: "88hotels", name: "88HOTELS (Day 2)", query: "88HOTELS 松山" },
+        { id: "88hotels", name: "88HOTELS (Day 2宿)", query: "88HOTELS 松山" },
         { id: "dogo", name: "道後温泉駅 / 本館", query: "道後温泉本館" },
         { id: "kisuke", name: "伊予の湯治場 喜助の湯 (サウナ)", query: "伊予の湯治場 喜助の湯" },
         { id: "shimonada", name: "下灘駅 (観光名所)", query: "下灘駅" },
@@ -695,7 +695,8 @@ function MapView() {
         { id: "ino", name: "伊野駅 (合流地点)", query: "伊野駅 高知" },
         { id: "hirome", name: "ひろめ市場", query: "ひろめ市場" },
         { id: "otemae", name: "高知県立高知追手前高等学校", query: "高知県立高知追手前高等学校" },
-        { id: "kuroshio", name: "黒潮の家 Ⅰ号館 (Day 3)", query: "黒潮の家 Ⅰ号館" },
+        { id: "kuroshio", name: "黒潮の家 Ⅰ号館 (Day 3宿)", query: "黒潮の家 Ⅰ号館" },
+        { id: "godai_tonari", name: "一棟貸し宿五台さんちのとなり宿 (Day 4宿)", query: "高知県高知市若松町6-25" },
         { id: "greenpia", name: "SAUNA グリンピア", query: "SAUNA グリンピア 高知" },
         { id: "niyodo", name: "仁淀川", query: "仁淀川" },
         { id: "miyamoto_parking", name: "宮本モータープール", query: "宮本モータープール 高知" },
@@ -732,7 +733,7 @@ function MapView() {
             <div key={catIdx} className="space-y-2.5">
               <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-2">{cat.area}</p>
               {cat.spots.map((spot) => (
-                <div key={spot.id} id={spot.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex justify-between items-center transition-all">
+                <div key={spot.id} id={spot.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex justify-between items-center transition-all hover:border-slate-600">
                   <div className="flex items-center gap-3"><span className="text-base text-slate-400">📍</span><span className="text-sm font-bold text-white">{spot.name}</span></div>
                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.query)}`} target="_blank" rel="noopener noreferrer" className="text-[11px] text-blue-400 font-bold bg-blue-950/40 px-3 py-1.5 rounded-lg border border-blue-800/40 hover:bg-blue-900/50 whitespace-nowrap">
                     外部アプリ
@@ -790,10 +791,6 @@ function LinksView() {
             <span className="text-3xl">🌤️</span>
             <span className="text-xs font-bold text-white">四国の天気予報</span>
           </a>
-          <a href="https://open.spotify.com/playlist/37i9dQZF1DX4J4XN4zFhXw" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-colors">
-            <span className="text-3xl">🎵</span>
-            <span className="text-xs font-bold text-white">ドライブBGM (Spotify)</span>
-          </a>
         </div>
 
         <div className="space-y-6 mt-4">
@@ -842,9 +839,6 @@ function EtcView() {
           </div>          
           <ul className="text-xs space-y-2 text-slate-300 list-disc pl-4 marker:text-yellow-500">
             <li><span className="font-bold text-white">運転手へのリスペクト(非免許持ちへの軽蔑・見下し):</span> 助手席の人間は寝てはいけない（ナビ・DJ・話し相手の義務）。</li>
-            <li><span className="font-bold text-white">酒は飲んでも飲まれるな:</span> 翌日の運転に支障をきたすレベルの二日酔いは厳罰。</li>
-            <li><span className="font-bold text-white">時間厳守:</span> 人数が多いので1人の遅刻が全体の首を絞めます。</li>
-            <li><span className="font-bold text-white">最終日のアサルト:</span> 28日夜〜29日朝の神戸帰還は戦いです。前日の睡眠はしっかり。</li>
           </ul>
         </div>
 
