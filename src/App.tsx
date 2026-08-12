@@ -1,5 +1,30 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
+// ▼▼▼ Firebase用の追加インポート ▼▼▼
+import { initializeApp } from "firebase/app";
+import { getFirestore, enableIndexedDbPersistence, doc, onSnapshot, setDoc } from "firebase/firestore";
+
+// ==========================================
+// Firebaseの初期設定 ＆ オフライン対応
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCa1FDH3JvVFEhzFknf5415Vjy6Dga4VJg",
+  authDomain: "shikokutrip2026.firebaseapp.com",
+  projectId: "shikokutrip2026",
+  storageBucket: "shikokutrip2026.firebasestorage.app",
+  messagingSenderId: "1082645374265",
+  appId: "1:1082645374265:web:9e9eb53e182355db5d34e8"
+};
+
+// Firebaseの起動
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 電波がなくても動くようにローカルキャッシュ（オフライン機能）を有効化
+enableIndexedDbPersistence(db).catch((err) => {
+  console.log("オフライン設定エラー:", err);
+});
+// ▲▲▲ ここまで追加 ▲▲▲
 
 // ==========================================
 // 合言葉認証 ＆ 生体認証（結界）画面
@@ -368,49 +393,161 @@ function AccommodationsView() {
 }
 
 // ==========================================
-// 🎒 持ち物・準備 画面
+// 🎒 持ち物・準備 画面（リアルタイム同期＆オフライン対応版）
 // ==========================================
 function ChecklistView() {
-  const categories = [
+  // 初期データ（アイテムを名前とチェック状態のオブジェクトに変更）
+  const initialCategories = [
     {
       title: "絶対必須 (MUST)", icon: "⚠️",
-      items: ["運転免許証", "財布・現金 (一部現金のみの施設あり)", "スマホ ＆ 充電ケーブル", "水着"]
+      items: [
+        { name: "運転免許証", checked: false },
+        { name: "財布・現金 (一部現金のみの施設あり)", checked: false },
+        { name: "スマホ ＆ 充電ケーブル", checked: false },
+        { name: "水着", checked: false }
+      ]
     },
     {
-      title: "お風呂・サウナセット", icon: "温泉",
-      items: ["着替え (最低4日分＋予備)", "タオル (ホテル外のサウナ/銭湯用)", "シャンプー・洗顔類 (銭湯用にあると便利)", "サウナハット", "ビニール袋 (濡れたタオル入れ)", "髭剃り"]
+      title: "お風呂・サウナセット", icon: "♨️",
+      items: [
+        { name: "着替え (最低4日分＋予備)", checked: false },
+        { name: "タオル (ホテル外のサウナ/銭湯用)", checked: false },
+        { name: "シャンプー・洗顔類", checked: false },
+        { name: "サウナハット", checked: false },
+        { name: "ビニール袋 (濡れたタオル入れ)", checked: false },
+        { name: "髭剃り", checked: false }
+      ]
     },
     {
       title: "ガジェット ＆ 車内", icon: "📱",
-      items: ["モバイルバッテリー (必須)", "車用USBシガーソケット (音楽/充電用)", "酔い止め薬 (四国カルスト等の山道対策)", "サングラス (運転手の日差し対策)", "ネックピロー (夜行バス・車中泊用)"]
+      items: [
+        { name: "モバイルバッテリー (必須)", checked: false },
+        { name: "車用USBシガーソケット", checked: false },
+        { name: "酔い止め薬", checked: false },
+        { name: "サングラス (運転手の日差し対策)", checked: false },
+        { name: "ネックピロー", checked: false }
+      ]
     },
     {
       title: "その他 (部屋着・アクティビティ)", icon: "🎒",
       items: [ 
-        "コンタクトレンズ / 眼鏡", 
-        "パジャマ / 部屋着 (88HOTELSには備え付けなし)", 
-        "下着(ネグリジェ)💕",
-        "砂や海水を外の水場で洗うためのサンダル等"
+        { name: "コンタクトレンズ / 眼鏡", checked: false },
+        { name: "パジャマ / 部屋着", checked: false },
+        { name: "下着(ネグリジェ)💕", checked: false },
+        { name: "外の水場で洗うためのサンダル等", checked: false }
       ]
     }
   ];
+
+  const [categories, setCategories] = useState(initialCategories);
+  const [newItemText, setNewItemText] = useState("");
+  const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
+
+  // コンポーネントが表示された時にFirebaseと接続する
+  useEffect(() => {
+    // "tripData"という引き出しの"checklist"という書類を見る
+    const docRef = doc(db, "tripData", "checklist");
+    
+    // リアルタイムリスナー（誰かが更新したら一瞬で手元の画面も変わる）
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setCategories(docSnap.data().categories);
+      } else {
+        // 初回起動時（まだDBにデータがない場合）は初期データを保存
+        setDoc(docRef, { categories: initialCategories });
+      }
+    });
+
+    // 画面を離れる時はリスナーを解除
+    return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ➕ アイテムを追加して全員に共有
+  const handleAddItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newItemText.trim()) return;
+
+    const updatedCategories = [...categories];
+    updatedCategories[selectedCategoryIdx].items.push({ 
+      name: newItemText.trim(), 
+      checked: false 
+    });
+    
+    setNewItemText(""); // 入力欄をリセット
+    // Firebaseに保存（オフライン時は圏内に入った瞬間に自動送信される）
+    await setDoc(doc(db, "tripData", "checklist"), { categories: updatedCategories });
+  };
+
+  // ✅ チェックを入れたり外したりして全員に共有
+  const handleToggleCheck = async (catIdx: number, itemIdx: number) => {
+    const updatedCategories = [...categories];
+    const currentItem = updatedCategories[catIdx].items[itemIdx];
+    currentItem.checked = !currentItem.checked; // true/falseを反転
+    
+    // 画面を即座に更新しつつFirebaseへ送信
+    setCategories(updatedCategories);
+    await setDoc(doc(db, "tripData", "checklist"), { categories: updatedCategories });
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-white font-sans pb-12 animate-in fade-in duration-500">
       <HeaderBar title="持ち物・準備" />
       <div className="p-4 max-w-md mx-auto space-y-6">
-        <p className="text-xs text-slate-400">旅行前に必ず確認してください。特に<span className="text-red-400 font-bold">免許証</span>を忘れると悲惨</p>
+        <p className="text-xs text-slate-400">全員でリアルタイム同期中！電波がなくても使えます。<br/><span className="text-red-400 font-bold">免許証</span>を忘れると悲惨</p>
         
-        {categories.map((cat, idx) => (
-          <div key={idx} className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm">
+        {/* アイテム追加フォーム */}
+        <div className="bg-slate-800 p-4 rounded-2xl border border-blue-500/30 shadow-md">
+          <h3 className="text-xs font-bold text-blue-400 mb-3 flex items-center gap-2">
+            <span className="text-base">➕</span> 持ち物を追加する
+          </h3>
+          <form onSubmit={handleAddItem} className="space-y-3">
+            <div className="flex gap-2">
+              <select 
+                value={selectedCategoryIdx} 
+                onChange={(e) => setSelectedCategoryIdx(Number(e.target.value))}
+                className="bg-slate-900 text-xs text-slate-200 p-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-blue-500 flex-shrink-0"
+              >
+                {categories.map((cat: any, idx: number) => (
+                  <option key={idx} value={idx}>{cat.icon} {cat.title}</option>
+                ))}
+              </select>
+              <input 
+                type="text" 
+                value={newItemText}
+                onChange={(e) => setNewItemText(e.target.value)}
+                placeholder="追加するアイテム名..." 
+                className="bg-slate-900 text-sm text-white p-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-blue-500 w-full"
+              />
+            </div>
+            <button 
+              type="submit" 
+              disabled={!newItemText.trim()}
+              className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold text-xs py-3 rounded-xl transition-colors"
+            >
+              全員のリストに追加する
+            </button>
+          </form>
+        </div>
+
+        {/* チェックリスト一覧 */}
+        {categories.map((cat: any, catIdx: number) => (
+          <div key={catIdx} className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm">
             <h3 className="text-sm font-bold text-yellow-400 mb-3 flex items-center gap-2">
               <span>{cat.icon}</span> {cat.title}
             </h3>
             <div className="space-y-2">
-              {cat.items.map((item, i) => (
-                <label key={i} className="flex items-start gap-3 p-2 hover:bg-slate-700/50 rounded-lg cursor-pointer transition-colors">
-                  <input type="checkbox" className="mt-0.5 w-4 h-4 rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-800" />
-                  <span className="text-xs text-slate-200 leading-snug">{item}</span>
+              {cat.items.map((item: any, itemIdx: number) => (
+                <label key={itemIdx} className="flex items-start gap-3 p-2 hover:bg-slate-700/50 rounded-lg cursor-pointer transition-colors group">
+                  <input 
+                    type="checkbox" 
+                    checked={item.checked}
+                    onChange={() => handleToggleCheck(catIdx, itemIdx)}
+                    className="mt-0.5 w-4 h-4 rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-800" 
+                  />
+                  <span className={`text-xs leading-snug transition-all ${item.checked ? "text-slate-500 line-through" : "text-slate-200"}`}>
+                    {item.name}
+                  </span>
                 </label>
               ))}
             </div>
@@ -593,7 +730,7 @@ function Party() {
 
         <div>
           <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase flex items-center justify-between">
-            <span>👥 参加エージェント (計10名)</span><span className="text-[10px] bg-slate-800 px-2 py-1 rounded-md border border-slate-700">負担額目安</span>
+            <span>👥 参加(計10名)</span><span className="text-[10px] bg-slate-800 px-2 py-1 rounded-md border border-slate-700">負担額目安(正確な情報はWalicaで)</span>
           </h3>
           <div className="grid grid-cols-1 gap-2.5">
             {members.map((member, index) => (
