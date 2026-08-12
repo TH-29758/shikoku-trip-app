@@ -759,29 +759,46 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ 参加者 ＆ 費用精算画面（事前概算 ＋ Walica風システム）
+// ③ 参加者 ＆ 費用精算画面（傾斜配分・日割り計算対応）
 // ==========================================
 function Party() {
   const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const userName = localStorage.getItem("shikokuUserName") || allMembers[0];
 
-  // DBの初期データ
+  // DBの初期データ（レンタカー代に日数のウェイトを設定）
   const initialTransactions = [
-    { id: 1, payer: "たかやす", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
-    { id: 2, payer: "こうせい", amount: 54939, title: "🏨 前半宿代(24-25日)", participants: ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお"] },
-    { id: 3, payer: "バ畜", amount: 115455, title: "🏨 後半宿代(26-27日)", participants: allMembers },
-    { id: 4, payer: "ようすけ", amount: 70000, title: "⛽ 行きのガソリン等概算", participants: allMembers }
+    { 
+      id: 1, payer: "たかやす", amount: 129096, title: "🚗 レンタカー代", 
+      participants: [
+        { name: "たかやす", weight: 5 }, { name: "こうせい", weight: 5 }, { name: "s@aa4i🤣", weight: 5 }, 
+        { name: "バ畜", weight: 5 }, { name: "ようすけ", weight: 5 }, { name: "ゆうと", weight: 5 }, { name: "りお", weight: 5 },
+        { name: "りょうた", weight: 3 }, { name: "いっせい", weight: 3 }, { name: "だいち", weight: 2 }
+      ] 
+    },
+    { 
+      id: 2, payer: "こうせい", amount: 54939, title: "🏨 前半宿代(24-25日)", 
+      participants: ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお"].map(m => ({ name: m, weight: 1 })) 
+    },
+    { 
+      id: 3, payer: "バ畜", amount: 115455, title: "🏨 後半宿代(26-27日)", 
+      participants: allMembers.map(m => ({ name: m, weight: 1 })) 
+    },
+    { 
+      id: 4, payer: "ようすけ", amount: 70000, title: "⛽ 行きのガソリン等概算", 
+      participants: allMembers.map(m => ({ name: m, weight: 1 })) 
+    }
   ];
 
   const [transactions, setTransactions] = useState(initialTransactions);
-  const [activeTab, setActiveTab] = useState<"estimate" | "summary" | "add">("estimate"); // 初期表示を概算に
+  const [activeTab, setActiveTab] = useState<"estimate" | "summary" | "add">("estimate"); 
 
   // --- フォーム用ステート ---
   const [editingId, setEditingId] = useState<number | null>(null);
   const [payer, setPayer] = useState(userName);
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(allMembers);
+  // 参加者とその負担比率（デフォルトは1）
+  const [selectedParticipants, setSelectedParticipants] = useState<{name: string, weight: number}[]>(allMembers.map(m => ({name: m, weight: 1})));
 
   // ▼ 当初の事前概算データ
   const estimatedMembers = [
@@ -818,11 +835,16 @@ function Party() {
     allMembers.forEach(m => balances[m] = { paid: 0, owe: 0, net: 0 });
 
     transactions.forEach(t => {
+      // 払った人の「paid」に加算
       if (balances[t.payer]) balances[t.payer].paid += t.amount;
+      
+      // 対象者の「owe（借金）」に比率（weight）に応じて按分して加算
       if (t.participants.length > 0) {
-        const splitAmount = t.amount / t.participants.length;
+        const totalWeight = t.participants.reduce((sum, p) => sum + p.weight, 0);
         t.participants.forEach(p => {
-          if (balances[p]) balances[p].owe += splitAmount;
+          if (balances[p.name] && totalWeight > 0) {
+            balances[p.name].owe += (t.amount * p.weight) / totalWeight;
+          }
         });
       }
     });
@@ -891,7 +913,7 @@ function Party() {
     setAmount("");
     setTitle("");
     setPayer(userName);
-    setSelectedParticipants(allMembers);
+    setSelectedParticipants(allMembers.map(m => ({ name: m, weight: 1 })));
   };
 
   return (
@@ -1007,25 +1029,30 @@ function Party() {
             <div>
               <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase">📝 支払い履歴</h3>
               <div className="space-y-2.5">
-                {transactions.slice().reverse().map(t => (
-                  <div key={t.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md group">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-sm font-bold text-white">{t.title}</span>
-                      <span className="text-sm font-mono font-bold text-yellow-300">¥{t.amount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-end">
-                      <span className="text-xs text-slate-400">払った人: <span className="text-blue-300 font-bold">{t.payer}</span></span>
-                      
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">{t.participants.length}人で割り勘</span>
-                        <div className="flex gap-2">
-                          <button onClick={() => handleEditClick(t)} className="text-slate-400 hover:text-blue-400 transition-colors p-1" title="編集">✏️</button>
-                          <button onClick={() => handleDeleteTransaction(t.id)} className="text-slate-400 hover:text-red-400 transition-colors p-1" title="削除">🗑️</button>
+                {transactions.slice().reverse().map(t => {
+                  const hasCustomWeight = t.participants.some((p: any) => p.weight !== 1);
+                  return (
+                    <div key={t.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md group">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-sm font-bold text-white">{t.title}</span>
+                        <span className="text-sm font-mono font-bold text-yellow-300">¥{t.amount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-end">
+                        <span className="text-xs text-slate-400">払った人: <span className="text-blue-300 font-bold">{t.payer}</span></span>
+                        
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">
+                            {t.participants.length}人 {hasCustomWeight ? "(傾斜あり)" : "で割勘"}
+                          </span>
+                          <div className="flex gap-2">
+                            <button onClick={() => handleEditClick(t)} className="text-slate-400 hover:text-blue-400 transition-colors p-1" title="編集">✏️</button>
+                            <button onClick={() => handleDeleteTransaction(t.id)} className="text-slate-400 hover:text-red-400 transition-colors p-1" title="削除">🗑️</button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1062,26 +1089,48 @@ function Party() {
               </div>
               <div>
                 <div className="flex justify-between items-end mb-2">
-                  <label className="text-xs text-slate-400 block">誰の分？ (割り勘対象)</label>
-                  <button type="button" onClick={() => setSelectedParticipants(selectedParticipants.length === allMembers.length ? [] : allMembers)} className="text-[10px] text-blue-400 hover:underline">
+                  <label className="text-xs text-slate-400 block">誰の分？ (比率・日数を調整可能)</label>
+                  <button type="button" onClick={() => setSelectedParticipants(selectedParticipants.length === allMembers.length ? [] : allMembers.map(m => ({name: m, weight: 1})))} className="text-[10px] text-blue-400 hover:underline">
                     {selectedParticipants.length === allMembers.length ? "全解除" : "全選択"}
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-2 bg-slate-900 p-3 rounded-xl border border-slate-700 h-40 overflow-y-auto">
-                  {allMembers.map(m => (
-                    <label key={m} className="flex items-center gap-2 cursor-pointer p-1">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedParticipants.includes(m)}
-                        onChange={(e) => {
-                          if (e.target.checked) setSelectedParticipants([...selectedParticipants, m]);
-                          else setSelectedParticipants(selectedParticipants.filter(p => p !== m));
-                        }}
-                        className="w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-500" 
-                      />
-                      <span className="text-xs text-slate-200">{m}</span>
-                    </label>
-                  ))}
+                <div className="grid grid-cols-1 gap-2 bg-slate-900 p-2 rounded-xl border border-slate-700 h-64 overflow-y-auto">
+                  {allMembers.map(m => {
+                    const pData = selectedParticipants.find(p => p.name === m);
+                    const isSelected = !!pData;
+                    return (
+                      <div key={m} className="flex items-center justify-between p-1">
+                        <label className="flex items-center gap-2 cursor-pointer flex-1">
+                          <input 
+                            type="checkbox" 
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) setSelectedParticipants([...selectedParticipants, { name: m, weight: 1 }]);
+                              else setSelectedParticipants(selectedParticipants.filter(p => p.name !== m));
+                            }}
+                            className="w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-500" 
+                          />
+                          <span className={`text-xs ${isSelected ? "text-white" : "text-slate-500"}`}>{m}</span>
+                        </label>
+                        {isSelected && (
+                          <div className="flex items-center gap-1.5 animate-in fade-in">
+                            <span className="text-[10px] text-slate-500">比率/日数:</span>
+                            <input 
+                              type="number" 
+                              min="0.1" 
+                              step="0.1"
+                              value={pData.weight}
+                              onChange={(e) => {
+                                const newWeight = Number(e.target.value);
+                                setSelectedParticipants(selectedParticipants.map(p => p.name === m ? { ...p, weight: newWeight } : p));
+                              }}
+                              className="w-14 bg-slate-800 text-white text-xs p-1 rounded border border-slate-600 focus:border-blue-500 focus:outline-none text-right font-mono"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg active:scale-95">
