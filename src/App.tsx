@@ -116,6 +116,9 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             <Link to="/schedule" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
               <span className="text-xl">📜</span>タイムスケジュール
             </Link>
+            <Link to="/accommodations" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
+              <span className="text-xl">🏨</span>宿泊情報 (Hotels)
+            </Link>
             <Link to="/party" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-700 text-slate-200 font-bold transition-colors">
               <span className="text-xl">💰</span>参加者 ＆ 費用
             </Link>
@@ -160,7 +163,7 @@ function HeaderBar({ title }: { title: string }) {
 }
 
 // ==========================================
-// ① ホーム画面（カウントダウン・旅程概要を追加）
+// ① ホーム画面
 // ==========================================
 function Home() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
@@ -177,9 +180,8 @@ function Home() {
           minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
         });
       }
-    }, 60000); // 1分ごとに更新
+    }, 60000); 
     
-    // 初回実行
     const now = new Date().getTime();
     const distance = targetDate - now;
     if(distance > 0) {
@@ -211,7 +213,6 @@ function Home() {
 
       <div className="flex-1 p-4 flex flex-col gap-6 max-w-md mx-auto w-full pb-12">
         
-        {/* カウントダウン */}
         <div className="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl text-center">
           <p className="text-xs text-yellow-400 font-bold tracking-widest mb-2">MISSION START IN</p>
           <div className="flex justify-center gap-4 text-white">
@@ -223,7 +224,6 @@ function Home() {
           </div>
         </div>
 
-        {/* NEXT ACTION */}
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-blue-400/30">
           <div className="flex justify-between items-center mb-4">
             <span className="text-xs bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full font-extrabold tracking-wider uppercase text-blue-100 shadow-sm">
@@ -243,7 +243,6 @@ function Home() {
           </Link>
         </div>
 
-        {/* 旅程サマリー */}
         <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700">
           <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider flex items-center gap-2">
             <span>🗺️ OVERVIEW</span>
@@ -264,25 +263,134 @@ function Home() {
 }
 
 // ==========================================
-// 🎒 持ち物・準備 画面 (新規追加)
+// 🏨 宿泊情報 画面 (新規追加)
+// ==========================================
+function AccommodationsView() {
+  const accommodations = [
+    {
+      day: "Day 1 (9/24) - 香川",
+      name: "ゲストハウス コトネ",
+      desc: "高松駅近く 一棟貸し",
+      address: "香川県高松市浜ノ町60-1",
+      inOut: "IN: 15:00 / OUT: 10:00",
+      parking: "無料駐車場1台あり。浜ノ町モータープール 33番",
+      notes: "スーパーマルナカ(約290m)、コンビニローソン(約170m)が至近。",
+      url: "https://www.airbnb.jp/rooms/1681722909741723137",
+      mapTarget: "/map#kotone"
+    },
+    {
+      day: "Day 2 (9/25) - 愛媛",
+      name: "88HOTELS",
+      desc: "ワンフロア貸し切り カプセルホテル",
+      address: "愛媛県松山市湊町4-2-4",
+      inOut: "IN: 16:00 (最終24:00) / OUT: 10:00",
+      parking: "無し（お近くのコインパーキングをご利用ください）",
+      notes: "松山市駅より徒歩約6分。パジャマの備え付けなし。",
+      url: "https://travel.rakuten.co.jp/HOTEL/180391/180391.html",
+      mapTarget: "/map#88hotels"
+    },
+    {
+      day: "Day 3 (9/26) - 高知",
+      name: "黒潮の家 Ⅰ号館",
+      desc: "海まで徒歩5分の一棟貸し宿",
+      address: "高知県幡多郡黒潮町入野1966",
+      inOut: "IN: 16:00 (最終20:00) / OUT: 10:00",
+      parking: "駐車場: 3台",
+      notes: "コンビニエンスストア徒歩7分。薪ストーブサウナ(要予約)。",
+      url: "https://www.kuroshiostay.com/",
+      mapTarget: "/map#kuroshio"
+    },
+    {
+      day: "Day 4 (9/27) - 高知",
+      name: "高知エリア Airbnb (Day 4)",
+      desc: "最終日の宿泊拠点",
+      address: "高知エリア (詳細はAirbnbのリンクを確認)",
+      inOut: "リンク先にて確認",
+      parking: "リンク先にて確認",
+      notes: "翌日は夜通しドライブとなるため、しっかり仮眠をとること。",
+      url: "https://www.airbnb.jp/rooms/1716893195048633552",
+      mapTarget: ""
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
+      <HeaderBar title="宿泊情報 (Hotels)" />
+      <div className="p-4 max-w-md mx-auto space-y-6">
+        <p className="text-xs text-slate-400 leading-relaxed">
+          各日程の宿泊施設に関する詳細情報、チェックイン時間、駐車場ルールなどをまとめています。
+        </p>
+        
+        {accommodations.map((hotel, idx) => (
+          <div key={idx} className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-[10px] font-bold text-blue-400 bg-blue-900/30 px-2 py-1 rounded">
+                {hotel.day}
+              </span>
+              {hotel.mapTarget && (
+                <Link to={hotel.mapTarget} className="text-[10px] text-yellow-300 flex items-center gap-1 hover:underline bg-yellow-400/10 px-2 py-1 rounded">
+                  <span>📍 Map確認</span>
+                </Link>
+              )}
+            </div>
+            <h2 className="text-lg font-bold text-white mb-1">{hotel.name}</h2>
+            <p className="text-[11px] text-yellow-300 mb-4">{hotel.desc}</p>
+            
+            <div className="space-y-2.5 text-[11px] text-slate-300 mb-5 bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+              <div className="flex gap-2.5">
+                <span className="shrink-0 text-slate-500">📍</span>
+                <span className="leading-snug">{hotel.address}</span>
+              </div>
+              <div className="flex gap-2.5">
+                <span className="shrink-0 text-slate-500">⏰</span>
+                <span className="leading-snug font-mono font-bold text-blue-100">{hotel.inOut}</span>
+              </div>
+              <div className="flex gap-2.5">
+                <span className="shrink-0 text-slate-500">🅿️</span>
+                <span className="leading-snug text-emerald-200">{hotel.parking}</span>
+              </div>
+              <div className="flex gap-2.5">
+                <span className="shrink-0 text-slate-500">💡</span>
+                <span className="leading-snug text-slate-400">{hotel.notes}</span>
+              </div>
+            </div>
+            
+            <a href={hotel.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-2 text-xs border border-slate-600">
+              <span>公式サイト / 予約詳細を開く</span><span className="text-sm">↗</span>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// 🎒 持ち物・準備 画面
 // ==========================================
 function ChecklistView() {
   const categories = [
     {
       title: "絶対必須 (MUST)", icon: "⚠️",
-      items: ["運転免許証 (運転手6名は命より大事)", "ETCカード (持っている人)", "財布・現金 (一部現金のみの施設あり)", "スマホ ＆ 充電ケーブル", "保険証 (怪我・病気用)"]
+      items: ["運転免許証", "財布・現金 (一部現金のみの施設あり)", "スマホ ＆ 充電ケーブル", "水着"]
     },
     {
       title: "お風呂・サウナセット", icon: "♨️",
-      items: ["着替え (最低4日分＋予備)", "タオル (ホテル外のサウナ/銭湯用)", "シャンプー・洗顔類 (銭湯用にあると便利)", "サウナハット (ガチ勢のみ)", "ビニール袋 (濡れたタオル入れ)"]
+      items: ["着替え (最低4日分＋予備)", "タオル (ホテル外のサウナ/銭湯用)", "シャンプー・洗顔類 (銭湯用にあると便利)", "サウナハット", "ビニール袋 (濡れたタオル入れ)", "髭剃り"]
     },
     {
       title: "ガジェット ＆ 車内", icon: "📱",
       items: ["モバイルバッテリー (必須)", "車用USBシガーソケット (音楽/充電用)", "酔い止め薬 (四国カルスト等の山道対策)", "サングラス (運転手の日差し対策)", "ネックピロー (夜行バス・車中泊用)"]
     },
     {
-      title: "その他", icon: "🎒",
-      items: ["折りたたみ傘", "常備薬 / 胃薬 (うどん・酒のダメージ対策)", "コンタクトレンズ / 眼鏡", "パジャマ / 部屋着 (黒潮の家用)"]
+      title: "その他 (部屋着・アクティビティ)", icon: "🎒",
+      items: [ 
+        "コンタクトレンズ / 眼鏡", 
+        "パジャマ / 部屋着 (88HOTELSには備え付けなし)", 
+        "下着(ネグリジェ)💕",
+        "砂や海水を外の水場で洗うためのサンダル等"
+      ]
     }
   ];
 
@@ -290,7 +398,7 @@ function ChecklistView() {
     <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
       <HeaderBar title="持ち物・準備" />
       <div className="p-4 max-w-md mx-auto space-y-6">
-        <p className="text-xs text-slate-400">旅行前に必ず確認してください。特に<span className="text-red-400 font-bold">免許証</span>を忘れると悲惨です。</p>
+        <p className="text-xs text-slate-400">旅行前に必ず確認してください。特に<span className="text-red-400 font-bold">免許証</span>を忘れると悲惨</p>
         
         {categories.map((cat, idx) => (
           <div key={idx} className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm">
@@ -322,25 +430,25 @@ function Schedule() {
     day1: {
       date: "9月24日 (木)", title: "1日目：淡路島・鳴門・香川",
       items: [
-        { time: "08:00", title: "レンタカー出発", icon: "🚗", desc: <><Link to="/map#car" className="text-blue-400 hover:underline">オリックスレンタカー三宮駅前店</Link>集合 ＆ 出発</>, transit: { duration: "約40分", cost: "高速 約1,700円", method: "🚗" } },
-        { time: "09:00", title: "淡路島到着", icon: "🌉", desc: "朝ごはん ＆ 周辺サクッと観光", transit: { duration: "約1時間", cost: "高速 約1,200円", method: "🚗" } },
+        { time: "08:00", title: "レンタカー出発", icon: "🚗", desc: <><Link to="/map#sannomiya_car" className="text-blue-400 hover:underline">オリックスレンタカー三宮駅前店</Link>集合 ＆ 出発</>, transit: { duration: "約40分", cost: "高速 約1,700円", method: "🚗" } },
+        { time: "09:00", title: "淡路島到着", icon: "🌉", desc: <><Link to="/map#awaji" className="text-blue-400 hover:underline">淡路島</Link>周辺で朝ごはん ＆ サクッと観光</>, transit: { duration: "約1時間", cost: "高速 約1,200円", method: "🚗" } },
         { time: "10:30", title: "淡路島出発", icon: "📸", desc: "鳴門へ移動", transit: { duration: "約1時間", cost: "高速 約1,200円", method: "🚗" } },
-        { time: "11:30", title: "うずしお汽船 出航", icon: "⛴️", desc: "渦潮を近くで見ちゃう", transit: { duration: "約30分", cost: "大人2,000円 (実費)", method: "⛴️" } },
-        { time: "12:00", title: "大鳴門橋遊歩道 渦の道", icon: "🌀", desc: "渦潮を見ちゃう", transit: { duration: "約20分", cost: "高速 約300円", method: "🚗" } },
-        { time: "12:00", title: "＊くるくる なると", icon: "🥞", desc: "いもにおぼれる", transit: { duration: "約20分", cost: "0円", method: "🚗" } },
-        { time: "12:30", title: "徳島ラーメンorしょくす", icon: "🍜", desc: "徳島料理をイク", transit: { duration: "約1時間15分", cost: "高速 約1,600円", method: "🚗" } },
-        { time: "16:30", title: "香川 ホテル着", icon: "🏨", desc: "宿チェックイン完了" },
-        { time: "17:00", title: "骨付鳥 一鶴", icon: "🍗", desc: <>🍖＆🍺 😁 <Link to="/map#ikkaku" className="text-blue-400 hover:underline">map</Link></> },
+        { time: "11:30", title: "うずしお汽船 出航", icon: "⛴️", desc: <><Link to="/map#uzushio_kisen" className="text-blue-400 hover:underline">うずしお汽船</Link>で渦潮を近くで見ちゃう</>, transit: { duration: "約30分", cost: "大人2,000円 (実費)", method: "⛴️" } },
+        { time: "12:00", title: "大鳴門橋遊歩道 渦の道", icon: "🌀", desc: <><Link to="/map#uzu_michi" className="text-blue-400 hover:underline">渦の道</Link>から見下ろす</>, transit: { duration: "約20分", cost: "高速 約300円", method: "🚗" } },
+        { time: "12:00", title: "道の駅 くるくる なると", icon: "🥞", desc: <><Link to="/map#kurukuru" className="text-blue-400 hover:underline">くるくるなると</Link>でいもにおぼれる</>, transit: { duration: "約20分", cost: "0円", method: "🚗" } },
+        { time: "12:30", title: "徳島ラーメン", icon: "🍜", desc: <><Link to="/map#yamakyo" className="text-blue-400 hover:underline">やまきょう</Link>で徳島料理をイク</>, transit: { duration: "約1時間15分", cost: "高速 約1,600円", method: "🚗" } },
+        { time: "16:30", title: "高松 ホテル着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">ゲストハウス コトネ</Link>にチェックイン。駐車(浜ノ町モータープール 33番)に注意</> },
+        { time: "17:00", title: "骨付鳥 一鶴", icon: "🍗", desc: <>🍖＆🍺 😁 <Link to="/map#ikkaku_takamatsu" className="text-blue-400 hover:underline">一鶴 高松店 or 中府店</Link>へ</> },
         { time: "22:00", title: "Day1 終了", desc: "明日のうどんに備えて就寝" }
       ]
     },
     day2: {
       date: "9月25日 (金)", title: "2日目：香川・愛媛",
       items: [
-        { time: "09:00", title: "香川県内のうどん全部行く", icon: "🍜", desc: "うどんを並列消費。腹がはち切れるまでイク" },
+        { time: "09:00", title: "香川 絶景＆うどん巡り", icon: "🍜", desc: <><Link to="/map#zenigata" className="text-blue-400 hover:underline">銭形砂絵</Link>や<Link to="/map#chichibugahama" className="text-blue-400 hover:underline">父母ヶ浜</Link>を巡りつつ、うどんを並列消費。<Link to="/map#kotohiki" className="text-blue-400 hover:underline">琴弾廻廊(温泉)</Link>の選択肢もアリ。</> },
         { time: "17:00", title: "香川出発", icon: "🚗", desc: "愛媛方面へルーティング", transit: { duration: "約2.5時間", cost: "高速 約2,500円", method: "🚗" } },
-        { time: "19:30", title: "愛媛着", icon: "🏨", desc: "宿チェックイン完了" },
-        { time: "20:00", title: "道後温泉 / サウナ", icon: "♨️", desc: "銭湯・サウナにてリカバリー処理。入湯税等実費注意" },
+        { time: "19:30", title: "愛媛 ホテル着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">88HOTELS</Link>にチェックイン。近隣コインパーキング利用</> },
+        { time: "20:00", title: "道後温泉 / サウナ", icon: "♨️", desc: <><Link to="/map#dogo" className="text-blue-400 hover:underline">道後温泉</Link>や<Link to="/map#kisuke" className="text-blue-400 hover:underline">喜助の湯</Link>にてリカバリー処理</> },
         { time: "23:00", title: "Day2 終了", desc: "翌朝早起きミッションあり" }
       ]
     },
@@ -348,21 +456,21 @@ function Schedule() {
       date: "9月26日 (土)", title: "3日目：愛媛・高知合流",
       items: [
         { time: "06:00", title: "道後温泉 朝風呂", icon: "♨️", desc: "さすがの朝風呂。HP全回復" },
-        { time: "07:30", title: "愛媛出発", icon: "🚗", desc: "高知方面へGO", transit: { duration: "約2時間", cost: "0円", method: "🚗" } },
-        { time: "09:30", title: "四国カルスト", icon: "🏞️", desc: "免許持ちだからこそ楽しめる天空のドライブ", transit: { duration: "約2時間", cost: "570円", method: "🚗" } },
-        { time: "13:00", title: "伊野駅到着", icon: "🚉", desc: "いっせい、りょうた、だいちと合流。10人パーティ完成" },
-        { time: "13:30", title: "ひろめ市場", icon: "🍴", desc: "okamiさんと合流＆昼食。酒宴注意", transit: { duration: "約1時間", cost: "810円", method: "🚗" } },
-        { time: "15:30", title: "追手前高校 見学", icon: "🏫", desc: "高知市内の施設見学" },
-        { time: "17:00", title: "黒潮の家 Ⅰ号館", icon: "🏨", desc: "メインベースにチェックイン。今夜は買い出ししてBBQ＆宴！" },
+        { time: "07:30", title: "愛媛出発", icon: "🚗", desc: <><Link to="/map#shimonada" className="text-blue-400 hover:underline">下灘駅</Link>を横目に高知方面へGO</>, transit: { duration: "約2時間", cost: "0円", method: "🚗" } },
+        { time: "09:30", title: "四国カルスト", icon: "🏞️", desc: <><Link to="/map#godan" className="text-blue-400 hover:underline">五段高原</Link>や<Link to="/map#mezudaira" className="text-blue-400 hover:underline">姫鶴平</Link>で天空のドライブ。<Link to="/map#mikawa" className="text-blue-400 hover:underline">道の駅 みかわ</Link>で休憩も</>, transit: { duration: "約2時間", cost: "570円", method: "🚗" } },
+        { time: "13:00", title: "伊野駅到着", icon: "🚉", desc: <><Link to="/map#ino" className="text-blue-400 hover:underline">伊野駅</Link>でいっせい、りょうた、だいちと合流！10人パーティ完成</> },
+        { time: "13:30", title: "ひろめ市場", icon: "🍴", desc: <><Link to="/map#hirome" className="text-blue-400 hover:underline">ひろめ市場</Link>でokamiさんと合流＆昼食。酒宴注意</>, transit: { duration: "約1時間", cost: "810円", method: "🚗" } },
+        { time: "15:30", title: "追手前高校 見学", icon: "🏫", desc: <><Link to="/map#otemae" className="text-blue-400 hover:underline">追手前高校</Link>など市内観光</> },
+        { time: "17:00", title: "黒潮の家 Ⅰ号館", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">メインベース(黒潮の家)</Link>にチェックイン。今夜は買い出ししてBBQ＆宴！</> },
         { time: "23:59", title: "Day3 終了", desc: "宴" }
       ]
     },
     day4: {
       date: "9月27日 (日)", title: "4日目：ガチ高知",
       items: [
-        { time: "09:00", title: "仁淀川フィールドワーク", icon: "🏞️", desc: "奇跡の清水「仁淀ブルー」で自然を満喫" },
-        { time: "14:00", title: "高知 自由探索", icon: "🚶", desc: "各エージェントの裁量に委ねる" },
-        { time: "17:00", title: "ベースキャンプ帰還", icon: "🏠", desc: "夕食 ＆ 仮眠準備" },
+        { time: "09:00", title: "仁淀川フィールドワーク", icon: "🏞️", desc: <><Link to="/map#niyodo" className="text-blue-400 hover:underline">仁淀川</Link>の奇跡の清水「仁淀ブルー」で自然を満喫</> },
+        { time: "14:00", title: "高知 自由探索", icon: "🚶", desc: <>各エージェントの裁量に委ねる。<Link to="/map#greenpia" className="text-blue-400 hover:underline">SAUNA グリンピア</Link>もアリ</> },
+        { time: "17:00", title: "ベースキャンプ到着", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">Day4のAirbnb</Link>にチェックイン。夕食 ＆ 仮眠準備</> },
         { time: "18:00", title: "だいち・いっせい離脱", icon: "👋", desc: "2名ここで離脱。お疲れ様でした！" },
         { time: "23:00", title: "Day4 終了 (仮眠)", desc: "日付が変わる前に少しでも寝る" }
       ]
@@ -372,8 +480,8 @@ function Schedule() {
       items: [
         { time: "03:00", title: "高知出発 (深夜ドライブ)", icon: "🚗", desc: "ETC深夜割引(30%OFF)を狙うため、0時〜4時台に高速に乗る！", transit: { duration: "約4時間", cost: "深夜割引適用 約5,000円", method: "🚗" } },
         { time: "05:00", title: "徳島・淡路島通過", icon: "🌉", desc: "夜明けのドライブ。ドライバー交代必須" },
-        { time: "07:30", title: "神戸市内着", icon: "🏙️", desc: "通勤渋滞に注意しつつ三宮へ" },
-        { time: "08:00", title: "レンタカー返却", icon: "🏁", desc: "モビリティ返却完了。全プロセス終了" },
+        { time: "07:30", title: "神戸市内着", icon: "🏙️", desc: <><Link to="/map#kobe_sauna" className="text-blue-400 hover:underline">神戸サウナ＆スパ</Link>で朝ウナするのもアリ。通勤渋滞に注意</> },
+        { time: "08:00", title: "レンタカー返却", icon: "🏁", desc: <><Link to="/map#sannomiya_car" className="text-blue-400 hover:underline">三宮駅前</Link>でモビリティ返却。全プロセス終了</> },
         { time: "08:15", title: "解散", desc: "お疲れ様でした！" }
       ]
     }
@@ -439,7 +547,7 @@ function Schedule() {
 // ==========================================
 function Party() {
   const members = [
-    { name: "Yasuu", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "蓮沼", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥44,500" },
     { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥44,500" },
     { name: "s@aa4i🤣", role: "fatgay", type: "フル参加 (5日間)", cost: "¥44,500" },
     { name: "バ畜", role: "NG(naturalgay)", type: "フル参加 (5日間)", cost: "¥44,500" },
@@ -506,7 +614,7 @@ function Party() {
 }
 
 // ==========================================
-// ④ Map情報画面（距離・時間目安を追加）
+// ④ Map情報画面（カテゴライズ対応・全リスト網羅）
 // ==========================================
 function MapView() {
   const location = useLocation();
@@ -523,17 +631,68 @@ function MapView() {
     }
   }, [location]);
 
-  const spots = [
-    { id: "ikebukuro", name: "池袋サンシャインバスターミナル", query: "池袋サンシャインバスターミナル" },
-    { id: "car", name: "オリックスレンタカー三宮駅前店", query: "オリックスレンタカー三宮駅前店" },
-    { id: "awaji", name: "淡路島", query: "淡路島" },
-    { id: "naruto", name: "鳴門公園・渦潮", query: "鳴門公園" },
-    { id: "ikkaku", name: "骨付鳥 一鶴（香川）", query: "一鶴 骨付鳥" },
-    { id: "dogo", name: "道後温泉（愛媛）", query: "道後温泉本館" },
-    { id: "karst", name: "四国カルスト", query: "四国カルスト" },
-    { id: "hirome", name: "ひろめ市場（高知）", query: "ひろめ市場" },
-    { id: "kuroshio", name: "黒潮の家（メインベース）", query: "黒潮の家 Ⅰ号館(一棟貸し)" },
-    { id: "niyodo", name: "仁淀川", query: "仁淀川" },
+  // エリア・用途ごとにスポットを分類して見やすく整理
+  const spotCategories = [
+    {
+      area: "🚌 東京・🚙 神戸 (出発・帰還)",
+      spots: [
+        { id: "ikebukuro", name: "池袋サンシャインバスターミナル", query: "池袋サンシャインバスターミナル" },
+        { id: "sannomiya_sta", name: "三ノ宮駅", query: "三ノ宮駅" },
+        { id: "sannomiya_car", name: "オリックスレンタカー三宮駅前店", query: "オリックスレンタカー三宮駅前店" },
+        { id: "kobe_sauna", name: "神戸サウナ＆スパ", query: "神戸サウナ＆スパ" },
+        { id: "rekishi", name: "ラーメン荘 歴史を刻め", query: "ラーメン荘 歴史を刻め" },
+      ]
+    },
+    {
+      area: "🌀 淡路島・徳島",
+      spots: [
+        { id: "awaji", name: "淡路島SA (休憩)", query: "淡路サービスエリア" },
+        { id: "uzushio_kisen", name: "うずしお汽船", query: "うずしお汽船" },
+        { id: "uzu_michi", name: "大鳴門橋遊歩道 渦の道", query: "大鳴門橋遊歩道 渦の道" },
+        { id: "kurukuru", name: "道の駅 くるくる なると", query: "道の駅 くるくる なると" },
+        { id: "naruto_park", name: "鳴門公園", query: "鳴門公園" },
+        { id: "yamakyo", name: "やまきょう (ラーメン)", query: "徳島 ラーメン やまきょう" },
+        { id: "kazurabashi", name: "祖谷のかずら橋", query: "祖谷のかずら橋" },
+      ]
+    },
+    {
+      area: "🍜 香川",
+      spots: [
+        { id: "kotone", name: "ゲストハウス コトネ (Day 1)", query: "香川県高松市浜ノ町60-1" },
+        { id: "ikkaku_takamatsu", name: "骨付鳥 一鶴 高松店", query: "一鶴 高松店" },
+        { id: "ikkaku_nakabu", name: "骨付鳥 一鶴 中府店", query: "一鶴 中府店" },
+        { id: "kotohira", name: "金刀比羅宮", query: "金刀比羅宮" },
+        { id: "zenigata", name: "銭形砂絵", query: "銭形砂絵" },
+        { id: "chichibugahama", name: "父母ヶ浜", query: "父母ヶ浜" },
+        { id: "takaya_shrine", name: "高屋神社 本宮鳥居", query: "高屋神社 本宮鳥居" },
+        { id: "kotohiki", name: "琴弾廻廊 (温泉)", query: "琴弾廻廊" },
+      ]
+    },
+    {
+      area: "🍊 愛媛",
+      spots: [
+        { id: "88hotels", name: "88HOTELS (Day 2)", query: "88HOTELS 松山" },
+        { id: "dogo", name: "道後温泉駅 / 本館", query: "道後温泉本館" },
+        { id: "kisuke", name: "伊予の湯治場 喜助の湯 (サウナ)", query: "伊予の湯治場 喜助の湯" },
+        { id: "shimonada", name: "下灘駅 (観光名所)", query: "下灘駅" },
+        { id: "mikawa", name: "道の駅 みかわ", query: "道の駅 みかわ" },
+      ]
+    },
+    {
+      area: "🐟 高知 ＆ 🏔 四国カルスト",
+      spots: [
+        { id: "godan", name: "五段高原 (カルスト)", query: "五段高原" },
+        { id: "mezudaira", name: "姫鶴平 展望所 (カルスト)", query: "姫鶴平" },
+        { id: "tengu", name: "天狗高原 展望台 (カルスト)", query: "天狗高原 展望台" },
+        { id: "ino", name: "伊野駅 (合流地点)", query: "伊野駅 高知" },
+        { id: "hirome", name: "ひろめ市場", query: "ひろめ市場" },
+        { id: "otemae", name: "高知県立高知追手前高等学校", query: "高知県立高知追手前高等学校" },
+        { id: "kuroshio", name: "黒潮の家 Ⅰ号館 (Day 3)", query: "黒潮の家 Ⅰ号館" },
+        { id: "greenpia", name: "SAUNA グリンピア", query: "SAUNA グリンピア 高知" },
+        { id: "niyodo", name: "仁淀川", query: "仁淀川" },
+        { id: "miyamoto_parking", name: "宮本モータープール", query: "宮本モータープール 高知" },
+      ]
+    }
   ];
 
   return (
@@ -553,26 +712,30 @@ function MapView() {
           </div>
         </div>
 
+        {/* Google Map 全体リスト */}
         <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl relative overflow-hidden mb-6">
           <h2 className="text-base font-bold text-yellow-400 mb-2 flex items-center gap-2"><span className="text-xl">🗺️</span> 四国旅 全体マップ</h2>
-          <p className="text-xs text-slate-300 mb-4 leading-relaxed">保存済みのスポット一覧（ピン）をGoogleマップで確認できます。</p>
+          <p className="text-xs text-slate-300 mb-4 leading-relaxed">幹事が保存済みのスポット一覧（ピン）をGoogleマップで一括確認できます。</p>
           <a href="https://maps.app.goo.gl/xbTpHuB4UTiuexb3A" target="_blank" rel="noopener noreferrer" className="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 text-sm">
             <span>Googleマップでリストを開く</span><span className="text-lg">↗</span>
           </a>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-2">📍 個別スポット検索リンク</p>
-          <div className="space-y-2.5">
-            {spots.map((spot) => (
-              <div key={spot.id} id={spot.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex justify-between items-center transition-all">
-                <div className="flex items-center gap-3"><span className="text-base text-slate-400">📍</span><span className="text-sm font-bold text-white">{spot.name}</span></div>
-                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.query)}`} target="_blank" rel="noopener noreferrer" className="text-[11px] text-blue-400 font-bold bg-blue-950/40 px-3 py-1.5 rounded-lg border border-blue-800/40 hover:bg-blue-900/50 whitespace-nowrap">
-                  外部アプリ
-                </a>
-              </div>
-            ))}
-          </div>
+        {/* 個別スポットリンク（カテゴリ別） */}
+        <div className="space-y-6">
+          {spotCategories.map((cat, catIdx) => (
+            <div key={catIdx} className="space-y-2.5">
+              <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-2">{cat.area}</p>
+              {cat.spots.map((spot) => (
+                <div key={spot.id} id={spot.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex justify-between items-center transition-all">
+                  <div className="flex items-center gap-3"><span className="text-base text-slate-400">📍</span><span className="text-sm font-bold text-white">{spot.name}</span></div>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.query)}`} target="_blank" rel="noopener noreferrer" className="text-[11px] text-blue-400 font-bold bg-blue-950/40 px-3 py-1.5 rounded-lg border border-blue-800/40 hover:bg-blue-900/50 whitespace-nowrap">
+                    外部アプリ
+                  </a>
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -580,14 +743,36 @@ function MapView() {
 }
 
 // ==========================================
-// ⑤ 各種リンク画面（天気予報・BGM追加）
+// ⑤ 各種リンク画面（カテゴリ別に整理＆追加）
 // ==========================================
 function LinksView() {
-  const links = [
-    { name: "骨付鳥 一鶴（公式サイト）", url: "https://www.ikkaku.co.jp/", mapTarget: "/map#ikkaku" },
-    { name: "道後温泉（公式サイト）", url: "https://dogo.jp/", mapTarget: "/map#dogo" },
-    { name: "ひろめ市場（公式サイト）", url: "https://hirome.co.jp/", mapTarget: "/map#hirome" },
-    { name: "オリックスレンタカー", url: "https://www.orix-rentacar.com/", mapTarget: "/map#car" },
+  const linkCategories = [
+    {
+      title: "観光・アクティビティ",
+      links: [
+        { name: "うずしお汽船", url: "https://www.uzushio-kisen.com/", mapTarget: "/map#uzushio_kisen" },
+        { name: "大鳴門橋遊歩道 渦の道", url: "https://www.uzunomichi.jp/", mapTarget: "/map#uzu_michi" },
+        { name: "道の駅 くるくる なると", url: "https://www.kurukurunaruto.com/", mapTarget: "/map#kurukuru" },
+      ]
+    },
+    {
+      title: "グルメ・食事",
+      links: [
+        { name: "骨付鳥 一鶴", url: "https://www.ikkaku.co.jp/", mapTarget: "/map#ikkaku_takamatsu" },
+        { name: "ひろめ市場", url: "https://hirome.co.jp/", mapTarget: "/map#hirome" },
+      ]
+    },
+    {
+      title: "宿泊・サウナ・交通",
+      links: [
+        { name: "道後温泉 公式", url: "https://dogo.jp/", mapTarget: "/map#dogo" },
+        { name: "伊予の湯治場 喜助の湯", url: "https://www.kisuke.com/yu-matsuyama/", mapTarget: "/map#kisuke" },
+        { name: "SAUNA グリンピア (高知)", url: "https://sauna-greenpia.com/", mapTarget: "/map#greenpia" },
+        { name: "神戸サウナ＆スパ", url: "https://www.kobe-sauna.co.jp/", mapTarget: "/map#kobe_sauna" },
+        { name: "オリックスレンタカー", url: "https://www.orix-rentacar.com/", mapTarget: "/map#sannomiya_car" },
+        { name: "iHighway (高速道路 渋滞・通行止情報)", url: "https://ihighway.jp/", mapTarget: "" },
+      ]
+    }
   ];
 
   return (
@@ -595,7 +780,7 @@ function LinksView() {
       <HeaderBar title="各種リンク" />
       <div className="p-4 max-w-md mx-auto space-y-6">
         
-        {/* お役立ちリンク集 */}
+        {/* お役立ちツール集 */}
         <div className="grid grid-cols-2 gap-3">
           <a href="https://tenki.jp/forecast/8/" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-colors">
             <span className="text-3xl">🌤️</span>
@@ -607,24 +792,32 @@ function LinksView() {
           </a>
         </div>
 
-        <div>
-          <p className="text-xs text-slate-400 mb-3 border-b border-slate-700 pb-2">公式サイトリンク集</p>
-          <div className="space-y-3">
-            {links.map((link, index) => (
-              <div key={index} className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col gap-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5"><span className="text-lg">🔗</span><span className="text-sm font-bold text-white">{link.name}</span></div>
-                  <Link to={link.mapTarget} className="text-[11px] bg-slate-700 hover:bg-slate-600 text-yellow-300 px-2.5 py-1 rounded-lg font-bold transition-colors">
-                    Mapで見る 📍
-                  </Link>
-                </div>
-                <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 font-medium bg-slate-900/60 p-2 rounded-xl text-center border border-slate-700/50 hover:text-blue-300">
-                  公式サイトを開く →
-                </a>
+        {/* 公式サイトリンク集 */}
+        <div className="space-y-6 mt-4">
+          {linkCategories.map((cat, catIdx) => (
+            <div key={catIdx}>
+              <p className="text-xs text-slate-400 font-bold mb-3 border-b border-slate-700 pb-2">{cat.title}</p>
+              <div className="space-y-3">
+                {cat.links.map((link, index) => (
+                  <div key={index} className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5"><span className="text-lg">🔗</span><span className="text-sm font-bold text-white">{link.name}</span></div>
+                      {link.mapTarget && (
+                        <Link to={link.mapTarget} className="text-[11px] bg-slate-700 hover:bg-slate-600 text-yellow-300 px-2.5 py-1 rounded-lg font-bold transition-colors">
+                          Mapで見る 📍
+                        </Link>
+                      )}
+                    </div>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 font-medium bg-slate-900/60 p-2 rounded-xl text-center border border-slate-700/50 hover:text-blue-300">
+                      公式サイトを開く →
+                    </a>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
+
       </div>
     </div>
   );
@@ -703,6 +896,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/accommodations" element={<AccommodationsView />} />
           <Route path="/party" element={<Party />} />
           <Route path="/map" element={<MapView />} />
           <Route path="/links" element={<LinksView />} />
