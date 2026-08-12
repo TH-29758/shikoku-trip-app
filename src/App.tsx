@@ -221,11 +221,12 @@ function HeaderBar({ title }: { title: string }) {
 }
 
 // ==========================================
-// ① ホーム画面（Firebase対応ステータス共有）
+// ① ホーム画面（カウントダウン修正 ＆ 亡霊削除対応）
 // ==========================================
 function Home() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
   const userName = localStorage.getItem("shikokuUserName") || "名無し";
+  const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
 
   const initialStatuses = [
     { name: "たかやす", status: "準備中...", updatedAt: "たった今" },
@@ -238,10 +239,14 @@ function Home() {
 
   // Firebaseからリアルタイムでステータスを取得
   useEffect(() => {
+    if (typeof doc === 'undefined' || typeof db === 'undefined') return; 
+
     const docRef = doc(db, "tripData", "statuses");
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        setMemberStatuses(docSnap.data().statuses);
+        // 現在のメンバー一覧にない名前（古い「蓮沼」など）を除外して表示
+        const validStatuses = docSnap.data().statuses.filter((s: any) => allMembers.includes(s.name));
+        setMemberStatuses(validStatuses);
       } else {
         setDoc(docRef, { statuses: initialStatuses });
       }
@@ -254,7 +259,8 @@ function Home() {
     e.preventDefault();
     if (!myStatusInput.trim()) return;
 
-    const updated = memberStatuses.filter(m => m.name !== userName);
+    // 自分の過去のステータスと、存在しない古いメンバーを除外
+    const updated = memberStatuses.filter(m => m.name !== userName && allMembers.includes(m.name));
     updated.unshift({ name: userName, status: myStatusInput, updatedAt: "たった今" });
     setMyStatusInput("");
     
@@ -263,8 +269,11 @@ function Home() {
   };
 
   useEffect(() => {
-    const targetDate = new Date('2026-09-24T08:00:00').getTime();
-    const interval = setInterval(() => {
+    // Safari等でバグらないように / 区切りの日付に変更
+    const targetDate = new Date('2026/09/24 08:00:00').getTime();
+    
+    // 開いた瞬間に即座に計算する関数
+    const updateTimer = () => {
       const now = new Date().getTime();
       const distance = targetDate - now;
       if (distance > 0) {
@@ -273,20 +282,25 @@ function Home() {
           hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
           minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
         });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
       }
-    }, 60000); 
+    };
+
+    updateTimer(); // 初回起動時にすぐ実行（これで0:00:00のチラつき解消）
+    const interval = setInterval(updateTimer, 60000); 
     return () => clearInterval(interval);
   }, []);
 
   const allEvents = [
-    { datetime: new Date('2026-09-24T08:00:00'), timeStr: '9/24 08:00', title: 'レンタカー出発', desc: 'オリックスレンタカー三宮駅前店集合 ＆ 出発' },
-    { datetime: new Date('2026-09-24T17:30:00'), timeStr: '9/24 17:30', title: '香川到着', desc: '『骨付鳥一鶴』にて夕食' },
-    { datetime: new Date('2026-09-25T09:00:00'), timeStr: '9/25 終日', title: 'うどん並列消費テスト', desc: 'うどんパーティ' },
-    { datetime: new Date('2026-09-26T13:00:00'), timeStr: '9/26 13:00', title: '伊野駅到着', desc: 'りょうた、だいち、いっせい合流' },
-    { datetime: new Date('2026-09-27T09:00:00'), timeStr: '9/27 終日', title: '高知ガチ探索', desc: '仁淀川など。だいち離脱' },
-    { datetime: new Date('2026-09-28T17:00:00'), timeStr: '9/28 夕方', title: 'いっせい離脱', desc: '適当なタイミングで離脱' },
-    { datetime: new Date('2026-09-28T22:00:00'), timeStr: '9/28 夜〜', title: '深夜弾丸アサルト', desc: '高知から神戸へ夜通しドライブ' },
-    { datetime: new Date('2026-09-29T08:00:00'), timeStr: '9/29 08:00', title: '神戸到着・モビリティ返却', desc: '全プロセス終了・解散' },
+    { datetime: new Date('2026/09/24 08:00:00'), timeStr: '9/24 08:00', title: 'レンタカー出発', desc: 'オリックスレンタカー三宮駅前店集合 ＆ 出発' },
+    { datetime: new Date('2026/09/24 17:30:00'), timeStr: '9/24 17:30', title: '香川到着', desc: '『骨付鳥一鶴』にて夕食' },
+    { datetime: new Date('2026/09/25 09:00:00'), timeStr: '9/25 終日', title: 'うどん並列消費テスト', desc: 'うどんパーティ' },
+    { datetime: new Date('2026/09/26 13:00:00'), timeStr: '9/26 13:00', title: '伊野駅到着', desc: 'りょうた、だいち、いっせい合流' },
+    { datetime: new Date('2026/09/27 09:00:00'), timeStr: '9/27 終日', title: '高知ガチ探索', desc: '仁淀川など。だいち離脱' },
+    { datetime: new Date('2026/09/28 17:00:00'), timeStr: '9/28 夕方', title: 'いっせい離脱', desc: '適当なタイミングで離脱' },
+    { datetime: new Date('2026/09/28 22:00:00'), timeStr: '9/28 夜〜', title: '深夜弾丸アサルト', desc: '高知から神戸へ夜通しドライブ' },
+    { datetime: new Date('2026/09/29 08:00:00'), timeStr: '9/29 08:00', title: '神戸到着・モビリティ返却', desc: '全プロセス終了・解散' },
   ];
 
   const nextEvent = allEvents.find(event => event.datetime > new Date()) || { timeStr: '完了', title: '全プロセスが終了', desc: '解散！お疲れ様でした。' };
@@ -759,13 +773,12 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ 参加者 ＆ 費用精算画面（傾斜配分・日割り計算対応）
+// ③ 参加者 ＆ 費用精算画面（全員の現地収支をデフォルト表示）
 // ==========================================
 function Party() {
   const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const userName = localStorage.getItem("shikokuUserName") || allMembers[0];
 
-  // DBの初期データ（レンタカー代に日数のウェイトを設定）
   const initialTransactions = [
     { 
       id: 1, payer: "たかやす", amount: 129096, title: "🚗 レンタカー代", 
@@ -792,15 +805,12 @@ function Party() {
   const [transactions, setTransactions] = useState(initialTransactions);
   const [activeTab, setActiveTab] = useState<"estimate" | "summary" | "add">("estimate"); 
 
-  // --- フォーム用ステート ---
   const [editingId, setEditingId] = useState<number | null>(null);
   const [payer, setPayer] = useState(userName);
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
-  // 参加者とその負担比率（デフォルトは1）
   const [selectedParticipants, setSelectedParticipants] = useState<{name: string, weight: number}[]>(allMembers.map(m => ({name: m, weight: 1})));
 
-  // ▼ 当初の事前概算データ
   const estimatedMembers = [
     { name: "たかやす", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥43,500" },
     { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥43,500" },
@@ -814,7 +824,6 @@ function Party() {
     { name: "だいち", role: "酔った時gay", type: "26合流/27離脱 (2日間)", cost: "¥16,000" },
   ];
 
-  // Firebaseからリアルタイムで支払い履歴を取得
   useEffect(() => {
     if (typeof doc === 'undefined' || typeof db === 'undefined') return; 
 
@@ -835,10 +844,8 @@ function Party() {
     allMembers.forEach(m => balances[m] = { paid: 0, owe: 0, net: 0 });
 
     transactions.forEach(t => {
-      // 払った人の「paid」に加算
       if (balances[t.payer]) balances[t.payer].paid += t.amount;
       
-      // 対象者の「owe（借金）」に比率（weight）に応じて按分して加算
       if (t.participants.length > 0) {
         const totalWeight = t.participants.reduce((sum, p) => sum + p.weight, 0);
         t.participants.forEach(p => {
@@ -857,7 +864,6 @@ function Party() {
 
   const balances = calculateBalances();
 
-  // ➕/✏️ 取引の追加・更新処理
   const handleSubmitTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !title || selectedParticipants.length === 0) return;
@@ -921,7 +927,6 @@ function Party() {
       <HeaderBar title="割り勘・費用精算" />
       <div className="p-4 max-w-md mx-auto space-y-6">
 
-        {/* 3つのタブ切り替え */}
         <div className="flex bg-slate-800 p-1 rounded-xl">
           <button 
             onClick={() => { resetForm(); setActiveTab("estimate"); }} 
@@ -943,7 +948,6 @@ function Party() {
           </button>
         </div>
 
-        {/* ▼▼▼ 事前概算タブ ▼▼▼ */}
         {activeTab === "estimate" && (
           <div className="space-y-6 animate-in slide-in-from-left-8 duration-300">
             <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
@@ -993,10 +997,9 @@ function Party() {
           </div>
         )}
 
-        {/* ▼▼▼ 最終収支（Walica）タブ ▼▼▼ */}
+        {/* ▼▼▼ 現地収支（Walica）タブ 全員表示 ▼▼▼ */}
         {activeTab === "summary" && (
           <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
-            {/* 最終収支リスト */}
             <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
               <h2 className="font-bold text-yellow-400 text-sm mb-4 flex items-center gap-2"><span className="text-xl">💰</span> 現地の実費精算 (誰がいくら払う？)</h2>
               <p className="text-[11px] text-slate-400 mb-4 leading-relaxed">プラス（<span className="text-emerald-400 font-bold">緑色</span>）の人はお金を貰う人。<br/>マイナス（<span className="text-red-400 font-bold">赤色</span>）の人はお金を払う人です。</p>
@@ -1004,16 +1007,19 @@ function Party() {
               <div className="space-y-2">
                 {allMembers.map((m) => {
                   const net = balances[m].net;
-                  if (net === 0) return null;
                   const isReceiver = net > 0;
+                  const isPayer = net < 0;
+                  const netColor = isReceiver ? "text-emerald-400" : isPayer ? "text-red-400" : "text-slate-400";
+                  const netPrefix = isReceiver ? "+" : "";
+
                   return (
                     <div key={m} className={`flex justify-between items-center p-3 rounded-xl border ${m === userName ? "bg-slate-700/80 border-blue-500/50" : "bg-slate-900/50 border-slate-700/50"}`}>
                       <span className="text-sm font-bold flex items-center gap-2">
                         {m} {m === userName && <span className="text-[9px] bg-blue-600 px-1.5 py-0.5 rounded text-white">YOU</span>}
                       </span>
                       <div className="text-right">
-                        <span className={`text-lg font-mono font-bold ${isReceiver ? "text-emerald-400" : "text-red-400"}`}>
-                          {isReceiver ? "+" : ""}{net.toLocaleString()}円
+                        <span className={`text-lg font-mono font-bold ${netColor}`}>
+                          {netPrefix}{net.toLocaleString()}円
                         </span>
                         <p className="text-[9px] text-slate-500">
                           (立替:{balances[m].paid.toLocaleString()} - 負担:{Math.round(balances[m].owe).toLocaleString()})
@@ -1025,7 +1031,6 @@ function Party() {
               </div>
             </div>
 
-            {/* 支払い履歴 */}
             <div>
               <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase">📝 支払い履歴</h3>
               <div className="space-y-2.5">
@@ -1058,7 +1063,6 @@ function Party() {
           </div>
         )}
 
-        {/* ▼▼▼ 追加・編集タブ ▼▼▼ */}
         {activeTab === "add" && (
           <div className="bg-slate-800 p-5 rounded-2xl border border-blue-500/30 shadow-xl animate-in slide-in-from-right-8 duration-300">
             <div className="flex justify-between items-center mb-4">
