@@ -583,16 +583,16 @@ function Schedule() {
 // ==========================================
 function Party() {
   const members = [
-    { name: "Yasuu", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥40,500" },
-    { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥40,500" },
-    { name: "s@aa4i🤣", role: "fatgay", type: "フル参加 (5日間)", cost: "¥40,500" },
-    { name: "バ畜", role: "NG(naturalgay)", type: "フル参加 (5日間)", cost: "¥40,500" },
-    { name: "ようすけ", role: "千葉の負け組", type: "フル参加 (5日間)", cost: "¥40,500" },
-    { name: "ゆうと", role: "隠れgay", type: "フル参加 (5日間)", cost: "¥40,500" },
-    { name: "りお", role: "いっせい限定gay", type: "フル参加 (5日間)", cost: "¥40,500" },
-    { name: "りょうた", role: "普通の人間", type: "26日合流 (3日間)", cost: "¥24,700" },
-    { name: "だいち", role: "酔った時gay", type: "26合流/27離脱 (2日間)", cost: "¥14,500" },
-    { name: "いっせい", role: "田舎の3K", type: "26合流/27離脱 (2日間)", cost: "¥14,500" },
+    { name: "Yasuu", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "s@aa4i🤣", role: "fatgay", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "バ畜", role: "NG(naturalgay)", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "ようすけ", role: "千葉の負け組", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "ゆうと", role: "隠れgay", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "りお", role: "いっせい限定gay", type: "フル参加 (5日間)", cost: "¥44,500" },
+    { name: "りょうた", role: "普通の人間", type: "26日合流 (3日間)", cost: "¥27,000" },
+    { name: "だいち", role: "酔った時gay", type: "26合流/27離脱 (2日間)", cost: "¥16,000" },
+    { name: "いっせい", role: "田舎の3K", type: "26合流/27離脱 (2日間)", cost: "¥16,000" },
   ];
 
   return (
@@ -613,7 +613,7 @@ function Party() {
                 <span className="text-2xl">🚗</span>
                 <div>
                   <p className="text-[10px] text-slate-400 font-bold">レンタカー (2台分)</p>
-                  <p className="text-sm font-bold text-white">116,941 円</p>
+                  <p className="text-sm font-bold text-white">129,096 円</p>
                 </div>
               </div>
             </div>
@@ -636,8 +636,8 @@ function Party() {
                 <span className="text-2xl">⛽</span>
                 <div>
                   <p className="text-[10px] text-slate-400 font-bold">交通費実費 (高速・ガソリン)</p>
-                  <p className="text-sm font-bold text-white">約 50,000 円</p>
-                  <p className="text-[9px] text-slate-500 mt-0.5">※深夜割引適用想定</p>
+                  <p className="text-sm font-bold text-white">約 70,000 円</p>
+                  <p className="text-[9px] text-slate-500 mt-0.5">※不足が出ないよう多めに見積もり</p>
                 </div>
               </div>
             </div>
@@ -645,7 +645,7 @@ function Party() {
 
           <div className="mt-4 pt-4 border-t border-slate-700 flex justify-between items-end">
             <span className="text-sm text-slate-300 font-bold">全体合計</span>
-            <span className="text-2xl font-mono font-extrabold text-yellow-400 tracking-wider">¥337,335</span>
+            <span className="text-2xl font-mono font-extrabold text-yellow-400 tracking-wider">¥369,490</span>
           </div>
         </div>
 
@@ -680,13 +680,52 @@ function Party() {
           </div>
         </div>
 
-        {/* --- ⚠️ 抜け漏れ費用チェックリスト --- */}
-        <div className="bg-red-950/30 p-4 rounded-xl border border-red-900/50 mt-4">
-          <p className="text-xs font-bold text-red-400 mb-2">⚠️ 個別で実費になるもの（共通会計外）</p>
-          <ul className="text-[11px] text-slate-300 space-y-1.5 pl-4 list-disc marker:text-red-500">
-            <li>各ホテルの「駐車場代」や観光地のコインパーキング代</li>
-            <li>「黒潮の家」でのBBQ食材・お酒・朝食などの買い出し費用</li>
-            <li>うどん代、お土産代などの個人的な飲食費</li>
+        {/* --- ⚠️ 上記に含まれない実費・隠れコスト --- */}
+        <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 mt-6 shadow-md relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+          <h3 className="text-sm font-bold text-blue-400 mb-3 flex items-center gap-2">
+            <span className="text-lg">📋</span> 現地で発生する費用 (各自実費)
+          </h3>
+          <p className="text-[11px] text-slate-400 mb-4 leading-relaxed">
+            上記の共通会計には含まれていないため、現地で都度払うか、<span className="text-yellow-300 font-bold">当日数千円ずつ「共通財布」として集金しておく</span>とスムーズな項目です。
+          </p>
+          
+          <ul className="text-xs text-slate-300 space-y-3">
+            <li className="flex items-start gap-2">
+              <span className="text-slate-500 mt-0.5">🚗</span>
+              <div>
+                <span className="font-bold text-white">レンタカーの追加保険料</span>
+                <p className="text-[10px] text-slate-400 mt-0.5">免責補償やNOCサポート（フルカバー）を窓口で追加した場合、2台で約1〜1.5万円程度かかる可能性があります。</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-slate-500 mt-0.5">🅿️</span>
+              <div>
+                <span className="font-bold text-white">ホテルの駐車場代・コインパーキング</span>
+                <p className="text-[10px] text-slate-400 mt-0.5">香川・愛媛のホテルは1台1泊1,000円〜程度かかります。ひろめ市場などの観光地パーキング代も別途必要です。</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-slate-500 mt-0.5">♨️</span>
+              <div>
+                <span className="font-bold text-white">入湯税</span>
+                <p className="text-[10px] text-slate-400 mt-0.5">道後温泉など温泉付きの宿では、宿泊費とは別に現地で1人150円程度の「入湯税」が徴収されます。</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-slate-500 mt-0.5">🎟️</span>
+              <div>
+                <span className="font-bold text-white">アクティビティ・入場料</span>
+                <p className="text-[10px] text-slate-400 mt-0.5">うずしお汽船（約2,000円）や渦の道（約500円）などのチケット代は実費となります。</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-slate-500 mt-0.5">🍖</span>
+              <div>
+                <span className="font-bold text-white">黒潮の家 食費 ＆ 個人の飲食代</span>
+                <p className="text-[10px] text-slate-400 mt-0.5">黒潮の家でのBBQ・お酒の買い出し、うどん巡りなどの食事代も含まれていません。</p>
+              </div>
+            </li>
           </ul>
         </div>
 
