@@ -759,33 +759,46 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ 参加者 ＆ 費用精算画面（Walica風システム・編集＆削除対応）
+// ③ 参加者 ＆ 費用精算画面（事前概算 ＋ Walica風システム）
 // ==========================================
 function Party() {
-  const allMembers = ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
+  const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const userName = localStorage.getItem("shikokuUserName") || allMembers[0];
 
   // DBの初期データ
   const initialTransactions = [
-    { id: 1, payer: "蓮沼", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
-    { id: 2, payer: "こうせい", amount: 54939, title: "🏨 前半宿代(24-25日)", participants: ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお"] },
+    { id: 1, payer: "たかやす", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
+    { id: 2, payer: "こうせい", amount: 54939, title: "🏨 前半宿代(24-25日)", participants: ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお"] },
     { id: 3, payer: "バ畜", amount: 115455, title: "🏨 後半宿代(26-27日)", participants: allMembers },
     { id: 4, payer: "ようすけ", amount: 70000, title: "⛽ 行きのガソリン等概算", participants: allMembers }
   ];
 
   const [transactions, setTransactions] = useState(initialTransactions);
-  const [activeTab, setActiveTab] = useState<"summary" | "add">("summary");
+  const [activeTab, setActiveTab] = useState<"estimate" | "summary" | "add">("estimate"); // 初期表示を概算に
 
   // --- フォーム用ステート ---
-  const [editingId, setEditingId] = useState<number | null>(null); // 編集中かどうかの判定用
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [payer, setPayer] = useState(userName);
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(allMembers);
 
+  // ▼ 当初の事前概算データ
+  const estimatedMembers = [
+    { name: "たかやす", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "s@aa4i🤣", role: "fatgay", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "バ畜", role: "NG(naturalgay)", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "ようすけ", role: "千葉の負け組", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "ゆうと", role: "隠れgay", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "りお", role: "いっせい限定gay", type: "フル参加 (5日間)", cost: "¥43,500" },
+    { name: "りょうた", role: "普通の人間", type: "26日合流 (3日間)", cost: "¥26,000" },
+    { name: "いっせい", role: "田舎の3K", type: "26合流/28離脱 (3日間)", cost: "¥26,000" },
+    { name: "だいち", role: "酔った時gay", type: "26合流/27離脱 (2日間)", cost: "¥16,000" },
+  ];
+
   // Firebaseからリアルタイムで支払い履歴を取得
   useEffect(() => {
-    // ※Firebase未設定の場合はコメントアウトしてください
     if (typeof doc === 'undefined' || typeof db === 'undefined') return; 
 
     const docRef = doc(db, "tripData", "party");
@@ -830,14 +843,12 @@ function Party() {
     let updatedTransactions;
 
     if (editingId) {
-      // 編集モード：既存のデータを上書き
       updatedTransactions = transactions.map(t => 
         t.id === editingId 
           ? { ...t, payer, amount: Number(amount), title, participants: selectedParticipants } 
           : t
       );
     } else {
-      // 新規追加モード
       const newTx = {
         id: Date.now(),
         payer,
@@ -849,40 +860,32 @@ function Party() {
     }
     
     setTransactions(updatedTransactions);
-    
-    // フォームをリセットして一覧に戻る
     resetForm();
     setActiveTab("summary");
 
-    // Firebaseへ保存
     if (typeof setDoc !== 'undefined') {
       await setDoc(doc(db, "tripData", "party"), { transactions: updatedTransactions });
     }
   };
 
-  // ✏️ 編集ボタンを押した時の処理
   const handleEditClick = (t: any) => {
     setEditingId(t.id);
     setTitle(t.title);
     setPayer(t.payer);
     setAmount(t.amount.toString());
     setSelectedParticipants(t.participants);
-    setActiveTab("add"); // フォーム画面に移動
+    setActiveTab("add");
   };
 
-  // 🗑️ 削除ボタンを押した時の処理
   const handleDeleteTransaction = async (id: number) => {
     if (!window.confirm("この支払い記録を削除しますか？")) return;
-    
     const updatedTransactions = transactions.filter(t => t.id !== id);
     setTransactions(updatedTransactions);
-    
     if (typeof setDoc !== 'undefined') {
       await setDoc(doc(db, "tripData", "party"), { transactions: updatedTransactions });
     }
   };
 
-  // フォームリセット処理
   const resetForm = () => {
     setEditingId(null);
     setAmount("");
@@ -896,26 +899,84 @@ function Party() {
       <HeaderBar title="割り勘・費用精算" />
       <div className="p-4 max-w-md mx-auto space-y-6">
 
+        {/* 3つのタブ切り替え */}
         <div className="flex bg-slate-800 p-1 rounded-xl">
           <button 
-            onClick={() => { resetForm(); setActiveTab("summary"); }} 
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "summary" ? "bg-blue-600 text-white" : "text-slate-400"}`}
+            onClick={() => { resetForm(); setActiveTab("estimate"); }} 
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${activeTab === "estimate" ? "bg-blue-600 text-white" : "text-slate-400"}`}
           >
-            最終収支
+            事前概算
+          </button>
+          <button 
+            onClick={() => { resetForm(); setActiveTab("summary"); }} 
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${activeTab === "summary" ? "bg-blue-600 text-white" : "text-slate-400"}`}
+          >
+            現地収支
           </button>
           <button 
             onClick={() => { resetForm(); setActiveTab("add"); }} 
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "add" ? "bg-blue-600 text-white" : "text-slate-400"}`}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${activeTab === "add" ? "bg-blue-600 text-white" : "text-slate-400"}`}
           >
-            {editingId ? "✏️ 支払いを編集" : "➕ 支払いを追加"}
+            {editingId ? "✏️ 編集" : "➕ 追加"}
           </button>
         </div>
 
-        {activeTab === "summary" ? (
-          <div className="space-y-6">
+        {/* ▼▼▼ 事前概算タブ ▼▼▼ */}
+        {activeTab === "estimate" && (
+          <div className="space-y-6 animate-in slide-in-from-left-8 duration-300">
+            <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
+              <h2 className="font-bold text-yellow-400 text-sm mb-4 flex items-center gap-2"><span className="text-xl">💰</span> 共通費用サマリー</h2>
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                  <div className="flex items-center gap-3"><span className="text-2xl">🚗</span><div><p className="text-[10px] text-slate-400 font-bold">レンタカー (2台分)</p><p className="text-sm font-bold text-white">129,096 円</p></div></div>
+                </div>
+                <div className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                  <div className="flex items-center gap-3"><span className="text-2xl">🏨</span><div><p className="text-[10px] text-slate-400 font-bold">宿泊費 (24〜27日の4泊分)</p><p className="text-sm font-bold text-white">170,394 円</p><p className="text-[9px] text-yellow-300 mt-0.5">※28日夜は車中泊のため¥0</p></div></div>
+                </div>
+                <div className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                  <div className="flex items-center gap-3"><span className="text-2xl">⛽</span><div><p className="text-[10px] text-slate-400 font-bold">交通費実費 (高速・ガソリン)</p><p className="text-sm font-bold text-white">約 70,000 円</p><p className="text-[9px] text-slate-500 mt-0.5">※不足が出ないよう多めに見積もり</p></div></div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-slate-700 flex justify-between items-end">
+                <span className="text-sm text-slate-300 font-bold">全体合計</span><span className="text-2xl font-mono font-extrabold text-yellow-400 tracking-wider">¥369,490</span>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase flex items-center justify-between">
+                <span>👥 参加エージェント (計10名)</span><span className="text-[10px] bg-slate-800 px-2 py-1 rounded-md border border-slate-700">負担額目安</span>
+              </h3>
+              <div className="grid grid-cols-1 gap-2.5">
+                {estimatedMembers.map((member, index) => (
+                  <div key={index} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md flex justify-between items-center hover:bg-slate-750 transition-colors">
+                    <div><div className="flex items-center gap-2"><h4 className="text-base font-bold text-white">{member.name}</h4></div><p className="text-xs text-yellow-300/90 mt-1">{member.role}</p></div>
+                    <div className="text-right flex flex-col items-end gap-1.5"><span className="text-[10px] text-slate-400 font-medium">{member.type}</span><span className="text-sm font-mono font-bold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20 shadow-inner">{member.cost}</span></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+              <h3 className="text-sm font-bold text-blue-400 mb-3 flex items-center gap-2"><span className="text-lg">📋</span> 概算に含まれない費用 (現地実費)</h3>
+              <p className="text-[11px] text-slate-400 mb-4 leading-relaxed">上記の共通会計には含まれていないため、「現地収支」タブから立替を記録して割り勘します。</p>
+              <ul className="text-xs text-slate-300 space-y-3">
+                <li className="flex items-start gap-2"><span className="text-slate-500 mt-0.5">🚗</span><div><span className="font-bold text-white">レンタカーの追加保険料</span><p className="text-[10px] text-slate-400 mt-0.5">免責補償やNOCサポートを追加した場合。</p></div></li>
+                <li className="flex items-start gap-2"><span className="text-slate-500 mt-0.5">🅿️</span><div><span className="font-bold text-white">駐車料金</span><p className="text-[10px] text-slate-400 mt-0.5">香川・愛媛のホテルや観光地のパーキング代。</p></div></li>
+                <li className="flex items-start gap-2"><span className="text-slate-500 mt-0.5">♨️</span><div><span className="font-bold text-white">サウナ・銭湯・入湯税</span><p className="text-[10px] text-slate-400 mt-0.5">道後温泉やグリンピアなどの施設利用料。</p></div></li>
+                <li className="flex items-start gap-2"><span className="text-slate-500 mt-0.5">🎟️</span><div><span className="font-bold text-white">アクティビティ・入場料</span><p className="text-[10px] text-slate-400 mt-0.5">うずしお汽船、渦の道などのチケット代。</p></div></li>
+                <li className="flex items-start gap-2"><span className="text-slate-500 mt-0.5">🍖</span><div><span className="font-bold text-white">飲食代</span><p className="text-[10px] text-slate-400 mt-0.5">黒潮の家でのBBQ買い出しや、日々の食事代。</p></div></li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* ▼▼▼ 最終収支（Walica）タブ ▼▼▼ */}
+        {activeTab === "summary" && (
+          <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
             {/* 最終収支リスト */}
             <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
-              <h2 className="font-bold text-yellow-400 text-sm mb-4 flex items-center gap-2"><span className="text-xl">💰</span> 最終的な収支 (誰がいくら払う？)</h2>
+              <h2 className="font-bold text-yellow-400 text-sm mb-4 flex items-center gap-2"><span className="text-xl">💰</span> 現地の実費精算 (誰がいくら払う？)</h2>
               <p className="text-[11px] text-slate-400 mb-4 leading-relaxed">プラス（<span className="text-emerald-400 font-bold">緑色</span>）の人はお金を貰う人。<br/>マイナス（<span className="text-red-400 font-bold">赤色</span>）の人はお金を払う人です。</p>
               
               <div className="space-y-2">
@@ -946,7 +1007,6 @@ function Party() {
             <div>
               <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase">📝 支払い履歴</h3>
               <div className="space-y-2.5">
-                {/* 逆順に表示（新しいものが上） */}
                 {transactions.slice().reverse().map(t => (
                   <div key={t.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md group">
                     <div className="flex justify-between items-start mb-2">
@@ -958,7 +1018,6 @@ function Party() {
                       
                       <div className="flex items-center gap-3">
                         <span className="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">{t.participants.length}人で割り勘</span>
-                        {/* 編集・削除ボタン */}
                         <div className="flex gap-2">
                           <button onClick={() => handleEditClick(t)} className="text-slate-400 hover:text-blue-400 transition-colors p-1" title="編集">✏️</button>
                           <button onClick={() => handleDeleteTransaction(t.id)} className="text-slate-400 hover:text-red-400 transition-colors p-1" title="削除">🗑️</button>
@@ -970,8 +1029,10 @@ function Party() {
               </div>
             </div>
           </div>
-        ) : (
-          /* ▼ 支払い追加・編集フォーム */
+        )}
+
+        {/* ▼▼▼ 追加・編集タブ ▼▼▼ */}
+        {activeTab === "add" && (
           <div className="bg-slate-800 p-5 rounded-2xl border border-blue-500/30 shadow-xl animate-in slide-in-from-right-8 duration-300">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-bold text-blue-400 text-sm">
@@ -1236,7 +1297,7 @@ function LinksView() {
 }
 
 // ==========================================
-// ⑥ その他 (男気ルーレット・ルール) 画面 
+// ⑥ その他 (男気ルーレット・ルール・設定) 画面 
 // ==========================================
 function EtcView() {
   const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
@@ -1244,12 +1305,15 @@ function EtcView() {
   const [rouletteResult, setRouletteResult] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
 
-  // Web Audio APIで効果音を鳴らす関数
+  // ▼ 名前再設定用のステート
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetPassword, setResetPassword] = useState("");
+
   const playTickSound = (ctx: AudioContext) => {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
     osc.type = 'square';
-    osc.frequency.setValueAtTime(400, ctx.currentTime); // 低めのカチッ
+    osc.frequency.setValueAtTime(400, ctx.currentTime);
     gainNode.gain.setValueAtTime(0.05, ctx.currentTime);
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
@@ -1261,9 +1325,9 @@ function EtcView() {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
-    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
     gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
@@ -1277,7 +1341,6 @@ function EtcView() {
       return;
     }
 
-    // ブラウザのAudioContextを初期化
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     const audioCtx = new AudioContextClass();
 
@@ -1285,20 +1348,30 @@ function EtcView() {
     setRouletteResult(null);
     let count = 0;
     
-    // シャカシャカ演出 (ドラムロール)
     const interval = setInterval(() => {
       setRouletteResult(selectedMembers[Math.floor(Math.random() * selectedMembers.length)]);
-      playTickSound(audioCtx); // チクタク音
+      playTickSound(audioCtx);
       count++;
       
       if (count > 20) {
         clearInterval(interval);
         setIsSpinning(false);
-        // 最終決定
         setRouletteResult(selectedMembers[Math.floor(Math.random() * selectedMembers.length)] + " 🎯");
-        playTadaSound(audioCtx); // ジャジャーン音
+        playTadaSound(audioCtx);
       }
     }, 100);
+  };
+
+  // ▼ 名前再設定の認証処理
+  const handleNameReset = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (resetPassword === "0223") {
+      localStorage.removeItem("shikokuUserName");
+      window.location.reload(); // ページをリロードして名前設定画面に戻す
+    } else {
+      alert("パスコードが違います。幹事に聞いてください。");
+      setResetPassword("");
+    }
   };
 
   return (
@@ -1380,6 +1453,42 @@ function EtcView() {
               <p><span className="text-slate-400">集合時間：</span> 22:35 (出発 22:50)</p>
               <p className="mt-1"><span className="text-slate-400">出発地点：</span><br/>池袋サンシャインバスターミナル<br/>(サンシャインシティ文化会館1階)</p>
             </div>
+          </div>
+        </div>
+
+        {/* ▼▼▼ 追加：アプリ設定（名前変更機能） ▼▼▼ */}
+        <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3 shadow-md">
+          <div className="flex items-center gap-2 border-b border-slate-700/60 pb-2">
+            <span className="text-xl">⚙️</span>
+            <h2 className="text-sm font-bold text-slate-300">アプリ設定</h2>
+          </div>
+          <div className="text-xs text-slate-300 pt-1">
+            <p className="mb-4">現在の登録名: <span className="font-bold text-white bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-600">{localStorage.getItem("shikokuUserName")}</span></p>
+            
+            {!showResetForm ? (
+              <button 
+                onClick={() => setShowResetForm(true)} 
+                className="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white px-4 py-2.5 rounded-xl transition-colors shadow-sm"
+              >
+                名前を再設定する
+              </button>
+            ) : (
+              <form onSubmit={handleNameReset} className="flex gap-2">
+                <input 
+                  type="password" 
+                  value={resetPassword} 
+                  onChange={e => setResetPassword(e.target.value)} 
+                  placeholder="幹事パスコード" 
+                  className="bg-slate-900 border border-slate-600 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-red-500 w-full"
+                />
+                <button type="submit" className="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl font-bold transition-colors shadow-sm whitespace-nowrap">
+                  解除
+                </button>
+              </form>
+            )}
+            <p className="text-[10px] text-slate-500 mt-3 leading-relaxed">
+              ※ふざけた名前を直したい場合は、幹事にパスコードを聞いてください。
+            </p>
           </div>
         </div>
 
