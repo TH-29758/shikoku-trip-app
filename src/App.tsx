@@ -767,7 +767,7 @@ function Party() {
 
   // DBの初期データ
   const initialTransactions = [
-    { id: 1, payer: "蓮沼", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
+    { id: 1, payer: "たかやす", amount: 129096, title: "🚗 レンタカー代", participants: allMembers },
     { id: 2, payer: "こうせい", amount: 54939, title: "🏨 前半宿代(24-25日)", participants: ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお"] },
     { id: 3, payer: "バ畜", amount: 115455, title: "🏨 後半宿代(26-27日)", participants: allMembers },
     { id: 4, payer: "ようすけ", amount: 70000, title: "⛽ 行きのガソリン等概算", participants: allMembers }
@@ -1119,10 +1119,6 @@ function LinksView() {
             <span className="text-3xl">🌤️</span>
             <span className="text-xs font-bold text-white">四国の天気予報</span>
           </a>
-          <a href="https://open.spotify.com/playlist/37i9dQZF1DX4J4XN4zFhXw" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-colors">
-            <span className="text-3xl">🎵</span>
-            <span className="text-xs font-bold text-white">ドライブBGM (Spotify)</span>
-          </a>
         </div>
 
         <div className="space-y-6 mt-4">
@@ -1159,7 +1155,7 @@ function LinksView() {
 // ⑥ その他 (男気ルーレット・ルール) 画面 
 // ==========================================
 function EtcView() {
-  const allMembers = ["蓮沼", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
+  const allMembers = ["たかやす", "こうせい", "s@aa4i🤣", "バ畜", "ようすけ", "ゆうと", "りお", "りょうた", "いっせい", "だいち"];
   const [selectedMembers, setSelectedMembers] = useState<string[]>(allMembers);
   const [rouletteResult, setRouletteResult] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -1193,7 +1189,7 @@ function EtcView() {
 
   const spinRoulette = () => {
     if (selectedMembers.length === 0) {
-      alert("んっお前参加🫵");
+      alert("おごりたいばい");
       return;
     }
 
@@ -1242,7 +1238,7 @@ function EtcView() {
 
           <div className="mb-4 text-left">
             <div className="flex justify-between items-end mb-2">
-              <span className="text-xs text-slate-400 font-bold">参加者を選択</span>
+              <span className="text-xs text-slate-400 font-bold">んっお前参加🫵</span>
               <button type="button" onClick={() => setSelectedMembers(selectedMembers.length === allMembers.length ? [] : allMembers)} className="text-[10px] text-blue-400 hover:underline">
                 {selectedMembers.length === allMembers.length ? "全解除" : "全選択"}
               </button>
@@ -1282,10 +1278,7 @@ function EtcView() {
             <h2 className="text-sm font-bold text-yellow-400">四国旅 基本ルール</h2>
           </div>          
           <ul className="text-xs space-y-2 text-slate-300 list-disc pl-4 marker:text-yellow-500">
-            <li><span className="font-bold text-white">運転手へのリスペクト:</span> 助手席の人間は寝てはいけない（ナビ・DJ・話し相手の義務）。非免許持ちへの軽蔑・見下し推奨。</li>
-            <li><span className="font-bold text-white">酒は飲んでも飲まれるな:</span> 翌日の運転に支障をきたすレベルの二日酔いは厳罰。</li>
-            <li><span className="font-bold text-white">時間厳守:</span> 人数が多いので1人の遅刻が全体の首を絞めます。</li>
-            <li><span className="font-bold text-white">最終日のアサルト:</span> 28日夜〜29日朝の神戸帰還は戦いです。前日の睡眠はしっかり。</li>
+            <li><span className="font-bold text-white">運転手へのリスペクト:</span> 助手席の人間は寝てはいけない(非免許持ちへの軽蔑・見下し)ナビ・DJ・話し相手の義務</li>
           </ul>
         </div>
 
