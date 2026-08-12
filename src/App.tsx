@@ -436,7 +436,7 @@ function Schedule() {
           time: "13:00",
           title: "伊野駅到着",
           icon: "🚉",
-          desc: "りょうた、だいち合流",
+          desc: "いっせい、りょうた、だいち合流",
           transit: { duration: "約30分", cost: "0円", method: "🚗" }
         },
         {
@@ -461,8 +461,15 @@ function Schedule() {
         { time: "09:00",
           title: "仁淀川フィールドワーク",
           icon: "🏞️",
-          desc: "奇跡の清水で自然を満喫"
+          desc: "奇跡の清水で自然を満喫",
+          transit: { duration: "約4時間", cost: "7,500円", method: "🚗" }
         },
+        {
+          time: "32:00",
+          title: "神戸到着",
+          icon: "🏨",
+          desc: "終"
+        }
       ]
     },
     day5: {
@@ -572,58 +579,117 @@ function Schedule() {
 }
 
 // ==========================================
-// ③ 参加者（パーティ）画面
+// ③ 参加者（パーティ ＆ 費用精算）画面
 // ==========================================
 function Party() {
   const members = [
-    { name: "蓮沼", role: "Dx2所属 / 全体統括", type: "初期実装7人組", status: "コスト按分対象[cite: 1]" },
-    { name: "りょうた", role: "高知合流組 (9/26伊野駅合流)", type: "動的追加3名", status: "同期処理完了予定[cite: 1]" },
-    { name: "だいち", role: "高知合流組 (9/26伊野駅合流)", type: "動的追加3名", status: "同期処理完了予定[cite: 1]" },
-    { name: "いっせい", role: "高知合流組", type: "動的追加3名", status: "リソース調整中" },
-    { name: "他 メンバー6名", role: "初期パーティエージェント", type: "初期実装7人組", status: "ミニバン並列分散乗車[cite: 1]" },
+    { name: "Yasuu", role: "生粋のシティボーイ", type: "フル参加 (5日間)", cost: "¥40,500" },
+    { name: "こうせい", role: "都会の3K", type: "フル参加 (5日間)", cost: "¥40,500" },
+    { name: "s@aa4i🤣", role: "fatgay", type: "フル参加 (5日間)", cost: "¥40,500" },
+    { name: "バ畜", role: "NG(naturalgay)", type: "フル参加 (5日間)", cost: "¥40,500" },
+    { name: "ようすけ", role: "千葉の負け組", type: "フル参加 (5日間)", cost: "¥40,500" },
+    { name: "ゆうと", role: "隠れgay", type: "フル参加 (5日間)", cost: "¥40,500" },
+    { name: "りお", role: "いっせい限定gay", type: "フル参加 (5日間)", cost: "¥40,500" },
+    { name: "りょうた", role: "普通の人間", type: "26日合流 (3日間)", cost: "¥24,700" },
+    { name: "だいち", role: "酔った時gay", type: "26合流/27離脱 (2日間)", cost: "¥14,500" },
+    { name: "いっせい", role: "田舎の3K", type: "26合流/27離脱 (2日間)", cost: "¥14,500" },
   ];
 
   return (
     <div className="min-h-screen bg-slate-900 text-white font-sans pb-12">
-      <HeaderBar title="参加者 (パーティ編成)" />
-      <div className="p-4 max-w-md mx-auto">
-        <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700 mb-6 text-xs text-slate-300 space-y-2">
-          <p className="font-bold text-white text-sm">💰 概算コスト設計（概要）</p>
-          <div className="flex justify-between py-1 border-b border-slate-700/50">
-            <span className="text-slate-400">レンタカー(2台分合計)[cite: 1]</span>
-            <span className="font-mono font-bold">約 116,941 円[cite: 1]</span>
+      <HeaderBar title="参加者 ＆ 費用確認" />
+      <div className="p-4 max-w-md mx-auto space-y-6">
+        
+        {/* --- 費用サマリー（カテゴリ別） --- */}
+        <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
+          <h2 className="font-bold text-yellow-400 text-sm mb-4 flex items-center gap-2">
+            <span className="text-xl">💰</span> 共通費用サマリー
+          </h2>
+          
+          <div className="space-y-2.5">
+            {/* レンタカー */}
+            <div className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🚗</span>
+                <div>
+                  <p className="text-[10px] text-slate-400 font-bold">レンタカー (2台分)</p>
+                  <p className="text-sm font-bold text-white">116,941 円</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 宿泊費 */}
+            <div className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🏨</span>
+                <div>
+                  <p className="text-[10px] text-slate-400 font-bold">宿泊費 (24〜27日の4泊分)</p>
+                  <p className="text-sm font-bold text-white">170,394 円</p>
+                  <p className="text-[9px] text-yellow-300 mt-0.5">※28日夜は車中泊のため¥0</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 交通費実費 */}
+            <div className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⛽</span>
+                <div>
+                  <p className="text-[10px] text-slate-400 font-bold">交通費実費 (高速・ガソリン)</p>
+                  <p className="text-sm font-bold text-white">約 50,000 円</p>
+                  <p className="text-[9px] text-slate-500 mt-0.5">※深夜割引適用想定</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between py-1 border-b border-slate-700/50">
-            <span className="text-slate-400">宿代(前半＋後半黒潮の家)[cite: 1]</span>
-            <span className="font-mono font-bold">約 142,909 円[cite: 1]</span>
-          </div>
-          <div className="flex justify-between py-1">
-            <span className="text-slate-400">交通費実費(高速・ガソリン)[cite: 1]</span>
-            <span className="font-mono font-bold">約 50,000 円[cite: 1]</span>
+
+          <div className="mt-4 pt-4 border-t border-slate-700 flex justify-between items-end">
+            <span className="text-sm text-slate-300 font-bold">全体合計</span>
+            <span className="text-2xl font-mono font-extrabold text-yellow-400 tracking-wider">¥337,335</span>
           </div>
         </div>
 
-        <h3 className="text-sm font-bold text-slate-400 mb-3 tracking-wider uppercase">参加エージェント一覧 (計10名)[cite: 1]</h3>
-        <div className="grid grid-cols-1 gap-3">
-          {members.map((member, index) => (
-            <div key={index} className="bg-slate-800 p-4 rounded-2xl border border-slate-700/80 shadow-md flex justify-between items-center">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-base font-bold text-white">{member.name}</h4>
-                  <span className="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-medium">
+        {/* --- 参加エージェント一覧 --- */}
+        <div>
+          <h3 className="text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase flex items-center justify-between">
+            <span>👥 参加エージェント (計10名)</span>
+            <span className="text-[10px] bg-slate-800 px-2 py-1 rounded-md border border-slate-700">負担額目安</span>
+          </h3>
+          
+          <div className="grid grid-cols-1 gap-2.5">
+            {members.map((member, index) => (
+              <div key={index} className="bg-slate-800 p-4 rounded-xl border border-slate-700/80 shadow-md flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-base font-bold text-white">{member.name}</h4>
+                  </div>
+                  <p className="text-xs text-yellow-300/90 mt-1">{member.role}</p>
+                </div>
+                
+                {/* 請求額バッジ */}
+                <div className="text-right flex flex-col items-end gap-1.5">
+                  <span className="text-[10px] text-slate-400 font-medium">
                     {member.type}
                   </span>
+                  <span className="text-sm font-mono font-bold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20 shadow-inner">
+                    {member.cost}
+                  </span>
                 </div>
-                <p className="text-xs text-yellow-300/90 mt-1">{member.role}</p>
               </div>
-              <div className="text-right">
-                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/50 px-2 py-1 rounded-lg border border-emerald-800/40">
-                  {member.status}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        {/* --- ⚠️ 抜け漏れ費用チェックリスト --- */}
+        <div className="bg-red-950/30 p-4 rounded-xl border border-red-900/50 mt-4">
+          <p className="text-xs font-bold text-red-400 mb-2">⚠️ 個別で実費になるもの（共通会計外）</p>
+          <ul className="text-[11px] text-slate-300 space-y-1.5 pl-4 list-disc marker:text-red-500">
+            <li>各ホテルの「駐車場代」や観光地のコインパーキング代</li>
+            <li>「黒潮の家」でのBBQ食材・お酒・朝食などの買い出し費用</li>
+            <li>うどん代、お土産代などの個人的な飲食費</li>
+          </ul>
+        </div>
+
       </div>
     </div>
   );
