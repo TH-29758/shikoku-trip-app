@@ -641,9 +641,8 @@ function ChecklistView() {
   );
 }
 
-// ----------------- 前半終了 -----------------
 // ==========================================
-// ② タイムスケジュール画面
+// ② タイムスケジュール画面（ルート分岐の詳細transit対応版）
 // ==========================================
 function Schedule() {
   const [activeDay, setActiveDay] = useState("day1");
@@ -679,10 +678,32 @@ function Schedule() {
       items: [
         { time: "06:00", title: "道後温泉 朝風呂", icon: "♨️", desc: "さすがの朝風呂" },
         { time: "07:30", title: "愛媛出発", icon: "🚗", desc: <>高知方面へGO</>, transit: { duration: "約2時間", cost: "0円", method: "🚗" } },
-        { time: "09:30", title: "四国カルスト", icon: "🏞️", desc: <><Link to="/map#godan" className="text-blue-400 hover:underline">五段高原</Link>や<Link to="/map#mezudaira" className="text-blue-400 hover:underline">姫鶴平</Link>でドライブ。<Link to="/map#mikawa" className="text-blue-400 hover:underline">道の駅 みかわ</Link>で休憩も</>, transit: { duration: "約2時間", cost: "570円", method: "🚗" } },
-        { time: "13:00", title: "いっせいの家", icon: "🚉", desc: <>いっせい、りょうた、だいち合流</> },
-        { time: "15:30", title: "追手前高校 見学", icon: "🏫", desc: <><Link to="/map#otemae" className="text-blue-400 hover:underline">追手前高校</Link></> },
-        { time: "17:00", title: "黒潮の家 Ⅰ号館", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">メインベース(黒潮の家)</Link>にチェックイン。今夜は買い出ししてBBQ＆宴！</> },
+        { time: "09:30", title: "四国カルスト", icon: "🏞️", desc: <><Link to="/map#godan" className="text-blue-400 hover:underline">五段高原</Link>や<Link to="/map#mezudaira" className="text-blue-400 hover:underline">姫鶴平</Link>でドライブ。<Link to="/map#mikawa" className="text-blue-400 hover:underline">道の駅 みかわ</Link>で休憩も</> },
+        { time: "12:00頃", title: "🚙 ルート分岐（2台で別行動）", icon: "🔀", desc: (
+          <div className="space-y-3 mt-1">
+            <div className="bg-slate-900/60 p-3 rounded-xl border border-blue-500/40 shadow-sm relative overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
+              <p className="font-bold text-blue-400 mb-1 flex items-center gap-1.5"><span className="text-base">🅰️</span> 直行＆買い出し組</p>
+              <p className="text-[10px] text-slate-300 leading-relaxed mb-2">カルストから「黒潮の家」方面へ直行。途中のスーパー等で今夜のBBQ食材や酒をガッツリ買い出しする先発隊。</p>
+              <div className="flex items-center gap-2 text-[10px] bg-slate-800 w-fit px-2 py-1 rounded border border-slate-700">
+                <span className="font-medium text-slate-200">🚗 約2〜2.5時間</span>
+                <span className="text-slate-600">|</span>
+                <span className="text-yellow-400/80 font-mono">下道メイン・買い出し代実費</span>
+              </div>
+            </div>
+            <div className="bg-slate-900/60 p-3 rounded-xl border border-emerald-500/40 shadow-sm relative overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
+              <p className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5"><span className="text-base">🅱️</span> 迎撃＆合流組</p>
+              <p className="text-[10px] text-slate-300 leading-relaxed mb-2">カルストからいっせいの家（伊野駅等）方面へ向かい、13:00頃に「いっせい・りょうた・だいち」の3名を回収してから宿へ向かう。</p>
+              <div className="flex items-center gap-2 text-[10px] bg-slate-800 w-fit px-2 py-1 rounded border border-slate-700">
+                <span className="font-medium text-slate-200">🚗 迎撃:約2時間 + 宿へ:約1.5時間</span>
+                <span className="text-slate-600">|</span>
+                <span className="text-yellow-400/80 font-mono">高速 約810円</span>
+              </div>
+            </div>
+          </div>
+        ), transit: { duration: "各ルート約2.5〜3.5時間", cost: "ルートによる", method: "🔀" } },
+        { time: "17:00", title: "黒潮の家 Ⅰ号館", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">メインベース(黒潮の家)</Link>にて両チーム合流＆チェックイン！今夜はBBQ＆宴！</> },
         { time: "23:59", title: "Day3 終了", desc: "宴" }
       ]
     },
@@ -748,9 +769,9 @@ function Schedule() {
                     <span className="text-yellow-400 font-mono font-bold text-sm mr-3 drop-shadow-md">{item.time}</span>
                     <h4 className="text-base font-bold text-white">{item.title}</h4>
                   </div>
-                  <p className="text-gray-300 text-xs bg-slate-800/80 p-3 rounded-xl border border-slate-700/80 leading-relaxed shadow-sm">
+                  <div className="text-gray-300 text-xs bg-slate-800/80 p-3 rounded-xl border border-slate-700/80 leading-relaxed shadow-sm">
                     {item.desc}
-                  </p>
+                  </div>
                 </div>
                 {item.transit && !isLast && (
                   <div className="relative pl-8 pb-4 -mt-2">
