@@ -25,94 +25,6 @@ const db = getFirestore(app);
 enableIndexedDbPersistence(db).catch((err) => {
   console.log("オフライン設定エラー:", err);
 });
-// ▲▲▲ ここまで追加 ▲▲▲
-
-// ==========================================
-// 合言葉認証 ＆ 生体認証（結界）画面
-// ==========================================
-function Gatekeeper({ onLogin }: { onLogin: () => void }) {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
-  const [bioError, setBioError] = useState("");
-  const [isAttemptingAuto, setIsAttemptingAuto] = useState(true);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === "gay") {
-      onLogin();
-    } else {
-      setError(true);
-    }
-  };
-
-  const handleBiometricAuth = async (isAuto = false) => {
-    if (!isAuto) setBioError("");
-    setError(false);
-
-    if (!window.PublicKeyCredential) {
-      if (!isAuto) setBioError("この端末・ブラウザは生体認証に未対応ぜよ！");
-      return;
-    }
-
-    try {
-      const publicKey = {
-        challenge: new Uint8Array(32),
-        rp: { name: "Shikoku Trip", id: window.location.hostname === "localhost" ? "localhost" : window.location.hostname },
-        user: { id: new Uint8Array(16), name: "agent@shikoku", displayName: "Shikoku Agent" },
-        pubKeyCredParams: [{ type: "public-key" as const, alg: -7 }],
-        authenticatorSelection: { authenticatorAttachment: "platform" as const, userVerification: "required" as const },
-        timeout: 60000,
-        attestation: "none" as const
-      };
-
-      const credential = await navigator.credentials.create({ publicKey });
-      if (credential) onLogin();
-    } catch (err: any) {
-      console.warn("Biometric auth error:", err);
-      if (!isAuto) setBioError("生体認証がキャンセルされたか、失敗したきに！");
-    } finally {
-      setIsAttemptingAuto(false);
-    }
-  };
-
-  useEffect(() => {
-    handleBiometricAuth(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <div onClick={() => handleBiometricAuth(false)} className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans cursor-pointer transition-opacity duration-1000">
-      <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl w-full max-w-md text-center cursor-default z-10 animate-in fade-in zoom-in duration-500">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-4 tracking-widest animate-pulse">🔒</h1>
-        <p className="text-gray-400 mb-6 text-sm leading-relaxed font-bold">
-          {isAttemptingAuto ? "ロック解除を確認中..." : "画面をタップして生体認証でロック解除"}
-        </p>
-
-        <button onClick={() => handleBiometricAuth(false)} className="w-full mb-6 px-6 py-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3 text-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-blue-400/10 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-full"></div>
-          <span className="text-2xl relative z-10">👆</span> 
-          <span className="relative z-10">生体認証を起動</span>
-        </button>
-
-        {bioError && <p className="text-red-400 text-xs mb-4 font-bold">{bioError}</p>}
-
-        <div className="flex items-center gap-4 mb-6">
-          <div className="h-px bg-slate-700 flex-1"></div>
-          <span className="text-xs text-slate-500 font-bold">または</span>
-          <div className="h-px bg-slate-700 flex-1"></div>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 bg-slate-900 text-white rounded-xl border border-slate-700 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-center text-lg shadow-inner transition-all" placeholder="合言葉を入力..." />
-          {error && <p className="text-red-400 text-xs mb-4 font-bold animate-bounce">パスワードが違うきに！やり直せや！</p>}
-          <button type="submit" className="w-full px-6 py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all shadow-lg active:scale-95 text-sm">
-            パスワードで解除
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
 
 // ==========================================
 // 初回：ユーザー名設定画面（アプリを消しても記憶される）
@@ -1568,28 +1480,15 @@ function EtcView() {
 // アプリ全体の枠組み（名前設定フロー追加）
 // ==========================================
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem("shikokuQuestAuth") === "true";
-  });
-
   const [hasName, setHasName] = useState(() => {
     return !!localStorage.getItem("shikokuUserName");
   });
-
-  const handleLogin = () => {
-    sessionStorage.setItem("shikokuQuestAuth", "true");
-    setIsAuthenticated(true);
-  };
 
   const handleNameSetupComplete = () => {
     setHasName(true);
   };
 
-  if (!isAuthenticated) {
-    return <Gatekeeper onLogin={handleLogin} />;
-  }
-
-  // 生体認証が終わっていて、かつ名前が未設定なら名前設定画面を出す
+  // 認証をスキップし、名前が未設定なら名前設定画面を出す
   if (!hasName) {
     return <NameSetup onComplete={handleNameSetupComplete} />;
   }
