@@ -702,7 +702,7 @@ function Schedule() {
               </div>
             </div>
           </div>
-        ), transit: { duration: "各ルート約2.5〜3.5時間", cost: "ルートによる", method: "🔀" } },
+        )},
         { time: "17:00", title: "黒潮の家 Ⅰ号館", icon: "🏨", desc: <><Link to="/accommodations" className="text-blue-400 font-bold hover:underline">メインベース(黒潮の家)</Link>にて両チーム合流＆チェックイン！今夜はBBQ＆宴！</> },
         { time: "23:59", title: "Day3 終了", desc: "宴" }
       ]
@@ -1213,7 +1213,6 @@ function MapView() {
     {
       area: "🚌 東京・🚙 神戸 (出発・帰還)",
       spots: [
-        { id: "ikebukuro", name: "池袋サンシャインバスターミナル", query: "池袋サンシャインバスターミナル" },
         { id: "sannomiya_sta", name: "三ノ宮駅", query: "三ノ宮駅" },
         { id: "sannomiya_car", name: "オリックスレンタカー三宮駅前店", query: "オリックスレンタカー三宮駅前店" },
         { id: "kobe_sauna", name: "神戸サウナ＆スパ", query: "神戸サウナ＆スパ" },
@@ -1522,34 +1521,6 @@ function EtcView() {
           >
             {isSpinning ? "抽選中..." : "早くおごりたいっちゃん！"}
           </button>
-        </div>
-
-        {/* グループルール */}
-        <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3 shadow-md">
-          <div className="flex items-center gap-2 border-b border-slate-700/60 pb-2">
-            <span className="text-xl">📜</span>
-            <h2 className="text-sm font-bold text-yellow-400">四国旅 基本ルール</h2>
-          </div>          
-          <ul className="text-xs space-y-2 text-slate-300 list-disc pl-4 marker:text-yellow-500">
-            <li><span className="font-bold text-white">運転手へのリスペクト:</span> 助手席の人間は寝てはいけない(非免許持ちへの軽蔑・見下し)ナビ・DJ・話し相手の義務</li>
-          </ul>
-        </div>
-
-        {/* 夜行バス情報 */}
-        <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3 shadow-md">
-          <div className="flex items-center gap-2 border-b border-slate-700/60 pb-2">
-            <span className="text-xl">🚌</span>
-            <h2 className="text-sm font-bold text-yellow-400">夜行バス予約情報 (行き)</h2>
-          </div>          
-          <div className="text-xs space-y-1.5 text-slate-300">
-            <p><span className="text-slate-400">便詳細：</span> LimonBus 106便 4列・トイレ・USB電源・WiFi</p>
-            <p><span className="text-slate-400">予約番号：</span> 5667101</p>
-            <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 mt-2">
-              <p><span className="text-slate-400">出発日：</span> <span className="font-bold text-yellow-300">9月23日(水)</span></p>
-              <p><span className="text-slate-400">集合時間：</span> 22:35 (出発 22:50)</p>
-              <p className="mt-1"><span className="text-slate-400">出発地点：</span><br/>池袋サンシャインバスターミナル<br/>(サンシャインシティ文化会館1階)</p>
-            </div>
-          </div>
         </div>
 
         {/* ▼▼▼ 追加：アプリ設定（名前変更機能） ▼▼▼ */}
