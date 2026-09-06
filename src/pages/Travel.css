@@ -69,6 +69,13 @@
 .day-overview h3 { font-size: clamp(21px, 2vw, 28px); font-weight: 750; letter-spacing: -.035em; margin: 8px 0 5px; position: relative; z-index: 1; }
 .day-overview > div > p:last-child { font-size: 12px; color: var(--muted, #667873); }
 .day-overview-number { font-family: Georgia, serif; font-size: 92px; line-height: 1; color: #bdcbb9; font-style: italic; opacity: .65; }
+.day-note { display: flex; gap: 10px; align-items: flex-start; margin: 16px 0; padding: 14px 16px; background: #f5ecdf; border-radius: 12px; color: #755432; font-size: 12px; line-height: 1.9; }
+.day-note .travel-icon { width: 18px; height: 20px; margin-top: 2px; }
+.schedule-shortcuts { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+.schedule-shortcuts a { display: flex; flex: 1 1 125px; align-items: center; gap: 8px; min-height: 48px; padding: 11px 14px; border: 1px solid var(--line, #dfe4da); border-radius: 10px; background: var(--surface, #fffefa); color: var(--teal, #28655b); text-decoration: none; font-size: 12px; font-weight: 650; }
+.schedule-shortcuts a:hover { border-color: var(--teal, #28655b); background: var(--soft, #e8eee5); }
+.schedule-shortcuts .travel-icon { width: 17px; height: 17px; }
+.schedule-shortcuts a > .travel-icon:last-child { margin-left: auto; width: 13px; height: 13px; }
 .schedule-caveat { display: flex; align-items: flex-start; gap: 7px; color: var(--muted, #667873); font-size: 10px; line-height: 1.8; margin: 18px 0 28px; }
 .schedule-caveat .travel-icon { width: 15px; height: 17px; }
 .itinerary { list-style: none; margin: 0; padding: 0; }
@@ -81,11 +88,11 @@
 .timeline-content { padding: 5px 0 32px; min-width: 0; }
 .timeline-title { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; margin-bottom: 9px; }
 .timeline-title h4 { font-size: 16px; line-height: 1.7; font-weight: 700; }
+.schedule-status { display: inline-flex; align-items: center; flex-shrink: 0; padding: 3px 7px; border-radius: 5px; color: #58665e; background: #eceee8; font-size: 10px; font-weight: 650; line-height: 1.5; }
+.schedule-status.is-fixed { color: #28655b; background: #e4ede2; }
+.schedule-status.is-optional { color: #805828; background: #f6ebd8; }
 .timeline-content > p { color: var(--muted, #667873); font-size: 12px; line-height: 1.9; }
 .timeline-content > p + p { margin-top: 5px; }
-.dinner-contact { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 5px; }
-.dinner-contact a { display: inline-flex; gap: 3px; align-items: center; font-size: 10px; color: var(--teal, #28655b); min-height: 32px; text-decoration: underline; text-underline-offset: 3px; }
-.dinner-contact .travel-icon { width: 12px; height: 12px; }
 .timeline-updated .timeline-content { margin: 0 0 23px; padding: 15px 18px; background: var(--surface, #fffefa); border: 1px solid #e4cdb9; border-radius: 12px; }
 .timeline-updated .timeline-time { padding-top: 19px; }
 .timeline-updated .timeline-marker { margin-top: 12px; }
@@ -96,12 +103,21 @@
 .timeline-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--muted, #667873); font-size: 10px; margin-top: 13px; padding-top: 11px; border-top: 1px dashed var(--line, #dfe4da); }
 .timeline-meta > span + span::before { content: '·'; margin-right: 8px; }
 .timeline-meta .travel-icon { width: 14px; height: 14px; }
-.route-split { display: grid; gap: 10px; margin: 14px 0; }
-.route-option { padding: 16px; background: var(--surface, #fffefa); border: 1px solid var(--line, #dfe4da); border-left: 3px solid var(--teal, #28655b); border-radius: 9px; }
-.route-option + .route-option { border-left-color: var(--accent, #c3653d); }
-.route-option h5 { font-size: 12px; font-weight: 750; margin-bottom: 8px; }
-.route-option p { font-size: 11px; line-height: 1.9; color: var(--muted, #667873); }
-.route-option small { display: block; margin-top: 8px; font-size: 10px; line-height: 1.7; }
+.timeline-split { scroll-margin-top: 100px; }
+.route-split { display: grid; gap: 14px; margin: 18px 0 10px; }
+.route-option { --team-color: #28655b; --team-surface: #e8eee5; min-width: 0; padding: 18px; background: var(--surface, #fffefa); border: 1px solid var(--line, #dfe4da); border-top: 3px solid var(--team-color); border-radius: 12px; }
+.route-option + .route-option { --team-color: #a05b37; --team-surface: #f5e9dd; }
+.route-heading { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.route-team { display: flex; align-items: center; justify-content: center; width: 31px; height: 31px; flex-shrink: 0; color: var(--team-color); background: var(--team-surface); border-radius: 8px; font-size: 15px; font-weight: 750; }
+.route-option h5 { font-size: 14px; font-weight: 750; line-height: 1.65; }
+.route-option p { font-size: 12px; line-height: 1.9; color: var(--muted, #667873); }
+.route-steps { margin: 18px 0 0; padding: 0; list-style: none; }
+.route-steps li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; border-top: 1px solid var(--line, #dfe4da); padding: 12px 0; }
+.route-step-time { color: var(--team-color); font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.9; overflow-wrap: anywhere; }
+.route-steps strong { display: block; font-size: 12px; font-weight: 700; line-height: 1.9; }
+.route-steps li p { font-size: 11px; margin-top: 3px; }
+.route-option .route-note { display: flex; align-items: flex-start; gap: 7px; padding-top: 12px; margin-top: 8px; border-top: 1px dashed var(--line, #dfe4da); font-size: 10px; line-height: 1.8; }
+.route-note .travel-icon { width: 14px; height: 17px; }
 .tonight-card { display: flex; align-items: center; gap: 16px; border: 1px solid var(--line, #dfe4da); border-radius: 14px; background: var(--surface, #fffefa); padding: 20px; text-decoration: none; color: var(--ink, #193d3b); }
 .tonight-card > span:nth-child(2) { flex: 1; min-width: 0; }
 .tonight-card small { display: block; letter-spacing: .12em; font-size: 9px; color: var(--muted, #667873); }
@@ -169,7 +185,7 @@
 .link-card-actions a { display: inline-flex; align-items: center; gap: 4px; min-height: 35px; color: var(--teal, #28655b); text-decoration: none; font-size: 10px; font-weight: 650; }
 .link-card-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .link-card-actions .travel-icon { width: 13px; height: 13px; }
-@media (min-width: 1400px) { .route-split { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1200px) { .route-split { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
 @media (max-width: 1050px) { .stay-grid, .spot-list, .link-grid { grid-template-columns: 1fr; } .map-hero { flex-wrap: wrap; } }
 @media (max-width: 767px) {
   .travel-container { padding: 22px 20px 35px; }
@@ -191,6 +207,10 @@
   .day-overview h3 { font-size: 21px; max-width: 260px; }
   .day-overview > div > p:last-child { font-size: 11px; position: relative; z-index: 1; }
   .day-overview-number { position: absolute; right: 8px; bottom: -5px; font-size: 94px; opacity: .3; }
+  .day-note { font-size: 12px; padding: 13px 14px; }
+  .schedule-shortcuts { gap: 7px; }
+  .schedule-shortcuts a { flex-basis: 85px; gap: 6px; padding: 10px; font-size: 11px; }
+  .schedule-shortcuts a > .travel-icon:last-child { display: none; }
   .timeline-item { grid-template-columns: 49px 28px minmax(0, 1fr); column-gap: 10px; }
   .timeline-item:not(:last-child)::before { left: 72px; top: 28px; }
   .timeline-time { font-size: 11px; padding-top: 6px; }
@@ -206,7 +226,15 @@
   .travel-place-links a { padding: 7px 8px; font-size: 9px; }
   .timeline-meta { font-size: 9px; gap: 6px; line-height: 1.8; }
   .timeline-meta > span + span::before { content: none; }
-  .route-option { padding: 12px; }
+  .timeline-split { grid-template-columns: 28px minmax(0, 1fr); column-gap: 10px; }
+  .timeline-split .timeline-time { grid-column: 2; grid-row: 1; text-align: left; font-size: 13px; padding-top: 4px; }
+  .timeline-split .timeline-marker { grid-column: 1; grid-row: 1; margin-top: 0; }
+  .timeline-split .timeline-content { grid-column: 1 / -1; grid-row: 2; padding-top: 12px; }
+  .timeline-split:not(:last-child)::before { display: none; }
+  .timeline-split .timeline-title h4 { font-size: 16px; }
+  .timeline-split .timeline-content > p { font-size: 12px; }
+  .route-option { padding: 17px; }
+  .route-steps li { grid-template-columns: 68px minmax(0, 1fr); }
   .tonight-card { padding: 16px; gap: 12px; }
   .tonight-card strong { font-size: 12px; }
   .tonight-icon { width: 37px; height: 42px; }
@@ -234,6 +262,9 @@
   .timeline-marker { width: 25px; height: 25px; }
   .timeline-time { font-size: 10px; }
   .timeline-updated .timeline-content { padding: 10px; }
+  .timeline-split { grid-template-columns: 25px minmax(0, 1fr); }
+  .schedule-shortcuts a { flex-basis: 79px; padding-inline: 8px; font-size: 10px; }
+  .schedule-shortcuts .travel-icon { width: 15px; height: 15px; }
   .day-tab strong { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { .travel-page *, .travel-page *::before, .travel-page *::after { transition: none !important; scroll-behavior: auto !important; } }

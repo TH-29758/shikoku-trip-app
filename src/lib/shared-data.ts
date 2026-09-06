@@ -21,9 +21,10 @@ export function parseChecklist(value: unknown): ChecklistCategory[] {
     }
     return { ...category, title: category.title, icon: category.icon, items: category.items.map(rawItem => {
       const item = object(rawItem);
-      if (typeof item.name !== 'string' || typeof item.checked !== 'boolean' || typeof item.author !== 'string'
+      if (typeof item.name !== 'string' || typeof item.checked !== 'boolean' || (item.author !== undefined && typeof item.author !== 'string')
         || (item.id !== undefined && typeof item.id !== 'string')) throw new Error('持ち物の保存データを読み取れません。');
-      return { ...item, name: item.name, checked: item.checked, author: item.author, ...(typeof item.id === 'string' ? { id: item.id } : {}) };
+      // Older lists did not record who added each item.
+      return { ...item, name: item.name, checked: item.checked, author: item.author ?? '未記録', ...(typeof item.id === 'string' ? { id: item.id } : {}) };
     }) };
   });
 }

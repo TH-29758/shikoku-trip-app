@@ -64,6 +64,7 @@ export function ChecklistView() {
   const savingRef = useRef(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [uncheckedOnly, setUncheckedOnly] = useState(false);
   const total = categories.reduce((sum, category) => sum + category.items.length, 0);
   const completed = categories.reduce((sum, category) => sum + category.items.filter(item => item.checked).length, 0);
   const progress = total ? Math.round(completed / total * 100) : 0;
@@ -116,12 +117,16 @@ export function ChecklistView() {
       </section>
       <SyncStatus {...shared} />
       <Feedback error={error} message={message} />
+      <div className="shared-checklist-toolbar">
+        <label><input type="checkbox" checked={uncheckedOnly} onChange={event => setUncheckedOnly(event.target.checked)} />未確認だけ表示<span>{total - completed}</span></label>
+        <button type="button" className="button secondary" onClick={() => { document.getElementById('packing-form')?.scrollIntoView({ block: 'center' }); document.getElementById('packing-item')?.focus({ preventScroll: true }); }}>＋ 持ち物を追加</button>
+      </div>
       <div className="shared-checklist-layout">
         <div className="shared-category-list">
           {categories.map((category, categoryIndex) => <section className="shared-card" key={`${category.title}-${categoryIndex}`}>
             <div className="shared-card-heading"><h2><span aria-hidden="true">{category.icon}</span> {category.title}</h2><span className="shared-count">{category.items.filter(item => item.checked).length}/{category.items.length}</span></div>
             <ul className="shared-items">
-              {category.items.map((item, itemIndex) => <li key={item.id || `${item.name}-${itemIndex}`} className={item.checked ? 'is-checked' : ''}>
+              {category.items.filter(item => !uncheckedOnly || !item.checked).map((item, itemIndex) => <li key={item.id || `${item.name}-${itemIndex}`} className={item.checked ? 'is-checked' : ''}>
                 <label className="shared-check-label">
                   <input type="checkbox" checked={item.checked} disabled={!shared.canSave || saving} onChange={() => void changeItem(category, item)} />
                   <span><span className="shared-item-name">{item.name}</span><small>追加：{item.author}</small></span>
@@ -130,18 +135,21 @@ export function ChecklistView() {
               </li>)}
             </ul>
             {!category.items.length && <p className="shared-muted">まだ持ち物がありません。</p>}
+            {uncheckedOnly && category.items.length > 0 && category.items.every(item => item.checked) && <p className="shared-muted">このカテゴリはすべて確認済みです。</p>}
           </section>)}
         </div>
-        <section className="shared-card shared-add-item">
+        <section className="shared-card shared-add-item" id="packing-form">
           <p className="eyebrow">ONE MORE THING</p><h2>持ち物を追加</h2>
           <p className="shared-muted">気づいたものを、みんなのリストへ。</p>
+          <Feedback error={error} message={message} />
           <form onSubmit={addItem} className="shared-form">
-            <fieldset disabled={!shared.canSave || saving || !categories.length}>
+            <fieldset disabled={saving || !categories.length}>
               <label htmlFor="packing-category">カテゴリ</label>
               <select id="packing-category" value={selectedCategory} onChange={event => setSelectedCategory(Number(event.target.value))}>{categories.map((category, index) => <option key={`${category.title}-${index}`} value={index}>{category.title}</option>)}</select>
               <label htmlFor="packing-item">持ち物</label>
               <input id="packing-item" value={newItem} onChange={event => setNewItem(event.target.value)} maxLength={100} placeholder="例：折りたたみ傘" required />
-              <button className="button" type="submit" disabled={!newItem.trim()}>{saving ? '共有しています…' : '＋ リストに追加'}</button>
+              <button className="button" type="submit" disabled={!newItem.trim() || !shared.canSave}>{saving ? '共有しています…' : '＋ リストに追加'}</button>
+              {!shared.canSave && <p className="shared-footnote">入力は先にできます。共有データへの接続後に追加してください。</p>}
             </fieldset>
           </form>
         </section>
@@ -180,7 +188,7 @@ function BudgetEstimate() {
 export function Party() {
   const shared = useSharedArray('party', 'transactions', EMPTY_EXPENSES, parseExpenses);
   const transactions = shared.data;
-  const [activeTab, setActiveTab] = useState<'estimate' | 'summary' | 'add'>('estimate');
+  const [activeTab, setActiveTab] = useState<'estimate' | 'summary' | 'add'>('summary');
   const [editing, setEditing] = useState<Expense | null>(null);
   const [payer, setPayer] = useState(currentUser);
   const [amount, setAmount] = useState('');
@@ -243,9 +251,9 @@ export function Party() {
     <div className="shared-content">
       <section className="shared-intro"><p className="eyebrow">TRAVEL WALLET</p><h1>旅のお金を、<br className="shared-mobile-break" />すっきり。</h1><p>予算を確認して、立て替えをみんなで共有。</p></section>
       <nav className="shared-segments" aria-label="費用の表示切り替え">
-        <button type="button" aria-pressed={activeTab === 'estimate'} disabled={saving} onClick={() => switchTab('estimate')}>予算の目安</button>
         <button type="button" aria-pressed={activeTab === 'summary'} disabled={saving} onClick={() => switchTab('summary')}>支払い・精算</button>
         <button type="button" aria-pressed={activeTab === 'add'} disabled={saving} onClick={() => switchTab('add')}>{editing ? '支払いを編集' : '＋ 支払いを追加'}</button>
+        <button type="button" aria-pressed={activeTab === 'estimate'} disabled={saving} onClick={() => switchTab('estimate')}>予算の目安</button>
       </nav>
       {activeTab !== 'estimate' && <SyncStatus {...shared} />}
       <Feedback error={error} message={message} />

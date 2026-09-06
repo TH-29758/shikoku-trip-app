@@ -33,7 +33,7 @@ test('schedule dates are consecutive and match the displayed weekday in Japan', 
 });
 
 test('home events come from itinerary entries and remain chronological with explicit Japan time', () => {
-  const timedItems = tripDays.flatMap(day => day.items.filter(item => item.at).map(item => ({ day, item })));
+  const timedItems = tripDays.flatMap(day => day.items.filter(item => item.at && item.status !== 'optional').map(item => ({ day, item })));
   assert.equal(tripEvents.length, timedItems.length);
   tripEvents.forEach((event, index) => {
     assert.match(event.datetime, /\+09:00$/);
@@ -49,11 +49,15 @@ test('hotel and dinner changes stay consistent across saved links, map and sched
   assert.equal(spotAliases['88hotels'], ehimeStay.id);
   assert.equal(spotAliases.ikkaku_takamatsu, dinnerSpot.id);
   assert.equal(spotAliases.ikkaku_nakabu, dinnerSpot.id);
+  assert.equal(spotAliases.ranmaru, dinnerSpot.id);
   assert.equal(tripDays[1].stayId, ehimeStay.id);
   assert.ok(tripDays[0].items.some(item => item.title === dinnerSpot.name && item.places?.some(place => place.id === dinnerSpot.id)));
   assert.ok(tripDays[1].items.some(item => item.stayId === ehimeStay.id && item.title.includes(ehimeStay.name)));
   assert.ok(spotCategories.flatMap(category => category.spots).some(spot => spot.id === ehimeStay.id && spot.query.includes(ehimeStay.address)));
   assert.ok(spotCategories.flatMap(category => category.spots).some(spot => spot.id === dinnerSpot.id && spot.name === dinnerSpot.name));
+  assert.equal(dinnerSpot.query, '高松市 骨付鳥');
+  assert.ok(!JSON.stringify(tripDays).includes('蘭丸'));
+  assert.ok(!JSON.stringify(linkCategories).includes('honetsuki-ranmaru'));
 });
 
 test('the attached seven-person hotel quote divides exactly and is a reference, not a booking', () => {

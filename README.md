@@ -15,7 +15,7 @@ npm run build
 npm run preview -- --host 127.0.0.1 --port 4173
 ```
 
-成果物は dist/。公開先は /schedule 等の直接アクセスを index.html に戻すSPAフォールバックが必要です。公開・デプロイは別途実施してください。
+成果物は dist/。GitHubのmainブランチの更新はVercelへ自動デプロイされます。SPAフォールバックとService Workerのキャッシュ制御は vercel.json で設定しています。公開後はVercelの完了状態と公開URLの表示を確認してください。
 
 ## 構成
 
@@ -33,6 +33,10 @@ Firestoreは既存の tripData/statuses、tripData/checklist、tripData/party �
 
 WindowsでChromeが標準パスにインストールされている環境向けです。上のpreviewを起動した状態で node scripts/qa-browser.mjs を実行。専用の一時プロファイルを .qa/ に作り、全外部通信を遮断して主要画面・日程タブ・検索・旧リンク・ルーレット・PWAオフライン表示を確認します。スクリーンショットと browser-report.json も .qa/ に保存されます。本番の共有データは更新しません。
 
+持ち物の追加・更新の確認は、別途 `npm run dev -- --host 127.0.0.1 --port 4175 --strictPort` を起動してから `node scripts/qa-checklist.mjs` を実行します。旧形式の19項目をローカルのモックに読み込み、追加・チェック・削除・再読み込み・保存失敗時の再試行を検証します。Firebaseへの外部通信は遮断し、結果を `.qa/checklist-browser-report.json` に保存します。Chromeの一時ファイルで開発サーバーが停止しないよう、`.qa/` はViteの監視対象から除外しています。
+
 アプリアイコンは public/favicon.svg を原本としています。変更時のみ、ブラウザー確認スクリプトに --update-icons を付けてPNGを書き出し、もう一度ビルドしてください。
 
 宿変更後の予算に関する未確定事項と出典は RELEASE_NOTES.md を参照してください。
+
+豊島を加える場合の比較案と旅行全体の評価は [TRIP_REVIEW.md](TRIP_REVIEW.md) にまとめています。

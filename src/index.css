@@ -154,4 +154,102 @@ h1, h2, h3, p { margin: 0; }
 @media (max-width: 520px) { .journey-hero { grid-template-columns: 1fr .74fr; }.hero-copy { padding: 24px 0 23px 22px; }.hero-copy h2 { font-size: 32px; }.hero-copy > p { font-size: 10px; }.hero-tags { flex-direction: column; align-items: flex-start; gap: 8px; }.journey-illustration { min-width: 200px; margin-left: -25px; transform: rotate(-9deg); }.illustration-caption { display: none; }.home-top-grid { grid-template-columns: 1fr; }.countdown-card { padding: 20px; display: grid; grid-template-columns: 1fr 1.2fr; align-items: center; }.countdown-card > .eyebrow { text-align: left; font-size: 11px; }.countdown { margin: 0; gap: 12px; }.countdown strong { font-size: 30px; }.countdown-card > a { grid-column: 1/-1; margin-top: 15px; justify-content: space-between; padding-top: 12px; min-height: 35px; }.home-side { grid-template-columns: 1fr; }.travel-update-card a { padding-top: 14px; }.packing-card { padding: 23px; }.packing-card p br { display: none; }.member-grid { gap: 0 12px; }.member-status { gap: 8px; }.member-status strong { font-size: 10px; }.member-avatar { width: 29px; height: 29px; }.status-panel .section-heading h2 { font-size: 15px; }.trip-phase { font-size: 15px; padding: 10px 0; }.home-footer { margin-top: 28px; }.welcome-card h1 { font-size: 43px; } }
 @media (max-width: 800px) { .next-card p { font-size: 12px; }.quick-card h3 { font-size: 13px; }.quick-card p { font-size: 11px; }.member-status strong { font-size: 12px; }.member-status p { font-size: 11px; }.section-caption { font-size: 12px; }.travel-update-card strong { font-size: 13px; }.travel-update-card a>span:last-child { font-size: 11px; } }
 @media (max-width: 520px) { .journey-hero { grid-template-columns: 1fr; }.hero-copy { padding: 24px 22px 26px; }.hero-copy h2 { font-size: 30px; letter-spacing: .03em; }.hero-copy>p { font-size: 12px; max-width: 255px; }.hero-tags { position: relative; z-index: 1; margin-top: 21px; }.hero-tags>span { font-size: 10px; }.journey-illustration { position: absolute; width: 145px; min-width: 0; right: -4px; bottom: 42px; margin: 0; opacity: .8; }.hero-copy .eyebrow { font-size: 8px; }.member-status { gap: 7px; }.member-status strong small { display: inline-block; }.welcome-card small { font-size: 11px; } }
+/* Home keeps the next plan and useful actions ahead of the trip overview. */
+.home-welcome { grid-template-columns: minmax(0, 1fr) 180px; align-items: center; background: transparent; border: 0; border-radius: 0; overflow: visible; margin-bottom: 24px; }
+.home-welcome-copy { padding: 8px 0; }
+.home-welcome-copy .eyebrow { font-size: 10px; letter-spacing: .08em; }
+.home-welcome-copy h2 { font-family: "Yu Mincho", "Hiragino Mincho ProN", Georgia, serif; font-size: 32px; font-weight: 700; letter-spacing: .06em; line-height: 1.5; margin: 9px 0 7px; }
+.home-welcome-copy > p:not(.eyebrow) { color: var(--muted); font-size: 12px; line-height: 1.8; }
+.home-trip-state { display: inline-block; margin-top: 13px; color: var(--teal); background: var(--soft); border-radius: 6px; font-size: 11px; line-height: 1.7; padding: 5px 10px; }
+.home-trip-state strong { font-weight: 750; }
+.home-welcome .journey-illustration { position: static; width: 180px; min-width: 0; margin: 0; padding: 0; opacity: .9; transform: rotate(-4deg); }
+.home-welcome .illustration-caption { display: none; }
+.home-focus-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+.home-focus-grid .next-card { padding: 27px; border-radius: 20px; display: flex; flex-direction: column; }
+.home-focus-grid .next-heading { flex-wrap: wrap; gap: 9px; }
+.home-focus-grid .next-heading .eyebrow { font-size: 12px; letter-spacing: .05em; }
+.home-focus-grid .next-heading > span:last-child { font-size: 11px; }
+.home-focus-grid .next-card h2 { font-size: 24px; line-height: 1.6; margin: 17px 0 10px; overflow-wrap: anywhere; }
+.home-focus-grid .next-card > p { font-size: 13px; line-height: 1.9; color: #e0eae1; }
+.home-day-summary { display: flex; align-items: flex-start; gap: 10px; margin: 22px 0 18px; padding-top: 17px; border-top: 1px solid #ffffff2d; color: #e0eae1; font-size: 11px; line-height: 1.7; }
+.home-day-summary > svg { margin-top: 2px; }
+.home-day-summary strong { display: block; color: #fffefa; font-size: 12px; font-weight: 600; margin-top: 3px; }
+.home-schedule-button { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 49px; padding: 13px 16px; margin-top: auto; background: #fffefa; color: var(--teal); border-radius: 10px; font-size: 14px; font-weight: 750; }
+.home-schedule-button:hover { background: #eaf0e5; }
+.home-schedule-button:focus-visible { outline-color: #f2ca8b; }
+.home-stay-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 26px; display: flex; flex-direction: column; min-width: 0; }
+.home-stay-label { display: flex; align-items: center; gap: 9px; color: var(--teal); font-size: 12px; font-weight: 650; }
+.home-stay-label small { margin-left: auto; font-size: 11px; font-weight: 400; color: var(--muted); }
+.home-stay-card h2 { font-size: 19px; font-weight: 750; line-height: 1.7; margin-top: 20px; overflow-wrap: anywhere; }
+.home-stay-region { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.home-stay-details { display: grid; gap: 15px; margin: 22px 0; }
+.home-stay-details > div { display: grid; grid-template-columns: 75px minmax(0, 1fr); gap: 8px; font-size: 12px; line-height: 1.8; }
+.home-stay-details dt { color: var(--muted); }
+.home-stay-details dd { font-weight: 550; overflow-wrap: anywhere; }
+.home-stay-empty { font-size: 13px; line-height: 1.9; color: var(--muted); margin: 10px 0 25px; }
+.home-stay-link { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line); padding-top: 15px; margin-top: auto; min-height: 48px; color: var(--teal); font-size: 13px; font-weight: 650; }
+.home-content .quick-section { margin: 28px 0; }
+.home-content .section-heading h2 { margin: 0; font-size: 17px; }
+.home-content .quick-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.home-content .quick-card { padding: 18px; border-radius: 15px; }
+.home-content .quick-icon { margin-bottom: 12px; width: 38px; height: 38px; border-radius: 11px; }
+.home-content .quick-card h3 { font-size: 15px; }
+.home-content .quick-card p { font-size: 11px; margin-top: 5px; line-height: 1.7; }
+.home-content .quick-card > svg { right: 14px; top: 29px; }
+.home-content .home-bottom-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; }
+.home-route-card { min-width: 0; padding: 24px; border: 1px solid var(--line); background: var(--surface); border-radius: 18px; }
+.home-route-card .section-heading { margin-bottom: 10px; flex-wrap: wrap; gap: 7px; }
+.home-route-caption { font-size: 11px; color: var(--muted); }
+.home-route-card ol { padding: 0; margin: 0; list-style: none; }
+.home-route-card li + li { border-top: 1px solid var(--line); }
+.home-route-card li > a { display: flex; align-items: center; gap: 12px; min-height: 65px; padding: 12px 0; font-size: 12px; border-radius: 6px; }
+.home-route-card li > a:hover { background: var(--canvas); }
+.home-route-date { font-size: 15px; font-weight: 750; white-space: nowrap; min-width: 60px; font-variant-numeric: tabular-nums; }
+.home-route-date small { color: var(--muted); font-size: 10px; margin-left: 6px; font-weight: 400; }
+.home-route-region { flex: 1; min-width: 0; line-height: 1.8; }
+.home-route-card li > a > svg { color: #81978b; }
+.home-today-badge { font-size: 10px; white-space: nowrap; color: var(--teal); background: var(--soft); padding: 4px 6px; border-radius: 5px; }
+.home-route-card .is-today .home-route-date { color: var(--accent); }
+.profile-chip { width: 44px; height: 44px; }
+.rail-link { font-size: 13px; }
+.mobile-menu { width: auto; gap: 6px; padding-inline: 10px; font-size: 11px; font-weight: 600; }
+@media (max-width: 1100px) {
+  .home-content .home-bottom-grid { grid-template-columns: 1fr; }
+  .home-focus-grid .next-card, .home-stay-card { padding: 22px; }
+  .home-focus-grid .next-card h2 { font-size: 21px; }
+}
+@media (max-width: 800px) {
+  .home-content .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .home-focus-grid { gap: 14px; }
+  .home-welcome { margin-bottom: 20px; }
+  .home-welcome-copy h2 { font-size: 29px; }
+  .bottom-navigation a { font-size: 11px; min-height: 51px; }
+  .page-header h1 { font-size: 16px; }
+}
+@media (max-width: 600px) {
+  .home-focus-grid { grid-template-columns: 1fr; }
+  .home-welcome { grid-template-columns: minmax(0, 1fr); }
+  .home-welcome .journey-illustration { display: none; }
+  .home-welcome-copy { padding: 0; }
+  .home-welcome-copy h2 { font-size: 28px; margin: 7px 0 3px; }
+  .home-welcome-copy > p:not(.eyebrow) { font-size: 11px; }
+  .home-trip-state { margin-top: 10px; }
+  .home-focus-grid .next-card h2 { font-size: 22px; margin-top: 13px; }
+  .home-focus-grid .next-card > p { font-size: 12px; }
+  .home-day-summary { margin-top: 18px; }
+  .home-stay-card { padding: 21px; }
+  .home-stay-card h2 { font-size: 18px; margin-top: 13px; }
+  .home-stay-details { margin: 16px 0; gap: 10px; }
+  .home-content .quick-card { padding: 17px; }
+  .home-route-card { padding: 21px; }
+}
+@media (max-width: 360px) {
+  .home-content { padding: 18px 16px; }
+  .page-header { padding-inline: 16px; }
+  .home-focus-grid .next-card, .home-stay-card, .home-route-card { padding: 19px; }
+  .home-focus-grid .next-heading > span:last-child { font-size: 10px; }
+  .home-route-card li > a { gap: 8px; }
+  .home-route-date { min-width: 53px; font-size: 14px; }
+  .home-route-region { font-size: 11px; }
+}
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }

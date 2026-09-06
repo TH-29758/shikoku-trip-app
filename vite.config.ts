@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // Browser QA writes Chrome profiles here; their locked cache files cannot be watched.
+  server: { watch: { ignored: ['**/.qa/**'] } },
   plugins: [
     react(),
     VitePWA({

@@ -1,8 +1,8 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { HeaderBar } from '../components/AppShell';
 import {
-  accommodations, dinnerSpot, linkCategories, mapDirectionsUrl, mapSearchUrl,
+  accommodations, linkCategories, mapDirectionsUrl, mapSearchUrl,
   spotAliases, spotCategories, tripDays, type ScheduleItem,
 } from '../data/trip';
 import './Travel.css';
@@ -61,6 +61,7 @@ export function AccommodationsView() {
 }
 
 const DAY_STORAGE_KEY = 'shikoku-trip.schedule-day';
+const scheduleStatusLabels = { fixed: '時間を合わせる', flexible: '目安', optional: '候補' };
 function initialDay() {
   try { const saved = localStorage.getItem(DAY_STORAGE_KEY); if (tripDays.some(day => day.id === saved)) return saved!; } catch { /* Browsing without local storage is supported. */ }
   const now = Date.now();
@@ -73,6 +74,8 @@ export function Schedule() {
   const requestedDay = searchParams.get('day');
   const day = tripDays.find(entry => entry.id === requestedDay) ?? tripDays.find(entry => entry.id === savedDay) ?? tripDays[0];
   const stay = accommodations.find(entry => entry.id === day.stayId);
+  const arrival = stay && day.items.find(item => item.kind === 'stay' && item.stayId === stay.id);
+  const hasBranches = day.items.some(item => item.branches?.length);
   useEffect(() => {
     try { localStorage.setItem(DAY_STORAGE_KEY, day.id); } catch { /* URL selection remains available. */ }
   }, [day.id]);
@@ -94,9 +97,34 @@ export function Schedule() {
         <div className="day-tabs" role="tablist" aria-label="旅行の日程">{tripDays.map((entry, index) => <button key={entry.id} id={`tab-${entry.id}`} role="tab" aria-selected={day.id === entry.id} aria-controls="schedule-panel" tabIndex={day.id === entry.id ? 0 : -1} className={`day-tab ${day.id === entry.id ? 'is-active' : ''}`} onClick={() => chooseDay(entry.id)} onKeyDown={event => handleDayKey(event, index)}><span>DAY {entry.number}</span><strong>{entry.shortDate}<small>{entry.weekday}</small></strong></button>)}</div>
         <section id="schedule-panel" role="tabpanel" aria-labelledby={`tab-${day.id}`} tabIndex={0} className="schedule-panel">
           <div className="day-overview"><div><p className="travel-eyebrow">DAY 0{day.number} / {day.region}</p><h3>{day.title}</h3><p>{day.subtitle}</p></div><span className="day-overview-number" aria-hidden="true">0{day.number}</span></div>
-          <p className="schedule-caveat"><TravelIcon name="clock" />時刻・移動時間・料金は目安。寄り道は当日のペースで。</p>
-          <ol className="itinerary">{day.items.map((item, index) => <li key={`${day.id}-${index}`} className={`timeline-item ${item.updated ? 'timeline-updated' : ''}`}><div className="timeline-time">{item.time}</div><span className={`timeline-marker ${item.kind === 'stay' ? 'is-stay' : ''}`}><TravelIcon name={item.kind} /></span><div className="timeline-content"><div className="timeline-title"><h4>{item.title}</h4>{item.updated && <span className="travel-pill is-updated">更新</span>}</div><p>{item.desc}</p>{item.updated && day.id === 'day1' && dinnerSpot.hours && <div className="dinner-contact"><p className="travel-note">{dinnerSpot.hours}</p><a href={`tel:${dinnerSpot.phone.replaceAll('-', '')}`}>お店に電話</a><a href={dinnerSpot.url} target="_blank" rel="noopener noreferrer">公式サイト<TravelIcon name="arrow" /></a></div>}{item.branches && <div className="route-split">{item.branches.map(branch => <div key={branch.title} className="route-option"><h5>{branch.title}</h5><p>{branch.desc}</p><small>{branch.note}</small></div>)}</div>}{(item.places || item.stayId) && <div className="travel-place-links">{item.places?.map(place => <Link key={place.id} to={`/map#${place.id}`}><TravelIcon name="pin" />{place.label}</Link>)}{item.stayId && <Link to={`/accommodations#${item.stayId}`}><TravelIcon name="stay" />宿泊情報</Link>}</div>}{item.transit && <div className="timeline-meta"><TravelIcon name="drive" /><span>{item.transit.duration}</span>{item.transit.cost && <span>{item.transit.cost}</span>}</div>}</div></li>)}</ol>
-          {stay && <Link to={`/accommodations#${stay.id}`} className="tonight-card"><span className="tonight-icon"><TravelIcon name="stay" /></span><span><small>TONIGHT'S STAY</small><strong>{stay.name}</strong><span>{stay.region} · チェックイン {stay.checkIn}〜</span></span><TravelIcon name="arrow" /></Link>}
+          {day.note && <p className="day-note"><TravelIcon name="meet" /><span>{day.note}</span></p>}
+          <nav className="schedule-shortcuts" aria-label={`DAY ${day.number} の便利なリンク`}>
+            {hasBranches && <a href={`#routes-${day.id}`}><TravelIcon name="meet" /><span>2組の動き</span><TravelIcon name="arrow" /></a>}
+            <Link to="/map"><TravelIcon name="pin" /><span>地図を開く</span><TravelIcon name="arrow" /></Link>
+            {stay && <Link to={`/accommodations#${stay.id}`}><TravelIcon name="stay" /><span>{day.shortDate}の宿</span><TravelIcon name="arrow" /></Link>}
+          </nav>
+          <p className="schedule-caveat"><TravelIcon name="clock" /><span>集合・出発・チェックアウトは時間を合わせよう。ほかの予定は当日のペースで。移動時間・料金は目安です。</span></p>
+          <ol className="itinerary">{day.items.map((item, index) => (
+            <li key={`${day.id}-${index}`} id={item.branches?.length ? `routes-${day.id}` : undefined} className={`timeline-item ${item.updated ? 'timeline-updated' : ''} ${item.branches?.length ? 'timeline-split' : ''}`}>
+              <div className="timeline-time">{item.time}</div>
+              <span className={`timeline-marker ${item.kind === 'stay' ? 'is-stay' : ''}`}><TravelIcon name={item.kind} /></span>
+              <div className="timeline-content">
+                <div className="timeline-title"><h4>{item.title}</h4><span className={`schedule-status is-${item.status ?? 'flexible'}`}>{scheduleStatusLabels[item.status ?? 'flexible']}</span>{item.updated && <span className="travel-pill is-updated">更新</span>}</div>
+                <p>{item.desc}</p>
+                {item.branches && item.branches.length > 0 && <div className="route-split">{item.branches.map((branch, branchIndex) => (
+                  <section key={branch.title} className="route-option" aria-label={branch.title}>
+                    <div className="route-heading"><span className="route-team" aria-hidden="true">{String.fromCharCode(65 + branchIndex)}</span><h5>{branch.title.replace(/^[A-Z][｜|]\s*/, '')}</h5></div>
+                    <p>{branch.desc}</p>
+                    {branch.steps && branch.steps.length > 0 && <ol className="route-steps">{branch.steps.map((step, stepIndex) => <li key={`${step.time}-${stepIndex}`}><span className="route-step-time">{step.time}</span><div><strong>{step.title}</strong>{step.desc && <p>{step.desc}</p>}</div></li>)}</ol>}
+                    <p className="route-note"><TravelIcon name="drive" /><span>{branch.note}</span></p>
+                  </section>
+                ))}</div>}
+                {(item.places || item.stayId) && <div className="travel-place-links">{item.places?.map(place => <Link key={place.id} to={`/map#${place.id}`}><TravelIcon name="pin" />{place.label}</Link>)}{item.stayId && <Link to={`/accommodations#${item.stayId}`}><TravelIcon name="stay" />宿泊情報</Link>}</div>}
+                {item.transit && <div className="timeline-meta"><TravelIcon name="drive" /><span>{item.transit.duration}</span>{item.transit.cost && <span>{item.transit.cost}</span>}</div>}
+              </div>
+            </li>
+          ))}</ol>
+          {stay && <Link to={`/accommodations#${stay.id}`} className="tonight-card"><span className="tonight-icon"><TravelIcon name="stay" /></span><span><small>{day.shortDate}の宿 · {stay.region}</small><strong>{stay.name}</strong><span>{arrival ? `到着目安 ${arrival.time} · ` : ''}チェックイン {stay.checkIn}〜</span></span><TravelIcon name="arrow" /></Link>}
           {day.number < tripDays.length && <button className="travel-button secondary next-day-button" onClick={() => { chooseDay(tripDays[day.number].id); document.getElementById('schedule-panel')?.scrollIntoView({ block: 'start', behavior: 'auto' }); }}>DAY {day.number + 1} のしおりへ<span aria-hidden="true">→</span></button>}
         </section>
       </div>
@@ -109,9 +137,10 @@ const kindLabels: Record<string, string> = { stay: '宿泊', food: 'グルメ', 
 
 export function MapView() {
   const location = useLocation();
+  const { id: routeSpotId } = useParams();
   const [filters, setFilters] = useState({ key: location.key, query: '', area: 'all' });
   const currentFilters = filters.key === location.key ? filters : { key: location.key, query: '', area: 'all' };
-  const targetId = normalizedHash(location.hash);
+  const targetId = normalizedHash(location.hash || routeSpotId || '');
   const query = currentFilters.query.trim().normalize('NFKC').toLocaleLowerCase('ja-JP');
   const categories = spotCategories.filter(category => currentFilters.area === 'all' || category.id === currentFilters.area).map(category => ({ ...category, spots: category.spots.filter(spot => `${spot.name} ${spot.query} ${category.area} ${spot.note ?? ''} ${kindLabels[spot.kind ?? 'nature']}`.normalize('NFKC').toLocaleLowerCase('ja-JP').includes(query)) })).filter(category => category.spots.length > 0);
   const resultCount = categories.reduce((count, category) => count + category.spots.length, 0);
@@ -126,7 +155,7 @@ export function MapView() {
       <HeaderBar title="旅のマップ" />
       <div className="travel-container">
         <div className="travel-intro"><p className="travel-eyebrow">PLACES TO GO</p><h2>気になる場所へ、すぐに。</h2><p>宿も、グルメも、絶景も。行き先を見つけてマップを開こう。</p></div>
-        <div className="map-hero"><div><span className="travel-eyebrow">SHIKOKU ROAD TRIP</span><h3>旅の目的地、{totalCount}スポット。</h3><p>今回の宿・夕食の変更は、下のスポット一覧に反映済み。</p></div><a href="https://maps.app.goo.gl/xbTpHuB4UTiuexb3A" target="_blank" rel="noopener noreferrer" className="travel-button secondary">共有マップリスト<TravelIcon name="arrow" /></a></div>
+        <div className="map-hero"><div><span className="travel-eyebrow">SHIKOKU ROAD TRIP</span><h3>旅の目的地、{totalCount}スポット。</h3><p>泊まる場所も、寄り道の候補も。行き先が決まったら、マップへ。</p></div><a href="https://maps.app.goo.gl/xbTpHuB4UTiuexb3A" target="_blank" rel="noopener noreferrer" className="travel-button secondary">共有マップリスト<TravelIcon name="arrow" /></a></div>
         <div className="map-toolbar"><div className="map-search"><TravelIcon name="search" /><label htmlFor="spot-search" className="sr-only">スポット名・エリアを検索</label><input id="spot-search" type="search" placeholder="スポット名・エリアを検索" value={currentFilters.query} onChange={event => setFilters({ ...currentFilters, query: event.target.value })} />{currentFilters.query && <button type="button" aria-label="検索をクリア" onClick={() => setFilters({ ...currentFilters, query: '' })}>×</button>}</div><div className="area-filters" aria-label="エリアで絞り込み"><button className={currentFilters.area === 'all' ? 'is-active' : ''} aria-pressed={currentFilters.area === 'all'} onClick={() => setFilters({ ...currentFilters, area: 'all' })}>すべて</button>{spotCategories.map(category => <button key={category.id} className={currentFilters.area === category.id ? 'is-active' : ''} aria-pressed={currentFilters.area === category.id} onClick={() => setFilters({ ...currentFilters, area: category.id })}>{category.id === 'tokushima' ? '徳島・淡路島' : category.area.split('・')[0]}</button>)}</div><p className="map-result-count" role="status">{resultCount}件のスポット</p></div>
         {resultCount === 0 && <div className="travel-empty"><TravelIcon name="search" /><h3>見つかりませんでした</h3><p>別のキーワードか、ほかのエリアで探してみてください。</p><button className="travel-button secondary" onClick={() => setFilters({ key: location.key, query: '', area: 'all' })}>すべてのスポットを表示</button></div>}
         {categories.map(category => <section key={category.id} className="map-area"><div className="travel-section-heading"><h3>{category.area}</h3><span>{String(category.spots.length).padStart(2, '0')} PLACES</span></div><div className="spot-list">{category.spots.map(spot => <article id={spot.id} key={spot.id} tabIndex={-1} className={`spot-card ${targetId === spot.id ? 'is-targeted' : ''}`}><span className={`spot-icon spot-${spot.kind ?? 'nature'}`}><TravelIcon name={spot.kind} /></span><div className="spot-info"><span>{kindLabels[spot.kind ?? 'nature']}</span><h4>{spot.name}</h4>{spot.note && <p>{spot.note}</p>}</div><a href={mapSearchUrl(spot.query)} target="_blank" rel="noopener noreferrer" className="spot-action" aria-label={`${spot.name}をGoogleマップで開く`}><TravelIcon name="arrow" /><span>マップ</span></a></article>)}</div></section>)}
