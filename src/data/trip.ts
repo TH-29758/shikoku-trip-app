@@ -88,7 +88,6 @@ export const accommodations: Stay[] = [
     address: '高知県高知市若松町6-25', checkIn: '15:00', checkOut: '10:00',
     parking: '無料1台。2台目以降は近隣のコインパーキングへ',
     notes: '洗濯機あり・乾燥機なし。入室方法やWi-Fi情報は滞在メモを確認。',
-    privateNotes: '玄関プッシュ式ロック：CA8072 ／ Wi-Fi：Rakuten-5277 ／ パスワード：5ZBA64G8KZ',
     url: 'https://www.airbnb.jp/rooms/1716893195048633552',
   },
 ];
