@@ -41,7 +41,6 @@ export type Stay = {
   phone?: string;
   updated?: boolean;
   reference?: { room: string; guests: number; total: number; perPerson: number; cancellation: string };
-  privateNotes?: string;
 };
 
 export const ehimeStay: Stay = {
