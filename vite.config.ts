@@ -6,18 +6,21 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       // アプリがオフラインでも動くようにする設定
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       },
       // スマホにインストールした時の見た目・アイコンの設定
       manifest: {
-        name: '四国周遊クエスト',
-        short_name: '四国旅',
+        name: '四国、よりみち。2026 旅のしおり',
+        short_name: '四国よりみち',
         description: '10人用の四国旅行しおりアプリ',
-        theme_color: '#0f172a', // Tailwindのslate-900と同じ色
-        background_color: '#0f172a',
+        theme_color: '#f6f4ef',
+        background_color: '#f6f4ef',
+        lang: 'ja',
+        start_url: '/',
+        scope: '/',
         display: 'standalone', // アプリっぽく全画面で開く設定
         icons: [
           {

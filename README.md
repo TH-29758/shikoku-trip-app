@@ -1,75 +1,38 @@
-# React + TypeScript + Vite
+# 四国、よりみち。2026 旅のしおり
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+2026年9月24日〜29日、10人で巡る四国旅行のしおり。React / TypeScript / Vite / Firebase / PWA。
 
-Currently, two official plugins are available:
+## 起動と確認
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Node.js 22.18以上（今回の検証は24.19）。Windows PowerShellで実行ポリシーが厳しい場合は npm の代わりに npm.cmd を使ってください。
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+npm ci
+npm run dev
+npm test
+npm run lint
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+成果物は dist/。公開先は /schedule 等の直接アクセスを index.html に戻すSPAフォールバックが必要です。公開・デプロイは別途実施してください。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 構成
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- src/data/trip.ts: 日程、宿、食事、地図、リンクの共通データ。ホームの次の予定もここから生成。
+- src/components/: 共通ナビ、共有状況、エラー画面、アプリ更新通知。
+- src/pages/: ホーム、旅行情報、持ち物・会計、ルーレット・設定。
+- src/lib/: Firebase、共有データ読み込み・保存、整数円の割り勘、端末内の名前保存。
+- tests/: 日程とリンクの整合性、日本時間のカウントダウン、端数精算、過去記録、保存制限の検証。
 
-```
+Firestoreは既存の tripData/statuses、tripData/checklist、tripData/party と従来の配列形式を引き継ぎます。閲覧時にデータを書き込まず、変更操作のみトランザクションで保存。新しい支払いは正の整数円で入力し、過去の0円・返金記録も読み込みます。
+
+日程・宿泊・地図は、PWAの初回キャッシュ完了後にオフラインで閲覧できます。共有内容は取得済みのキャッシュを表示し、更新はオンラインで行います。PWAはHTTPSまたはlocalhostで利用してください。新しいバージョンは入力の保存後、画面の「更新する」で切り替えます。
+
+## ブラウザー確認
+
+WindowsでChromeが標準パスにインストールされている環境向けです。上のpreviewを起動した状態で node scripts/qa-browser.mjs を実行。専用の一時プロファイルを .qa/ に作り、全外部通信を遮断して主要画面・日程タブ・検索・旧リンク・ルーレット・PWAオフライン表示を確認します。スクリーンショットと browser-report.json も .qa/ に保存されます。本番の共有データは更新しません。
+
+アプリアイコンは public/favicon.svg を原本としています。変更時のみ、ブラウザー確認スクリプトに --update-icons を付けてPNGを書き出し、もう一度ビルドしてください。
+
+宿変更後の予算に関する未確定事項と出典は RELEASE_NOTES.md を参照してください。
