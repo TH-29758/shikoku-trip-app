@@ -50,7 +50,6 @@ export function AccommodationsView() {
               <dl className="stay-details"><div><dt><TravelIcon name="pin" /><span>住所</span></dt><dd>{hotel.address}</dd></div><div><dt><TravelIcon name="drive" /><span>駐車場</span></dt><dd>{hotel.parking}</dd></div></dl>
               <p className="travel-note">{hotel.notes}</p>
               {hotel.reference && <details className="stay-reference"><summary>添付プランの料金・キャンセル条件</summary><div className="stay-price"><span>7人合計<strong>¥{money(hotel.reference.total)}</strong></span><span>1人あたり<strong>¥{money(hotel.reference.perPerson)}</strong></span></div><p>キャンセル：{hotel.reference.cancellation}</p><p className="travel-note">添付画像に表示された割引適用後の参考情報です。予約の確定内容・金額は予約明細で確認してください。</p></details>}
-              {hotel.privateNotes && <details className="stay-reference"><summary>滞在メモ・入室とWi-Fi</summary><p>{hotel.privateNotes}</p></details>}
               <div className="travel-actions stay-actions"><a href={mapDirectionsUrl(`${hotel.name} ${hotel.address}`)} target="_blank" rel="noopener noreferrer" className="travel-button"><TravelIcon name="pin" />宿へのルート<TravelIcon name="arrow" /></a><a href={hotel.url} target="_blank" rel="noopener noreferrer" className="travel-button secondary">宿の詳細<TravelIcon name="arrow" /></a></div>
               <div className="stay-subactions"><Link to={`/map#${hotel.id}`}>旅のマップで見る</Link>{hotel.phone && <a href={`tel:${hotel.phone.replaceAll('-', '')}`}>宿に電話</a>}{hotel.reservationUrl && <a href={hotel.reservationUrl} target="_blank" rel="noopener noreferrer">楽天トラベル</a>}</div>
             </article>
