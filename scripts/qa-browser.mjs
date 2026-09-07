@@ -85,7 +85,8 @@ try {
   await navigate('/schedule?day=day3', '.route-split');
   assert.equal(await evaluate(`document.querySelector('.timeline-split .timeline-time').textContent`), '12:00');
   assert.equal(await evaluate(`document.querySelectorAll('.route-option').length`), 2);
-  assert.deepEqual(await evaluate(`[...document.querySelectorAll('.route-option')].map(team=>team.querySelectorAll('.route-steps > li').length)`), [3, 4], 'both teams have a time-by-time route');
+  assert(await evaluate(`[...document.querySelectorAll('.route-option')].every(team=>team.querySelectorAll('.route-steps > li').length >= 3 && team.querySelector('.route-step-time').textContent === '12:00')`), 'both teams show departure and their subsequent route steps');
+  assert(await evaluate(`document.querySelector('.tonight-card').textContent.includes('16:00') && document.querySelector('.tonight-card').textContent.includes('A組')`), 'tonight arrival is the first team check-in, not a shared meeting time');
   assert(await evaluate(`document.querySelectorAll('.route-option')[1].textContent.includes('朝倉神社') && document.querySelectorAll('.route-option')[1].textContent.includes('3人') && document.querySelectorAll('.route-option')[1].textContent.includes('BBQ道具')`));
   assert(await evaluate(`[...document.querySelectorAll('.itinerary > li')].some(item=>item.querySelector('.timeline-time')?.textContent.includes('18:00') && item.querySelector('h4')?.textContent.includes('BBQ'))`), 'BBQ follows the team arrivals');
   assert(await evaluate(`Boolean(document.querySelector('.schedule-shortcuts a[href="#routes-day3"]')) && Boolean(document.querySelector('.schedule-shortcuts a[href="/accommodations#kuroshio"]'))`));

@@ -75,8 +75,8 @@ export function AccommodationsView() {
 const DAY_STORAGE_KEY = 'shikoku-trip.schedule-day';
 const scheduleStatusLabels = { fixed: '時間を合わせる', flexible: '目安', optional: '候補' };
 const dayRoutes: Record<string, string> = {
-  day1: '神戸 → 鳴門 → 高松',
-  day2: '香川 → 松山',
+  day1: '神戸 → 淡路島 → 鳴門 → 高松',
+  day2: '高松 → 西讃 / 豊島 → 松山',
   day3: '松山 → カルスト → 黒潮町',
   day4: '黒潮町 → 高知市',
   day5: '高知で自由行動',
@@ -117,7 +117,7 @@ export function Schedule() {
         <section id="schedule-panel" role="tabpanel" aria-labelledby={`tab-${day.id}`} tabIndex={0} className="schedule-panel">
           <div className="day-overview"><div><p className="day-overview-date">{day.shortDate}<span>{day.weekday}曜日</span><span>{day.number}日目</span></p><h3>{dayRoutes[day.id] ?? day.region}</h3></div></div>
           <nav className="schedule-shortcuts" aria-label={`DAY ${day.number} の便利なリンク`}>
-            {hasBranches && <a href={`#routes-${day.id}`}><TravelIcon name="meet" /><span>2組の動き</span><TravelIcon name="arrow" /></a>}
+            {hasBranches && <a href={`#routes-${day.id}`}><TravelIcon name="meet" /><span>{day.branchLabel ?? '2組の動き'}</span><TravelIcon name="arrow" /></a>}
             <Link to="/map"><TravelIcon name="pin" /><span>地図を開く</span><TravelIcon name="arrow" /></Link>
             {stay && <Link to={`/accommodations#${stay.id}`}><TravelIcon name="stay" /><span>{day.shortDate}の宿</span><TravelIcon name="arrow" /></Link>}
           </nav>
