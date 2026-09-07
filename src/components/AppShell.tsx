@@ -8,7 +8,7 @@ const navigation: { to: string; label: string; icon: IconName }[] = [
   { to: '/', label: 'ホーム', icon: 'home' }, { to: '/schedule', label: '日程', icon: 'calendar' },
   { to: '/map', label: '地図', icon: 'map' }, { to: '/accommodations', label: '宿泊', icon: 'bed' },
   { to: '/checklist', label: '持ち物', icon: 'check' }, { to: '/party', label: '会計', icon: 'wallet' },
-  { to: '/links', label: 'お役立ちリンク', icon: 'link' }, { to: '/etc', label: 'お楽しみ・設定', icon: 'spark' },
+  { to: '/etc', label: 'お楽しみ・設定', icon: 'spark' },
 ];
 const mobileNavigation = navigation.filter(item => ['/', '/schedule', '/map', '/checklist', '/party'].includes(item.to));
 function Brand() { return <Link to="/" className="brand" aria-label="四国旅 2026 ホーム"><span className="brand-mark"><Icon name="map" size={24} /></span><span>四国、よりみち。<small>SHIKOKU TRIP 2026</small></span></Link>; }

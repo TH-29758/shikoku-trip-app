@@ -10,7 +10,6 @@ import { UpdateNotice } from './components/UpdateNotice';
 const Schedule = lazy(() => import('./pages/Travel').then(m => ({ default: m.Schedule })));
 const Accommodations = lazy(() => import('./pages/Travel').then(m => ({ default: m.AccommodationsView })));
 const MapView = lazy(() => import('./pages/Travel').then(m => ({ default: m.MapView })));
-const LinksView = lazy(() => import('./pages/Travel').then(m => ({ default: m.LinksView })));
 const Party = lazy(() => import('./pages/Shared').then(m => ({ default: m.Party })));
 const Checklist = lazy(() => import('./pages/Shared').then(m => ({ default: m.ChecklistView })));
 const Tools = lazy(() => import('./pages/Tools'));
@@ -25,5 +24,5 @@ export default function App() {
     window.addEventListener('shikoku-name-reset', reset);
     return () => window.removeEventListener('shikoku-name-reset', reset);
   }, []);
-  return <ErrorBoundary>{!hasName ? <NameSetup onComplete={() => setHasName(true)} /> : <BrowserRouter><AppShell><Suspense fallback={<div className="page-loading" role="status"><span className="loading-dot" />旅のページを開いています…</div>}><Routes><Route path="/" element={<Home />} /><Route path="/schedule" element={<Schedule />} /><Route path="/accommodations" element={<Accommodations />} /><Route path="/party" element={<Party />} /><Route path="/map" element={<MapView />} /><Route path="/map/:id" element={<MapView />} /><Route path="/links" element={<LinksView />} /><Route path="/etc" element={<Tools />} /><Route path="/checklist" element={<Checklist />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes></Suspense></AppShell></BrowserRouter>}<UpdateNotice /></ErrorBoundary>;
+  return <ErrorBoundary>{!hasName ? <NameSetup onComplete={() => setHasName(true)} /> : <BrowserRouter><AppShell><Suspense fallback={<div className="page-loading" role="status"><span className="loading-dot" />旅のページを開いています…</div>}><Routes><Route path="/" element={<Home />} /><Route path="/schedule" element={<Schedule />} /><Route path="/accommodations" element={<Accommodations />} /><Route path="/party" element={<Party />} /><Route path="/map" element={<MapView />} /><Route path="/map/:id" element={<MapView />} /><Route path="/links" element={<Navigate to="/schedule" replace />} /><Route path="/etc" element={<Tools />} /><Route path="/checklist" element={<Checklist />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes></Suspense></AppShell></BrowserRouter>}<UpdateNotice /></ErrorBoundary>;
 }

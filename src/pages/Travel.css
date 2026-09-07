@@ -167,26 +167,8 @@
 .route-estimates dl > div { display: flex; justify-content: space-between; gap: 15px; font-size: 12px; border-top: 1px solid var(--line, #dfe4da); padding: 11px 0; }
 .route-estimates dd { color: var(--teal, #28655b); font-variant-numeric: tabular-nums; }
 .route-estimates .travel-note { margin-bottom: 13px; }
-.useful-quick-links { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 0 36px; }
-.useful-quick-links > a { display: flex; gap: 15px; align-items: center; padding: 23px; text-decoration: none; color: var(--ink, #193d3b); background: var(--soft, #e8eee5); border-radius: 15px; }
-.useful-quick-links > a:first-child { background: #f3eadd; }
-.useful-quick-links > a > span:nth-child(2) { flex: 1; }
-.useful-quick-links small { display: block; letter-spacing: .12em; font-size: 9px; color: var(--muted, #667873); }
-.useful-quick-links strong { display: block; margin-top: 5px; font-size: 13px; }
-.quick-link-symbol { font-size: 32px; color: #bc8957; line-height: 1; }
-.links-section { margin-top: 32px; }
-.link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
-.link-card { display: flex; align-items: flex-start; gap: 13px; border: 1px solid var(--line, #dfe4da); border-radius: 12px; background: var(--surface, #fffefa); padding: 19px; }
-.link-card-icon { color: #8b9a8d; margin-top: 2px; }
-.link-card-icon .travel-icon { width: 17px; height: 17px; }
-.link-card > div { min-width: 0; flex: 1; }
-.link-card h4 { font-size: 13px; font-weight: 700; line-height: 1.7; margin-bottom: 7px; }
-.link-card-actions { display: flex; align-items: center; flex-wrap: wrap; column-gap: 18px; }
-.link-card-actions a { display: inline-flex; align-items: center; gap: 4px; min-height: 35px; color: var(--teal, #28655b); text-decoration: none; font-size: 10px; font-weight: 650; }
-.link-card-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
-.link-card-actions .travel-icon { width: 13px; height: 13px; }
 @media (min-width: 1200px) { .route-split { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
-@media (max-width: 1050px) { .stay-grid, .spot-list, .link-grid { grid-template-columns: 1fr; } .map-hero { flex-wrap: wrap; } }
+@media (max-width: 1050px) { .stay-grid, .spot-list { grid-template-columns: 1fr; } .map-hero { flex-wrap: wrap; } }
 @media (max-width: 767px) {
   .travel-container { padding: 22px 20px 35px; }
   .travel-intro { margin: 4px 0 25px; }
@@ -243,14 +225,7 @@
   .map-hero .travel-button { width: 100%; }
   .spot-card { padding: 14px; gap: 11px; }
   .spot-info h4 { font-size: 12px; }
-  .useful-quick-links { gap: 10px; }
-  .useful-quick-links > a { padding: 17px 13px; flex-wrap: wrap; gap: 9px; }
-  .useful-quick-links > a > span:nth-child(2) { flex: 1 1 85px; }
-  .useful-quick-links strong { font-size: 12px; }
-  .useful-quick-links > a > .travel-icon:last-child { display: none; }
-  .quick-link-symbol { font-size: 25px; }
   .travel-section-heading h3 { font-size: 16px; }
-  .link-card { padding: 17px; }
 }
 @media (max-width: 360px) {
   .travel-container { padding-inline: 15px; }
@@ -268,3 +243,5 @@
   .day-tab strong { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { .travel-page *, .travel-page *::before, .travel-page *::after { transition: none !important; scroll-behavior: auto !important; } }
+
+.schedule-info-links { margin: 12px 0; }

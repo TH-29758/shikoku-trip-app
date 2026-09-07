@@ -63,6 +63,11 @@ try {
   await evaluate(`localStorage.setItem('shikokuUserName','たかやす')`);
   await navigate('/', '.journey-hero');
   await checkLayout('home-mobile'); await capture('home-mobile');
+  await waitFor("document.querySelectorAll('.status-options button').length===3");
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.status-options button')].map(button=>button.textContent)"), ['準備OK', '移動中', '到着']);
+  assert.equal(await evaluate("Boolean(document.querySelector('.status-panel input'))"), false);
+  assert.equal(await evaluate("[...document.querySelectorAll('a')].some(link=>link.getAttribute('href')==='/links')"), false);
+  results.push({test:'compact-status-and-navigation',passed:true});
   assert.deepEqual(await evaluate(`[...document.querySelectorAll('.bottom-navigation a')].map(link=>link.getAttribute('href'))`), ['/', '/schedule', '/map', '/checklist', '/party'], 'main mobile navigation includes packing and expenses');
   await evaluate(`document.querySelector('.mobile-menu').click()`);
   assert.equal(await evaluate(`document.querySelector('dialog').open`), true, 'mobile menu opens');
@@ -112,8 +117,29 @@ try {
     await waitFor(`document.querySelectorAll('.spot-card').length===1`);
     results.push({test:'map-search-empty-and-match',passed:true});
   }
-  for (const [route, selector, label] of [['/checklist','.shared-page','checklist'],['/party','.shared-page','party'],['/links','.link-grid','links'],['/etc','.tools-content','tools']]) {
+  for (const [route, selector, label] of [['/checklist','.shared-page','checklist'],['/party','.shared-page','party'],['/links','.itinerary','legacy-links'],['/etc','.tools-content','tools']]) {
     await navigate(route, selector); await checkLayout(`${label}-mobile`); await capture(`${label}-mobile`);
+    if (route === '/links') {
+      assert.equal(await evaluate('location.pathname'), '/schedule');
+      assert.equal(await evaluate("document.querySelectorAll('.schedule-info-links a').length"), 3);
+      assert(await evaluate("[...document.querySelectorAll('.schedule-info-links a')].some(link=>link.href==='https://tenki.jp/forecast/8/')"));
+      results.push({test:'legacy-links-redirect-to-schedule-with-weather-and-roads',passed:true});
+    }
+    if (route === '/party') {
+      await evaluate("document.querySelectorAll('.shared-segments button')[1].click()");
+      await waitFor("Boolean(document.querySelector('#expense-participants'))");
+      assert.equal(await evaluate("document.querySelectorAll('.shared-weight input').length"), 0);
+      await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
+      await waitFor("document.querySelectorAll('.shared-weight input').length>0");
+      await evaluate("(()=>{const input=document.querySelector('.shared-weight input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'2');input.dispatchEvent(new Event('input',{bubbles:true}));})()");
+      await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
+      assert.equal(await evaluate("document.querySelectorAll('.shared-weight input').length"), 0);
+      assert(await evaluate("document.querySelector('.shared-expense-form').textContent.includes('調整した比率')"));
+      await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
+      assert.equal(await evaluate("document.querySelector('.shared-weight input').value"), '2');
+      await checkLayout('expense-weights-mobile'); await capture('expense-weights-mobile');
+      results.push({test:'expense-weights-collapse-without-losing-draft',passed:true});
+    }
     if (route === '/checklist') {
       assert.equal(await evaluate(`document.querySelector('#packing-item').matches(':disabled')`), false, 'a draft can be typed before shared data is available');
       await evaluate(`document.querySelector('#packing-item').focus()`);

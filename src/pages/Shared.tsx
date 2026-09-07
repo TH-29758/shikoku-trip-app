@@ -194,6 +194,7 @@ export function Party() {
   const [amount, setAmount] = useState('');
   const [title, setTitle] = useState('');
   const [participants, setParticipants] = useState<DraftParticipant[]>(allParticipants);
+  const [showWeights, setShowWeights] = useState(false);
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
   const [error, setError] = useState('');
@@ -206,12 +207,12 @@ export function Party() {
   const validWeights = participants.length > 0 && participants.every(participant => isPositiveWeight(Number(participant.weight)));
 
   function resetForm() {
-    setEditing(null); setPayer(currentUser()); setAmount(''); setTitle(''); setParticipants(allParticipants()); setError('');
+    setEditing(null); setPayer(currentUser()); setAmount(''); setTitle(''); setParticipants(allParticipants()); setShowWeights(false); setError('');
   }
   function switchTab(tab: typeof activeTab) { if (saving) return; setActiveTab(tab); }
   function edit(expense: Expense) {
     setEditing(expense); setPayer(expense.payer); setAmount(String(expense.amount)); setTitle(expense.title);
-    setParticipants(expense.participants.map(participant => ({ ...participant }))); setError(''); setMessage(''); setActiveTab('add');
+    setParticipants(expense.participants.map(participant => ({ ...participant }))); setShowWeights(expense.participants.some(participant => participant.weight !== 1)); setError(''); setMessage(''); setActiveTab('add');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   async function save(update: (current: Expense[]) => Expense[], success: string) {
@@ -225,7 +226,7 @@ export function Party() {
     event.preventDefault();
     if (!title.trim()) { setError('支払いの内容を入力してください。'); return; }
     if (!validAmount) { setError('金額は1円以上の整数で入力してください。'); return; }
-    if (!validWeights) { setError('対象者を1人以上選び、全員の比率を0より大きい数で入力してください。'); return; }
+    if (!validWeights) { setShowWeights(true); setError('対象者を1人以上選び、全員の比率を0より大きい数で入力してください。'); return; }
     const expense: Expense = { ...(editing || {}), id: editing?.id ?? newId(), payer, amount: Number(amount), title: title.trim(), participants: participants.map(participant => ({ name: participant.name, weight: Number(participant.weight) })) };
     const success = await save(current => {
       if (!editing) return [...current, expense];
@@ -273,11 +274,13 @@ export function Party() {
           <label htmlFor="expense-title">支払いの内容</label><input id="expense-title" value={title} onChange={event => setTitle(event.target.value)} maxLength={120} placeholder="例：道後温泉の駐車場" required />
           <div className="shared-form-pair"><div><label htmlFor="expense-payer">立て替えた人</label><select id="expense-payer" value={payer} onChange={event => setPayer(event.target.value)}>{memberNames.map(name => <option key={name} value={name}>{name}</option>)}</select></div><div><label htmlFor="expense-amount">金額（円）</label><input id="expense-amount" type="number" inputMode="numeric" min="1" step="1" value={amount} onChange={event => setAmount(event.target.value)} placeholder="3,000" aria-invalid={!!amount && !validAmount} aria-describedby="expense-amount-help" required /></div></div>
           <p id="expense-amount-help" className={amount && !validAmount ? 'shared-field-error' : 'shared-footnote'}>{amount && !validAmount ? '1円以上の整数で入力してください。小数・マイナスは使えません。' : '金額は1円単位で入力します。'}</p>
-          <div className="shared-card-heading"><h3 id="expense-participants-heading">負担するメンバー <span className="shared-count">{participants.length}人</span></h3><button type="button" className="shared-text-button" onClick={() => setParticipants(participants.length === memberNames.length ? [] : memberNames.map(name => ({ name, weight: 1 })))}>{participants.length === memberNames.length ? '全員解除' : '全員選択'}</button></div>
-          <p className="shared-footnote">均等に割るなら全員「1」。参加日数に合わせて比率を変更できます。</p>
-          <div className="shared-participant-grid" role="group" aria-labelledby="expense-participants-heading">{memberNames.map(name => {
+          <div className="shared-card-heading"><h3 id="expense-participants-heading">負担するメンバー <span className="shared-count">{participants.length}人</span></h3><button type="button" className="shared-text-button" onClick={() => setParticipants(participants.length === memberNames.length ? [] : memberNames.map(name => participants.find(participant => participant.name === name) ?? { name, weight: 1 }))}>{participants.length === memberNames.length ? '全員解除' : '全員選択'}</button></div>
+          <p className="shared-footnote">{participants.some(participant => Number(participant.weight) !== 1) ? '調整した比率で割り勘します。' : '選んだメンバーで均等に割り勘します。'}</p>
+          <button type="button" className="shared-text-button" aria-expanded={showWeights} aria-controls="expense-participants" onClick={() => setShowWeights(!showWeights)}>{showWeights ? '負担の調整を閉じる' : '負担を調整'}</button>
+          {showWeights && <p className="shared-footnote">均等に割るなら全員「1」。参加日数に合わせて比率を変更できます。</p>}
+          <div id="expense-participants" className="shared-participant-grid" role="group" aria-labelledby="expense-participants-heading">{memberNames.map(name => {
             const selected = participants.find(participant => participant.name === name);
-            return <div className={`shared-participant ${selected ? 'is-selected' : ''}`} key={name}><label><input type="checkbox" checked={!!selected} onChange={event => setParticipants(current => event.target.checked ? [...current, { name, weight: 1 }] : current.filter(participant => participant.name !== name))} /><span>{name}</span></label>{selected && <label className="shared-weight"><span>比率</span><input type="number" inputMode="decimal" min="0.001" step="any" value={selected.weight} aria-label={`${name}の負担比率`} aria-invalid={!isPositiveWeight(Number(selected.weight))} onChange={event => setParticipants(current => current.map(participant => participant.name === name ? { ...participant, weight: event.target.value } : participant))} /></label>}</div>;
+            return <div className={`shared-participant ${selected ? 'is-selected' : ''}`} key={name}><label><input type="checkbox" checked={!!selected} onChange={event => setParticipants(current => event.target.checked ? [...current, { name, weight: 1 }] : current.filter(participant => participant.name !== name))} /><span>{name}</span></label>{selected && showWeights && <label className="shared-weight"><span>比率</span><input type="number" inputMode="decimal" min="0.001" step="any" value={selected.weight} aria-label={`${name}の負担比率`} aria-invalid={!isPositiveWeight(Number(selected.weight))} onChange={event => setParticipants(current => current.map(participant => participant.name === name ? { ...participant, weight: event.target.value } : participant))} /></label>}</div>;
           })}</div>
           {!validWeights && <p className="shared-field-error" role="status">対象者を1人以上選び、比率を0より大きい数にしてください。</p>}
           <button className="button" type="submit" disabled={!shared.canSave || saving}>{saving ? '全員に共有しています…' : editing ? '変更を保存' : '支払いを記録する'}</button>

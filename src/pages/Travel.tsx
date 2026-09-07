@@ -26,6 +26,14 @@ function TravelIcon({ name = 'pin', className = '' }: { name?: IconName; classNa
   return <svg className={`travel-icon ${className}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
 }
 
+const spotLinks = linkCategories.flatMap(category => category.links).filter(link => link.spotId && !accommodations.some(stay => stay.id === link.spotId));
+const roadLinks = linkCategories.flatMap(category => category.links).filter(link => !link.spotId);
+
+function PlaceWebsite({ spotId }: { spotId: string }) {
+  const link = spotLinks.find(item => item.spotId === spotId);
+  return link ? <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`${link.name}のサイトを開く`}><TravelIcon name="link" />{link.name}<TravelIcon name="arrow" /></a> : null;
+}
+
 const money = (amount: number) => new Intl.NumberFormat('ja-JP').format(amount);
 
 export function AccommodationsView() {
@@ -103,6 +111,10 @@ export function Schedule() {
             <Link to="/map"><TravelIcon name="pin" /><span>地図を開く</span><TravelIcon name="arrow" /></Link>
             {stay && <Link to={`/accommodations#${stay.id}`}><TravelIcon name="stay" /><span>{day.shortDate}の宿</span><TravelIcon name="arrow" /></Link>}
           </nav>
+          <nav className="travel-place-links schedule-info-links" aria-label="天気・道路情報">
+            <a href="https://tenki.jp/forecast/8/" target="_blank" rel="noopener noreferrer">四国の天気予報<TravelIcon name="arrow" /></a>
+            {roadLinks.map(link => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.name}<TravelIcon name="arrow" /></a>)}
+          </nav>
           <p className="schedule-caveat"><TravelIcon name="clock" /><span>集合・出発・チェックアウトは時間を合わせよう。ほかの予定は当日のペースで。移動時間・料金は目安です。</span></p>
           <ol className="itinerary">{day.items.map((item, index) => (
             <li key={`${day.id}-${index}`} id={item.branches?.length ? `routes-${day.id}` : undefined} className={`timeline-item ${item.updated ? 'timeline-updated' : ''} ${item.branches?.length ? 'timeline-split' : ''}`}>
@@ -120,6 +132,7 @@ export function Schedule() {
                   </section>
                 ))}</div>}
                 {(item.places || item.stayId) && <div className="travel-place-links">{item.places?.map(place => <Link key={place.id} to={`/map#${place.id}`}><TravelIcon name="pin" />{place.label}</Link>)}{item.stayId && <Link to={`/accommodations#${item.stayId}`}><TravelIcon name="stay" />宿泊情報</Link>}</div>}
+                {item.places?.some(place => spotLinks.some(link => link.spotId === place.id)) && <div className="travel-place-links">{item.places.map(place => <PlaceWebsite key={place.id} spotId={place.id} />)}</div>}
                 {item.transit && <div className="timeline-meta"><TravelIcon name="drive" /><span>{item.transit.duration}</span>{item.transit.cost && <span>{item.transit.cost}</span>}</div>}
               </div>
             </li>
@@ -158,21 +171,8 @@ export function MapView() {
         <div className="map-hero"><div><span className="travel-eyebrow">SHIKOKU ROAD TRIP</span><h3>旅の目的地、{totalCount}スポット。</h3><p>泊まる場所も、寄り道の候補も。行き先が決まったら、マップへ。</p></div><a href="https://maps.app.goo.gl/xbTpHuB4UTiuexb3A" target="_blank" rel="noopener noreferrer" className="travel-button secondary">共有マップリスト<TravelIcon name="arrow" /></a></div>
         <div className="map-toolbar"><div className="map-search"><TravelIcon name="search" /><label htmlFor="spot-search" className="sr-only">スポット名・エリアを検索</label><input id="spot-search" type="search" placeholder="スポット名・エリアを検索" value={currentFilters.query} onChange={event => setFilters({ ...currentFilters, query: event.target.value })} />{currentFilters.query && <button type="button" aria-label="検索をクリア" onClick={() => setFilters({ ...currentFilters, query: '' })}>×</button>}</div><div className="area-filters" aria-label="エリアで絞り込み"><button className={currentFilters.area === 'all' ? 'is-active' : ''} aria-pressed={currentFilters.area === 'all'} onClick={() => setFilters({ ...currentFilters, area: 'all' })}>すべて</button>{spotCategories.map(category => <button key={category.id} className={currentFilters.area === category.id ? 'is-active' : ''} aria-pressed={currentFilters.area === category.id} onClick={() => setFilters({ ...currentFilters, area: category.id })}>{category.id === 'tokushima' ? '徳島・淡路島' : category.area.split('・')[0]}</button>)}</div><p className="map-result-count" role="status">{resultCount}件のスポット</p></div>
         {resultCount === 0 && <div className="travel-empty"><TravelIcon name="search" /><h3>見つかりませんでした</h3><p>別のキーワードか、ほかのエリアで探してみてください。</p><button className="travel-button secondary" onClick={() => setFilters({ key: location.key, query: '', area: 'all' })}>すべてのスポットを表示</button></div>}
-        {categories.map(category => <section key={category.id} className="map-area"><div className="travel-section-heading"><h3>{category.area}</h3><span>{String(category.spots.length).padStart(2, '0')} PLACES</span></div><div className="spot-list">{category.spots.map(spot => <article id={spot.id} key={spot.id} tabIndex={-1} className={`spot-card ${targetId === spot.id ? 'is-targeted' : ''}`}><span className={`spot-icon spot-${spot.kind ?? 'nature'}`}><TravelIcon name={spot.kind} /></span><div className="spot-info"><span>{kindLabels[spot.kind ?? 'nature']}</span><h4>{spot.name}</h4>{spot.note && <p>{spot.note}</p>}</div><a href={mapSearchUrl(spot.query)} target="_blank" rel="noopener noreferrer" className="spot-action" aria-label={`${spot.name}をGoogleマップで開く`}><TravelIcon name="arrow" /><span>マップ</span></a></article>)}</div></section>)}
+        {categories.map(category => <section key={category.id} className="map-area"><div className="travel-section-heading"><h3>{category.area}</h3><span>{String(category.spots.length).padStart(2, '0')} PLACES</span></div><div className="spot-list">{category.spots.map(spot => <article id={spot.id} key={spot.id} tabIndex={-1} className={`spot-card ${targetId === spot.id ? 'is-targeted' : ''}`}><span className={`spot-icon spot-${spot.kind ?? 'nature'}`}><TravelIcon name={spot.kind} /></span><div className="spot-info"><span>{kindLabels[spot.kind ?? 'nature']}</span><h4>{spot.name}</h4>{spot.note && <p>{spot.note}</p>}<div className="travel-place-links"><PlaceWebsite spotId={spot.id} /></div></div><a href={mapSearchUrl(spot.query)} target="_blank" rel="noopener noreferrer" className="spot-action" aria-label={`${spot.name}をGoogleマップで開く`}><TravelIcon name="arrow" /><span>マップ</span></a></article>)}</div></section>)}
         <details className="travel-card route-estimates"><summary><TravelIcon name="drive" />主なルートの移動目安</summary><dl>{[['神戸 → 鳴門', '約1時間30分'], ['鳴門 → 高松', '約1時間30分'], ['香川 → 松山', '約2時間30分'], ['松山 → 四国カルスト', '約2時間'], ['高知 → 神戸', '約4時間']].map(([route, duration]) => <div key={route}><dt>{route}</dt><dd>{duration}</dd></div>)}</dl><p className="travel-note">当初の計画上の目安です。出発地・道路状況・休憩により変わります。実際のルートはマップで確認してください。</p></details>
-      </div>
-    </div>
-  );
-}
-
-export function LinksView() {
-  return (
-    <div className="travel-page">
-      <HeaderBar title="旅のお役立ち" />
-      <div className="travel-container">
-        <div className="travel-intro"><p className="travel-eyebrow">GOOD TO KNOW</p><h2>旅先で、頼れるリンク。</h2><p>天気からお店の案内まで。必要な情報に、迷わずアクセス。</p></div>
-        <div className="useful-quick-links"><a href="https://tenki.jp/forecast/8/" target="_blank" rel="noopener noreferrer"><span className="quick-link-symbol" aria-hidden="true">☀</span><span><small>WEATHER</small><strong>四国の天気予報</strong></span><TravelIcon name="arrow" /></a><a href="https://ihighway.jp/" target="_blank" rel="noopener noreferrer"><TravelIcon name="drive" /><span><small>TRAFFIC</small><strong>道路・渋滞情報</strong></span><TravelIcon name="arrow" /></a></div>
-        {linkCategories.map(category => <section key={category.title} className="links-section"><div className="travel-section-heading"><div><h3>{category.title}</h3><p>{category.subtitle}</p></div><span>{String(category.links.length).padStart(2, '0')}</span></div><div className="link-grid">{category.links.map(link => <article className="link-card" key={link.url || link.name}><span className="link-card-icon"><TravelIcon name="link" /></span><div><h4>{link.name}</h4><div className="link-card-actions"><a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`${link.name}のサイトを開く`}>サイトを開く<TravelIcon name="arrow" /></a>{link.spotId && <Link to={`/map#${link.spotId}`}><TravelIcon name="pin" />マップ</Link>}</div></div></article>)}</div></section>)}
       </div>
     </div>
   );

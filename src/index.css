@@ -108,9 +108,9 @@ h1, h2, h3, p { margin: 0; }
 .home-bottom-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: start; }
 .status-panel { padding: 24px; }
 .status-panel .section-heading h2 { font-size: 16px; }
-.status-form { display: flex; gap: 8px; margin-bottom: 16px; }
-.status-form input { background: var(--canvas); border: 1px solid var(--line); border-radius: 9px; padding: 11px; flex: 1; font-size: 12px; width: 0; }
-.status-form .button { font-size: 11px; padding: 10px 13px; white-space: nowrap; }
+.status-options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.status-options .button { flex: 1; min-height: 44px; font-size: 12px; padding: 10px; white-space: nowrap; }
+.status-options .button[aria-pressed="true"] { background: var(--teal); color: white; border-color: var(--teal); }
 .member-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
 .member-status { display: flex; align-items: flex-start; gap: 10px; padding: 16px 0; border-bottom: 1px solid #e8ece4; min-width: 0; }
 .member-avatar { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; font-size: 11px; font-weight: 700; background: #e6ecdf; color: #607a57; }
