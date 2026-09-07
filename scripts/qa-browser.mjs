@@ -61,13 +61,13 @@ try {
   await navigate('/', '.welcome-card');
   await checkLayout('welcome-mobile'); await capture('welcome-mobile');
   await evaluate(`localStorage.setItem('shikokuUserName','たかやす')`);
-  await navigate('/', '.journey-hero');
+  await navigate('/', '.home-overview');
   await checkLayout('home-mobile'); await capture('home-mobile');
-  await waitFor("document.querySelectorAll('.status-options button').length===3");
-  assert.deepEqual(await evaluate("[...document.querySelectorAll('.status-options button')].map(button=>button.textContent)"), ['準備OK', '移動中', '到着']);
-  assert.equal(await evaluate("Boolean(document.querySelector('.status-panel input'))"), false);
+  assert.equal(await evaluate("Boolean(document.querySelector('.status-panel, .status-options'))"), false, 'the group status feature is removed');
+  assert.equal(await evaluate("document.querySelector('main').textContent.includes('みんなの状況')"), false);
   assert.equal(await evaluate("[...document.querySelectorAll('a')].some(link=>link.getAttribute('href')==='/links')"), false);
-  results.push({test:'compact-status-and-navigation',passed:true});
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.rail-navigation a[href=\"/etc\"]')].map(link=>link.textContent.trim())"), ['設定', '設定'], 'the tools destination is settings only in desktop and mobile navigation');
+  results.push({test:'removed-status-and-settings-only-navigation',passed:true});
   assert.deepEqual(await evaluate(`[...document.querySelectorAll('.bottom-navigation a')].map(link=>link.getAttribute('href'))`), ['/', '/schedule', '/map', '/checklist', '/party'], 'main mobile navigation includes packing and expenses');
   await evaluate(`document.querySelector('.mobile-menu').click()`);
   assert.equal(await evaluate(`document.querySelector('dialog').open`), true, 'mobile menu opens');
@@ -149,10 +149,10 @@ try {
       results.push({test:'checklist-unavailable-allows-draft-but-prevents-save',passed:true});
     }
   }
-  await evaluate(`document.querySelector('.roulette-start').click()`);
-  await waitFor(`!document.querySelector('.roulette-start').disabled`);
-  assert(await evaluate(`document.querySelector('.roulette-result strong').textContent!=='?'`));
-  results.push({test:'roulette-completes',passed:true});
+  assert.equal(await evaluate(`document.querySelector('h1').textContent`), '設定');
+  assert.equal(await evaluate(`Boolean(document.querySelector('.roulette-panel, .roulette-start, .sound-toggle'))`), false, 'roulette controls and sound settings are removed');
+  assert.equal(await evaluate(`document.querySelector('.tools-content').textContent.includes('ルーレット')`), false);
+  results.push({test:'settings-page-removes-roulette',passed:true});
   await evaluate(`document.querySelector('.settings-update button').click()`);
   await waitFor(`Boolean(document.querySelector('.settings-update [role=status]')?.textContent)`);
   assert.equal(await evaluate(`document.querySelector('.settings-update button').disabled`), false);
@@ -191,8 +191,9 @@ try {
   } finally { await send('Emulation.setTimezoneOverride', { timezoneId: originalTimezone }); }
   assert(Math.abs(await evaluate('Date.now()') - Date.now()) < 5000, 'real clock is restored after date fixtures');
   await viewport(1440,1000);
-  for (const [route,selector,label] of [['/','.journey-hero','home'],['/schedule?day=day3','.itinerary','schedule-teams'],['/accommodations','.stay-card','stays'],['/party','.shared-page','party']]) { await navigate(route,selector); await checkLayout(`${label}-desktop`); await capture(`${label}-desktop`); }
-  await viewport(320,740); await navigate('/', '.journey-hero'); await checkLayout('home-small-mobile');
+  for (const [route,selector,label] of [['/','.home-overview','home'],['/schedule?day=day3','.itinerary','schedule-teams'],['/accommodations','.stay-card','stays'],['/party','.shared-page','party'],['/etc','.tools-content','settings']]) { await navigate(route,selector); await checkLayout(`${label}-desktop`); await capture(`${label}-desktop`); }
+  await viewport(320,740); await navigate('/', '.home-overview'); await checkLayout('home-small-mobile');
+  await navigate('/etc','.tools-content'); await checkLayout('settings-small-mobile');
   await navigate('/schedule?day=day3','.route-split'); await checkLayout('schedule-teams-small-mobile');
   await navigate('/schedule?day=day6','.itinerary'); await checkLayout('schedule-small-mobile');
   await evaluate('navigator.serviceWorker.ready.then(()=>true)');

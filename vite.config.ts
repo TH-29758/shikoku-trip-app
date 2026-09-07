@@ -15,11 +15,11 @@ export default defineConfig({
       },
       // スマホにインストールした時の見た目・アイコンの設定
       manifest: {
-        name: '四国、よりみち。2026 旅のしおり',
-        short_name: '四国よりみち',
+        name: '四国旅行 2026',
+        short_name: '四国旅行',
         description: '10人用の四国旅行しおりアプリ',
-        theme_color: '#f6f4ef',
-        background_color: '#f6f4ef',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
         lang: 'ja',
         start_url: '/',
         scope: '/',

@@ -1,5 +1,6 @@
-export type IconName = 'home' | 'calendar' | 'map' | 'bed' | 'wallet' | 'check' | 'link' | 'spark' | 'arrow' | 'menu' | 'close' | 'pin' | 'users' | 'sun' | 'chevron' | 'wifi';
+export type IconName = 'home' | 'calendar' | 'map' | 'bed' | 'wallet' | 'check' | 'link' | 'spark' | 'arrow' | 'menu' | 'close' | 'pin' | 'users' | 'sun' | 'chevron' | 'wifi' | 'settings';
 const paths: Record<IconName, string> = {
+  settings: 'M4 7h16M4 17h16M9 4v6m6 4v6',
   home: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z',
   calendar: 'M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m2 10h3m4 0h3m-10 4h3',
   map: 'm3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zm6-2v16m6-14v16',

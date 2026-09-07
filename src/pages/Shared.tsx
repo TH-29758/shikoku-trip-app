@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { HeaderBar } from '../components/AppShell';
+import { Icon } from '../components/Icon';
 import { calculateBalances, isPositiveWeight, isYenAmount, settlementTransfers } from '../lib/settlement';
 import type { Expense } from '../lib/settlement';
 import { parseChecklist, parseExpenses, sharedError, useSharedArray } from '../lib/shared-data';
@@ -102,15 +103,10 @@ export function ChecklistView() {
   }
 
   return <div className="shared-page">
-    <HeaderBar title="持ち物・準備" />
+    <HeaderBar title="持ち物" />
     <div className="shared-content">
-      <section className="shared-intro">
-        <p className="eyebrow">PACKING LIST</p>
-        <h1>忘れものなく、<br className="shared-mobile-break" />出かけよう。</h1>
-        <p>みんなで確認する、旅の持ち物リスト。</p>
-      </section>
       <section className="shared-progress-card" aria-labelledby="preparation-heading">
-        <div><p className="shared-overline" id="preparation-heading">みんなの準備</p><strong>{completed}<span> / {total} 項目を確認</span></strong></div>
+        <div><h2 className="shared-overline" id="preparation-heading">確認済み</h2><strong>{completed}<span> / {total} 項目</span></strong></div>
         <span className="shared-progress-number">{progress}<small>%</small></span>
         <progress value={completed} max={total || 1} aria-label={`全${total}項目中${completed}項目を確認済み`} />
         <p>チェックは全員で共有されます。免許証など、個人の持ち物はそれぞれ確認してください。</p>
@@ -119,19 +115,19 @@ export function ChecklistView() {
       <Feedback error={error} message={message} />
       <div className="shared-checklist-toolbar">
         <label><input type="checkbox" checked={uncheckedOnly} onChange={event => setUncheckedOnly(event.target.checked)} />未確認だけ表示<span>{total - completed}</span></label>
-        <button type="button" className="button secondary" onClick={() => { document.getElementById('packing-form')?.scrollIntoView({ block: 'center' }); document.getElementById('packing-item')?.focus({ preventScroll: true }); }}>＋ 持ち物を追加</button>
+        <button type="button" className="button secondary" onClick={() => { document.getElementById('packing-form')?.scrollIntoView({ block: 'center' }); document.getElementById('packing-item')?.focus({ preventScroll: true }); }}><span aria-hidden="true">＋</span> 持ち物を追加</button>
       </div>
       <div className="shared-checklist-layout">
         <div className="shared-category-list">
-          {categories.map((category, categoryIndex) => <section className="shared-card" key={`${category.title}-${categoryIndex}`}>
-            <div className="shared-card-heading"><h2><span aria-hidden="true">{category.icon}</span> {category.title}</h2><span className="shared-count">{category.items.filter(item => item.checked).length}/{category.items.length}</span></div>
+          {categories.map((category, categoryIndex) => <section className="shared-card shared-category" key={`${category.title}-${categoryIndex}`}>
+            <div className="shared-card-heading"><h2>{category.title}</h2><span className="shared-count">{category.items.filter(item => item.checked).length} / {category.items.length}</span></div>
             <ul className="shared-items">
               {category.items.filter(item => !uncheckedOnly || !item.checked).map((item, itemIndex) => <li key={item.id || `${item.name}-${itemIndex}`} className={item.checked ? 'is-checked' : ''}>
                 <label className="shared-check-label">
                   <input type="checkbox" checked={item.checked} disabled={!shared.canSave || saving} onChange={() => void changeItem(category, item)} />
-                  <span><span className="shared-item-name">{item.name}</span><small>追加：{item.author}</small></span>
+                  <span><span className="shared-item-name">{item.name}</span>{item.author !== '運営' && item.author !== '未記録' && <small>{item.author}が追加</small>}</span>
                 </label>
-                <button type="button" className="shared-delete-button" disabled={!shared.canSave || saving} onClick={() => void changeItem(category, item, true)} aria-label={`${item.name}を削除`}><span aria-hidden="true">×</span></button>
+                <button type="button" className="shared-delete-button" disabled={!shared.canSave || saving} onClick={() => void changeItem(category, item, true)} aria-label={`${item.name}を削除`}><Icon name="close" size={16} /></button>
               </li>)}
             </ul>
             {!category.items.length && <p className="shared-muted">まだ持ち物がありません。</p>}
@@ -139,8 +135,8 @@ export function ChecklistView() {
           </section>)}
         </div>
         <section className="shared-card shared-add-item" id="packing-form">
-          <p className="eyebrow">ONE MORE THING</p><h2>持ち物を追加</h2>
-          <p className="shared-muted">気づいたものを、みんなのリストへ。</p>
+          <h2>持ち物を追加</h2>
+          <p className="shared-muted">追加した持ち物は全員に表示されます。</p>
           <Feedback error={error} message={message} />
           <form onSubmit={addItem} className="shared-form">
             <fieldset disabled={saving || !categories.length}>
@@ -148,7 +144,7 @@ export function ChecklistView() {
               <select id="packing-category" value={selectedCategory} onChange={event => setSelectedCategory(Number(event.target.value))}>{categories.map((category, index) => <option key={`${category.title}-${index}`} value={index}>{category.title}</option>)}</select>
               <label htmlFor="packing-item">持ち物</label>
               <input id="packing-item" value={newItem} onChange={event => setNewItem(event.target.value)} maxLength={100} placeholder="例：折りたたみ傘" required />
-              <button className="button" type="submit" disabled={!newItem.trim() || !shared.canSave}>{saving ? '共有しています…' : '＋ リストに追加'}</button>
+              <button className="button" type="submit" disabled={!newItem.trim() || !shared.canSave}>{saving ? '共有しています…' : 'リストに追加'}</button>
               {!shared.canSave && <p className="shared-footnote">入力は先にできます。共有データへの接続後に追加してください。</p>}
             </fieldset>
           </form>
@@ -175,7 +171,7 @@ function BudgetEstimate() {
         <dl className="shared-cost-list"><div><dt>レンタカー · 2台</dt><dd>129,096円</dd></div><div><dt>宿泊 · 4泊</dt><dd>170,394円</dd></div><div><dt>高速・ガソリンの目安</dt><dd>70,000円</dd></div><div className="shared-cost-total"><dt>変更前の合計</dt><dd>369,490<span>円</span></dd></div></dl>
         <p className="shared-notice">新しい合計は確認中です。前半2泊分（54,939円）の内訳が分かり次第、愛媛の宿代を差し替えて再計算できます。</p>
       </section>
-      <section className="shared-card"><h2>このほかに必要なお金</h2><p className="shared-muted">食事・駐車場・温泉・入場料・追加保険などは別途。立て替えたら「支払いを追加」から記録しましょう。</p></section>
+      <section className="shared-card"><h2>別途かかる費用</h2><p className="shared-muted">食事・駐車場・温泉・入場料・追加保険など。立て替え分は「支払いを追加」から記録できます。</p></section>
     </div>
     <section className="shared-card">
       <div className="shared-card-heading"><h2>メンバーの予算目安</h2><span className="shared-count">10名</span></div>
@@ -248,9 +244,8 @@ export function Party() {
   }
 
   return <div className="shared-page">
-    <HeaderBar title="旅のお金" />
+    <HeaderBar title="会計" />
     <div className="shared-content">
-      <section className="shared-intro"><p className="eyebrow">TRAVEL WALLET</p><h1>旅のお金を、<br className="shared-mobile-break" />すっきり。</h1><p>予算を確認して、立て替えをみんなで共有。</p></section>
       <nav className="shared-segments" aria-label="費用の表示切り替え">
         <button type="button" aria-pressed={activeTab === 'summary'} disabled={saving} onClick={() => switchTab('summary')}>支払い・精算</button>
         <button type="button" aria-pressed={activeTab === 'add'} disabled={saving} onClick={() => switchTab('add')}>{editing ? '支払いを編集' : '＋ 支払いを追加'}</button>
@@ -260,16 +255,16 @@ export function Party() {
       <Feedback error={error} message={message} />
       {activeTab === 'estimate' && <BudgetEstimate />}
       {activeTab === 'summary' && <>
-        <section className="shared-total-card"><div><p>記録済みの合計</p><strong>{shared.loaded ? total.toLocaleString('ja-JP') : '—'}<small>円</small></strong></div><span className="shared-badge">{shared.loaded ? `${transactions.length}件の支払い` : '読み込み中'}</span></section>
+        <section className="shared-total-card"><div><h2>記録済みの合計</h2><strong>{shared.loaded ? total.toLocaleString('ja-JP') : '—'}<small>円</small></strong></div><span className="shared-badge">{shared.loaded ? `${transactions.length}件の支払い` : '読み込み中'}</span></section>
         <p className="shared-footnote">保存済みの記録には以前の概算が含まれる場合があります。精算前に実際の支払いと照合してください。</p>
-        {!shared.loaded ? <section className="shared-empty" aria-busy={!shared.error}><h2>支払い記録を確認しています</h2><p>接続できると、共有された記録と精算額が表示されます。</p></section> : !transactions.length ? <section className="shared-empty"><span aria-hidden="true">↗</span><h2>最初の立て替えを記録しよう。</h2><p>誰が、何に、いくら払ったか。記録すると、みんなの負担額を自動で計算します。</p><button className="button" type="button" onClick={() => switchTab('add')}>＋ 支払いを追加</button></section> : <div className="shared-wallet-layout">
-          <div className="shared-stack"><section className="shared-card"><h2>メンバーごとの精算額</h2><p className="shared-muted">1円単位で計算。端数は小数部分の大きい順に配分し、同じ場合は対象者の登録順にします。</p><ul className="shared-balance-list">{balances.map(balance => <li key={balance.name} className={balance.name === currentUser() ? 'is-you' : ''}><div><strong>{balance.name}</strong>{balance.name === currentUser() && <span className="shared-you">あなた</span>}<small>立替 {yen(balance.paid)} · 負担 {yen(balance.owe)}</small></div><div className={balance.net > 0 ? 'shared-receive' : balance.net < 0 ? 'shared-pay' : 'shared-muted'}><small>{balance.net > 0 ? '受け取る' : balance.net < 0 ? '支払う' : '差額なし'}</small><strong>{yen(Math.abs(balance.net))}</strong></div></li>)}</ul></section>
+        {!shared.loaded ? <section className="shared-empty" aria-busy={!shared.error}><h2>支払い記録を確認しています</h2><p>接続できると、共有された記録と精算額が表示されます。</p></section> : !transactions.length ? <section className="shared-empty"><Icon name="wallet" size={28} /><h2>支払いの記録はまだありません</h2><p>立て替えた金額とメンバーを入力すると、負担額と精算額を計算します。</p><button className="button" type="button" onClick={() => switchTab('add')}>＋ 支払いを追加</button></section> : <div className="shared-wallet-layout">
+          <div className="shared-stack"><section className="shared-card"><h2>メンバーごとの精算額</h2><p className="shared-muted">立て替えた金額と負担額の差額です。</p><ul className="shared-balance-list">{balances.map(balance => <li key={balance.name} className={balance.name === currentUser() ? 'is-you' : ''}><div><strong>{balance.name}</strong>{balance.name === currentUser() && <span className="shared-you">あなた</span>}<small>立替 {yen(balance.paid)} · 負担 {yen(balance.owe)}</small></div><div className={balance.net > 0 ? 'shared-receive' : balance.net < 0 ? 'shared-pay' : 'shared-muted'}><small>{balance.net > 0 ? '受け取る' : balance.net < 0 ? '支払う' : '差額なし'}</small><strong>{yen(Math.abs(balance.net))}</strong></div></li>)}</ul></section>
             {transfers.length > 0 && <section className="shared-card"><h2>送金の目安</h2><p className="shared-muted">この組み合わせで差額を精算できます。送金が済んだかは、メンバー同士で確認してください。</p><ol className="shared-transfer-list">{transfers.map((transfer, index) => <li key={`${transfer.from}-${transfer.to}-${index}`}><span>{transfer.from} <span aria-label="から" className="shared-arrow">→</span> {transfer.to}</span><strong>{yen(transfer.amount)}</strong></li>)}</ol></section>}
           </div>
           <section className="shared-history"><div className="shared-card-heading"><h2>支払いの記録</h2><span className="shared-count">{transactions.length}件</span></div><div className="shared-stack">{transactions.slice().reverse().map(expense => <article className="shared-card" key={expense.id}><div className="shared-expense-title"><h3>{expense.title}</h3><strong>{yen(expense.amount)}</strong></div><p className="shared-muted">{expense.payer} が立て替え · {expense.participants.length}人で負担{expense.participants.some(participant => participant.weight !== 1) ? '（比率あり）' : ''}</p><div className="shared-expense-actions"><button type="button" disabled={!shared.canSave || saving} className="shared-text-button" aria-label={`${expense.title}を編集`} onClick={() => edit(expense)}>編集</button><button type="button" disabled={!shared.canSave || saving} className="shared-text-button shared-danger" aria-label={`${expense.title}を削除`} onClick={() => void remove(expense)}>削除</button></div></article>)}</div></section>
         </div>}
       </>}
-      {activeTab === 'add' && <section className="shared-card shared-expense-form"><div className="shared-card-heading"><h2>{editing ? '支払いを編集' : '新しい支払いを記録'}</h2>{editing && <button type="button" className="shared-text-button" disabled={saving} onClick={() => { resetForm(); setActiveTab('summary'); }}>キャンセル</button>}</div><p className="shared-muted">実際に立て替えた金額を入力してください。</p><form className="shared-form" onSubmit={submit} noValidate>
+      {activeTab === 'add' && <section className="shared-card shared-expense-form"><div className="shared-card-heading"><h2>{editing ? '支払いを編集' : '支払いを追加'}</h2>{editing && <button type="button" className="shared-text-button" disabled={saving} onClick={() => { resetForm(); setActiveTab('summary'); }}>キャンセル</button>}</div><p className="shared-muted">実際に立て替えた金額を入力してください。</p><form className="shared-form" onSubmit={submit} noValidate>
         <fieldset disabled={saving}>
           <label htmlFor="expense-title">支払いの内容</label><input id="expense-title" value={title} onChange={event => setTitle(event.target.value)} maxLength={120} placeholder="例：道後温泉の駐車場" required />
           <div className="shared-form-pair"><div><label htmlFor="expense-payer">立て替えた人</label><select id="expense-payer" value={payer} onChange={event => setPayer(event.target.value)}>{memberNames.map(name => <option key={name} value={name}>{name}</option>)}</select></div><div><label htmlFor="expense-amount">金額（円）</label><input id="expense-amount" type="number" inputMode="numeric" min="1" step="1" value={amount} onChange={event => setAmount(event.target.value)} placeholder="3,000" aria-invalid={!!amount && !validAmount} aria-describedby="expense-amount-help" required /></div></div>

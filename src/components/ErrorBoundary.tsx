@@ -5,7 +5,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
   static getDerivedStateFromError() { return { failed: true }; }
   componentDidCatch(error: Error, info: ErrorInfo) { console.error('画面の読み込みに失敗しました', error, info.componentStack); }
   render() {
-    if (this.state.failed) return <div className="error-screen" role="alert"><span className="eyebrow">JUST A MOMENT</span><h1>画面を読み込めませんでした</h1><p>ページを再読み込みして、もう一度お試しください。</p><button className="button" onClick={() => window.location.reload()}>再読み込み</button></div>;
+    if (this.state.failed) return <div className="error-screen" role="alert"><h1>画面を読み込めませんでした</h1><p>ページを再読み込みして、もう一度お試しください。</p><button className="button" onClick={() => window.location.reload()}>再読み込み</button></div>;
     return this.props.children;
   }
 }
