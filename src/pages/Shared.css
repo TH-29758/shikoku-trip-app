@@ -1,5 +1,9 @@
 ﻿.shared-page { color: var(--ink, #172033); }
 .shared-content { max-width: 1080px; margin: 0 auto; padding: 28px 24px 48px; }
+.shared-access { padding-bottom: 12px; }
+.shared-access-account { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.shared-access-account > span, .shared-access-id { overflow-wrap: anywhere; }
+.shared-access-id { display: block; margin-top: 12px; user-select: all; }
 .shared-card { min-width: 0; padding: 0; }
 .shared-card h2, .shared-history h2 { font-size: 17px; font-weight: 700; line-height: 1.6; letter-spacing: -.02em; }
 .shared-card h3 { font-size: 15px; font-weight: 650; line-height: 1.6; }

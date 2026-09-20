@@ -118,7 +118,7 @@ try {
     await waitFor(`document.querySelectorAll('.spot-card').length===1`);
     results.push({test:'map-search-empty-and-match',passed:true});
   }
-  for (const [route, selector, label] of [['/checklist','.shared-page','checklist'],['/party','.shared-page','party'],['/links','.itinerary','legacy-links'],['/etc','.tools-content','tools']]) {
+  for (const [route, selector, label] of [['/checklist','.shared-access','checklist'],['/party','.shared-access','party'],['/links','.itinerary','legacy-links'],['/etc','.tools-content','tools']]) {
     await navigate(route, selector); await checkLayout(`${label}-mobile`); await capture(`${label}-mobile`);
     if (route === '/links') {
       assert.equal(await evaluate('location.pathname'), '/schedule');
@@ -126,28 +126,10 @@ try {
       assert(await evaluate("[...document.querySelectorAll('.schedule-info-links a')].some(link=>link.href==='https://tenki.jp/forecast/8/')"));
       results.push({test:'legacy-links-redirect-to-schedule-with-weather-and-roads',passed:true});
     }
-    if (route === '/party') {
-      await evaluate("document.querySelectorAll('.shared-segments button')[1].click()");
-      await waitFor("Boolean(document.querySelector('#expense-participants'))");
-      assert.equal(await evaluate("document.querySelectorAll('.shared-weight input').length"), 0);
-      await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
-      await waitFor("document.querySelectorAll('.shared-weight input').length>0");
-      await evaluate("(()=>{const input=document.querySelector('.shared-weight input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'2');input.dispatchEvent(new Event('input',{bubbles:true}));})()");
-      await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
-      assert.equal(await evaluate("document.querySelectorAll('.shared-weight input').length"), 0);
-      assert(await evaluate("document.querySelector('.shared-expense-form').textContent.includes('調整した比率')"));
-      await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
-      assert.equal(await evaluate("document.querySelector('.shared-weight input').value"), '2');
-      await checkLayout('expense-weights-mobile'); await capture('expense-weights-mobile');
-      results.push({test:'expense-weights-collapse-without-losing-draft',passed:true});
-    }
-    if (route === '/checklist') {
-      assert.equal(await evaluate(`document.querySelector('#packing-item').matches(':disabled')`), false, 'a draft can be typed before shared data is available');
-      await evaluate(`document.querySelector('#packing-item').focus()`);
-      await send('Input.insertText', { text: '通信が戻ったら追加する持ち物' });
-      await waitFor(`document.querySelector('#packing-item').value==='通信が戻ったら追加する持ち物'`);
-      assert(await evaluate(`document.querySelector('.shared-add-item button[type=submit]').disabled`), 'unavailable shared data cannot be overwritten');
-      results.push({test:'checklist-unavailable-allows-draft-but-prevents-save',passed:true});
+    if (route === '/party' || route === '/checklist') {
+      await waitFor(`document.querySelector('.shared-access button')?.textContent === 'Googleでログイン'`);
+      assert.equal(await evaluate(`Boolean(document.querySelector('#packing-item, #expense-participants, .shared-total-card'))`), false);
+      results.push({test:`${label}-requires-sign-in-before-showing-shared-data`,passed:true});
     }
   }
   assert.equal(await evaluate(`document.querySelector('h1').textContent`), '設定');
@@ -192,7 +174,7 @@ try {
   } finally { await send('Emulation.setTimezoneOverride', { timezoneId: originalTimezone }); }
   assert(Math.abs(await evaluate('Date.now()') - Date.now()) < 5000, 'real clock is restored after date fixtures');
   await viewport(1440,1000);
-  for (const [route,selector,label] of [['/','.home-overview','home'],['/schedule?day=day3','.itinerary','schedule-teams'],['/accommodations','.stay-card','stays'],['/party','.shared-page','party'],['/etc','.tools-content','settings']]) { await navigate(route,selector); await checkLayout(`${label}-desktop`); await capture(`${label}-desktop`); }
+  for (const [route,selector,label] of [['/','.home-overview','home'],['/schedule?day=day3','.itinerary','schedule-teams'],['/accommodations','.stay-card','stays'],['/party','.shared-access','party'],['/etc','.tools-content','settings']]) { await navigate(route,selector); await checkLayout(`${label}-desktop`); await capture(`${label}-desktop`); }
   await viewport(320,740); await navigate('/', '.home-overview'); await checkLayout('home-small-mobile');
   await navigate('/etc','.tools-content'); await checkLayout('settings-small-mobile');
   await navigate('/schedule?day=day3','.route-split'); await checkLayout('schedule-teams-small-mobile');

@@ -10,4 +10,5 @@ const firebaseConfig = {
 };
 
 
-export const db = initializeFirestore(initializeApp(firebaseConfig), { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+export const firebaseApp = initializeApp(firebaseConfig);
+export const db = initializeFirestore(firebaseApp, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });

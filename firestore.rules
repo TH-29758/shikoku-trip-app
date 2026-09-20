@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Membership is managed in the Firebase console, never by the client.
+    function isMember() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && get(/databases/$(database)/documents/tripMembers/$(request.auth.uid)).data.enabled == true;
+    }
+
+    match /tripMembers/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /tripData/checklist {
+      allow get: if isMember();
+      allow create: if isMember()
+        && request.resource.data.keys().hasOnly(['categories'])
+        && request.resource.data.categories is list;
+      allow update: if isMember()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['categories'])
+        && request.resource.data.categories is list;
+    }
+
+    match /tripData/party {
+      allow get: if isMember();
+      allow create: if isMember()
+        && request.resource.data.keys().hasOnly(['transactions'])
+        && request.resource.data.transactions is list;
+      allow update: if isMember()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['transactions'])
+        && request.resource.data.transactions is list;
+    }
+
+    // All other paths, collection queries and document deletes are denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

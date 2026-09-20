@@ -23,14 +23,23 @@ const state = JSON.parse(localStorage.getItem(key) || 'null') || {
   attempted: 0, committed: 0
 };
 const listeners = new Set();
+let member = localStorage.getItem('qa-member') === 'yes';
 let failure = false;
 const persist = () => localStorage.setItem(key, JSON.stringify(state));
-const snapshot = reference => ({ exists: () => Boolean(state.documents[reference.key]),
+const snapshot = reference => reference.collection === 'tripMembers'
+  ? { exists: () => member, data: () => ({ enabled: member }), metadata: { fromCache: false } }
+  : ({ exists: () => Boolean(state.documents[reference.key]),
   data: () => clone(state.documents[reference.key] || {}),
   metadata: { fromCache: false, hasPendingWrites: false } });
 window.__checklistMock = { read: () => clone(state), failNext: () => { failure = true; } };
+window.__setMember = enabled => {
+  member = enabled;
+  localStorage.setItem('qa-member', enabled ? 'yes' : 'no');
+  for (const listener of listeners) listener.next(snapshot(listener.reference));
+};
 export const doc = (_db, collection, key) => ({ collection, key });
 export function onSnapshot(reference, _options, next) {
+  if (typeof _options === 'function') next = _options;
   const listener = { reference, next }; listeners.add(listener);
   queueMicrotask(() => { if (listeners.has(listener)) next(snapshot(reference)); });
   return () => listeners.delete(listener);
@@ -49,6 +58,27 @@ export async function runTransaction(_db, callback) {
   }
   persist();
   for (const listener of listeners) listener.next(snapshot(listener.reference));
+}
+`;
+const authMock = `
+const listeners = new Set();
+let user = localStorage.getItem('qa-auth') === 'yes' ? { uid: 'qa-member', email: 'member@example.com', emailVerified: true } : null;
+export const getAuth = () => ({});
+export class GoogleAuthProvider { setCustomParameters() {} }
+export function onAuthStateChanged(_auth, next) {
+  listeners.add(next);
+  queueMicrotask(() => { if (listeners.has(next)) next(user); });
+  return () => listeners.delete(next);
+}
+export async function signInWithPopup() {
+  user = { uid: 'qa-member', email: 'member@example.com', emailVerified: true };
+  localStorage.setItem('qa-auth', 'yes');
+  for (const next of listeners) next(user);
+}
+export async function signOut() {
+  user = null;
+  localStorage.removeItem('qa-auth');
+  for (const next of listeners) next(user);
 }
 `;
 const browser = spawn('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', [
@@ -102,8 +132,9 @@ try {
           return;
         }
         let body;
-        if (url.pathname === '/src/lib/firebase.ts') body = 'export const db = {};';
+        if (url.pathname === '/src/lib/firebase.ts') body = 'export const db = {}; export const firebaseApp = {};';
         if (url.pathname.endsWith('/firebase_firestore.js')) body = firestoreMock;
+        if (url.pathname.endsWith('/firebase_auth.js')) body = authMock;
         if (body !== undefined) {
           mockedModules.add(url.pathname);
           await send('Fetch.fulfillRequest', { requestId: request.requestId, responseCode: 200,
@@ -170,6 +201,13 @@ try {
     console.log(JSON.stringify(content, null, 2));
   };
   await send('Page.navigate', { url: base + '/checklist' });
+  await waitFor(`document.querySelector('.shared-access button')?.textContent === 'Googleでログイン'`);
+  assert.equal(await itemCount(), 0);
+  await click('.shared-access button');
+  await waitFor(`document.querySelector('.shared-access-id')?.textContent === 'qa-member'`);
+  assert.equal(await itemCount(), 0, 'unregistered accounts cannot mount the shared data view');
+  await evaluate('window.__setMember(true)');
+  results.push({ test: 'sign-in-required-and-unregistered-users-blocked-until-approved', passed: true });
   await waitFor(`Boolean(document.querySelector('#packing-item')) && Boolean(window.__checklistMock)`);
     await ready();
     assert.equal(await itemCount(), 19);
@@ -263,6 +301,31 @@ try {
     await evaluate('window.scrollTo(0,0)');
     const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
     await fs.writeFile(path.join(output, 'checklist-browser.png'), Buffer.from(screenshot.data, 'base64'));
+    await click('.bottom-navigation a[href="/party"]');
+    await waitFor(`Boolean(document.querySelector('.shared-segments button'))`);
+    await evaluate("document.querySelectorAll('.shared-segments button')[1].click()");
+    await waitFor("Boolean(document.querySelector('#expense-participants'))");
+    assert.equal(await evaluate("document.querySelectorAll('.shared-weight input').length"), 0);
+    await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
+    await waitFor("document.querySelectorAll('.shared-weight input').length>0");
+    await evaluate("(()=>{const input=document.querySelector('.shared-weight input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'2');input.dispatchEvent(new Event('input',{bubbles:true}));})()");
+    await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
+    assert.equal(await evaluate("document.querySelectorAll('.shared-weight input').length"), 0);
+    assert(await evaluate("document.querySelector('.shared-expense-form').textContent.includes('調整した比率')"));
+    await evaluate("document.querySelector('[aria-controls=expense-participants]').click()");
+    assert.equal(await evaluate("document.querySelector('.shared-weight input').value"), '2');
+    results.push({ test: 'expense-weights-collapse-without-losing-draft', passed: true });
+    await click('.bottom-navigation a[href="/checklist"]');
+    await ready();
+    await evaluate('window.__setMember(false)');
+    await waitFor(`Boolean(document.querySelector('.shared-access-id')) && !document.querySelector('#packing-item')`);
+    assert.equal(await itemCount(), 0, 'revocation hides shared data');
+    await evaluate('window.__setMember(true)');
+    await ready();
+    await click('.shared-access-account button');
+    await waitFor(`document.querySelector('.shared-access button')?.textContent === 'Googleでログイン'`);
+    assert.equal(await itemCount(), 0, 'sign out unmounts shared data');
+    results.push({ test: 'revocation-and-sign-out-hide-shared-data', passed: true });
     await report();
 } finally {
   socket?.close();
