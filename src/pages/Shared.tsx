@@ -9,7 +9,6 @@ import type { ChecklistCategory, ChecklistItem } from '../lib/shared-data';
 import './Shared.css';
 import { MEMBERS } from '../data/members';
 import { readStorage } from '../lib/storage';
-import { SharedAccess } from '../components/SharedAccess';
 
 const EMPTY_EXPENSES: Expense[] = [];
 const INITIAL_CHECKLIST: ChecklistCategory[] = [
@@ -58,10 +57,6 @@ function itemPosition(items: ChecklistItem[], target: ChecklistItem) {
 }
 
 export function ChecklistView() {
-  return <SharedAccess><ChecklistContent /></SharedAccess>;
-}
-
-function ChecklistContent() {
   const shared = useSharedArray('checklist', 'categories', INITIAL_CHECKLIST, parseChecklist);
   const categories = shared.data;
   const [newItem, setNewItem] = useState('');
@@ -187,10 +182,6 @@ function BudgetEstimate() {
 }
 
 export function Party() {
-  return <SharedAccess><PartyContent /></SharedAccess>;
-}
-
-function PartyContent() {
   const shared = useSharedArray('party', 'transactions', EMPTY_EXPENSES, parseExpenses);
   const transactions = shared.data;
   const [activeTab, setActiveTab] = useState<'estimate' | 'summary' | 'add'>('summary');
