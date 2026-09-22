@@ -4,6 +4,7 @@ import { HeaderBar } from '../components/AppShell';
 import { Icon } from '../components/Icon';
 import { calculateBalances, isPositiveWeight, isYenAmount, settlementTransfers } from '../lib/settlement';
 import type { Expense } from '../lib/settlement';
+import { expensesEqual } from '../lib/expense-conflict';
 import { parseChecklist, parseExpenses, sharedError, useSharedArray } from '../lib/shared-data';
 import type { ChecklistCategory, ChecklistItem } from '../lib/shared-data';
 import './Shared.css';
@@ -228,7 +229,7 @@ export function Party() {
       if (!editing) return [...current, expense];
       const latest = current.find(item => item.id === editing.id);
       if (!latest) throw new Error('この記録は別のメンバーが削除しました。支払い履歴を確認してください。');
-      if (JSON.stringify(latest) !== JSON.stringify(editing)) throw new Error('この記録は別のメンバーが更新しました。支払い履歴から開き直して編集してください。入力内容はこの画面に残っています。');
+      if (!expensesEqual(latest, editing)) throw new Error('この記録は別のメンバーが更新しました。支払い履歴から開き直して編集してください。入力内容はこの画面に残っています。');
       return current.map(item => item.id === editing.id ? expense : item);
     }, editing ? '支払いの変更を全員に共有しました。' : '支払いを記録し、全員に共有しました。');
     if (success) { resetForm(); setActiveTab('summary'); }
@@ -238,7 +239,7 @@ export function Party() {
     await save(current => {
       const latest = current.find(item => item.id === expense.id);
       if (!latest) throw new Error('この記録はすでに削除されています。');
-      if (JSON.stringify(latest) !== JSON.stringify(expense)) throw new Error('この記録は別のメンバーが更新しました。最新の内容を確認してから削除してください。');
+      if (!expensesEqual(latest, expense)) throw new Error('この記録は別のメンバーが更新しました。最新の内容を確認してから削除してください。');
       return current.filter(item => item.id !== expense.id);
     }, '支払い記録を削除しました。');
   }

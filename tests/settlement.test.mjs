@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { registerHooks } from 'node:module';
 import { allocateYen, calculateBalances, isYenAmount, isPositiveWeight, settlementTransfers } from '../src/lib/settlement.ts';
+import { expensesEqual } from '../src/lib/expense-conflict.ts';
 
 // Exercise the real persistence parser without initializing a remote database.
 const sharedDataUrl = new URL('../src/lib/shared-data.ts', import.meta.url).href;
@@ -21,6 +22,30 @@ parserHooks.deregister();
 
 const people = weights => weights.map((weight, index) => ({ name: `member-${index}`, weight }));
 const expense = (id, amount, payer, participants) => ({ id, amount, payer, participants, title: `expense-${id}` });
+
+test('expense conflict checks ignore map key order after parsing cache and server records', () => {
+  const cached = expense(1, 101, 'A', [{ name: 'A', weight: 1 }, { name: 'B', weight: 1 }]);
+  const server = { title: cached.title, participants: [{ weight: '1', name: 'A' }, { weight: 1, name: 'B' }], payer: 'A', amount: 101, id: 1 };
+  const [left, right] = [parseExpenses([cached])[0], parseExpenses([server])[0]];
+  assert.notEqual(JSON.stringify(left), JSON.stringify(right));
+  assert.equal(expensesEqual(left, right), true);
+  assert.equal(expensesEqual(right, left), true);
+});
+
+test('expense conflict checks still detect real changes including preserved fields', () => {
+  const original = expense(1, 101, 'A', [{ name: 'A', weight: 1 }, { name: 'B', weight: 1 }]);
+  for (const change of [
+    { id: '1' }, { amount: 102 }, { payer: 'B' }, { title: 'changed' },
+    { participants: [{ name: 'A', weight: 2 }, { name: 'B', weight: 1 }] },
+    { participants: [{ name: 'C', weight: 1 }, { name: 'B', weight: 1 }] },
+    { participants: original.participants.slice(0, 1) },
+    { participants: [...original.participants].reverse() },
+    { note: 'added' },
+  ]) assert.equal(expensesEqual(original, { ...original, ...change }), false);
+  const withMetadata = { ...original, metadata: { source: 'legacy', revision: 1 } };
+  assert.equal(expensesEqual(withMetadata, { ...original, metadata: { revision: 1, source: 'legacy' } }), true);
+  assert.equal(expensesEqual(withMetadata, { ...original, metadata: { revision: 2, source: 'legacy' } }), false);
+});
 
 test('a seven-person hotel charge divides into whole yen without a remainder', () => {
   assert.deepEqual(allocateYen(46284, people(Array(7).fill(1))), Array(7).fill(6612));
